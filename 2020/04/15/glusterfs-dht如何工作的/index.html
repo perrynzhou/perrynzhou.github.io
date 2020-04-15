@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="How GlusterFS Distribution WorksThe defining feature of any scale-out system is its ability to distribute workor data among many servers.  Accordingly, people in the distributed-systemcommunity have d">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How GlusterFs Distribution Works">
+<meta property="og:url" content="http://yoursite.com/2020/04/15/glusterfs-dht%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="How GlusterFS Distribution WorksThe defining feature of any scale-out system is its ability to distribute workor data among many servers.  Accordingly, people in the distributed-systemcommunity have d">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-04-15T08:24:54.000Z">
+<meta property="article:modified_time" content="2020-04-15T08:29:05.941Z">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content=" Go">
+<meta property="article:tag" content=" 分布式存储">
+<meta property="article:tag" content=" 对象存储">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/15/glusterfs-dht%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>How GlusterFs Distribution Works | perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">一个专注存储技术的疯子</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/glusterfs-dht%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储等。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          How GlusterFs Distribution Works
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-15 16:24:54 / Modified: 16:29:05" itemprop="dateCreated datePublished" datetime="2020-04-15T16:24:54+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="How-GlusterFS-Distribution-Works"><a href="#How-GlusterFS-Distribution-Works" class="headerlink" title="How GlusterFS Distribution Works"></a>How GlusterFS Distribution Works</h1><p>The defining feature of any scale-out system is its ability to distribute work<br>or data among many servers.  Accordingly, people in the distributed-system<br>community have developed many powerful techniques to perform such distribution,<br>but those techniques often remain little known or understood even among other<br>members of the file system and database communities that benefit.  This<br>confusion is represented even in the name of the GlusterFS component that<br>performs distribution - DHT, which stands for Distributed Hash Table but is not<br>actually a DHT as that term is most commonly used or defined.  The way<br>GlusterFS’s DHT works is based on a few basic principles:</p>
+<ul>
+<li><p>All operations are driven by clients, which are all equal.  There are no<br>special nodes with special knowledge of where files are or should be.</p>
+</li>
+<li><p>Directories exist on all subvolumes (bricks or lower-level aggregations of<br>bricks); files exist on only one.</p>
+</li>
+<li><p>Files are assigned to subvolumes based on <em>consistent hashing</em>, and even<br>more specifically a form of consistent hashing exemplified by Amazon’s<br><a href="http://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf" target="_blank" rel="noopener">Dynamo</a>.</p>
+</li>
+</ul>
+<p>The result of all this is that users are presented with a set of files that is<br>the union of the files present on all subvolumes.  The following sections<br>describe how this “uniting” process actually works.</p>
+<h2 id="Layouts"><a href="#Layouts" class="headerlink" title="Layouts"></a>Layouts</h2><p>The conceptual basis of Dynamo-style consistent hashing is of numbers around a<br>circle, like a clock.  First, the circle is divided into segments and those<br>segments are assigned to bricks.  (For the sake of simplicity we’ll use<br>“bricks” hereafter even though they might actually be replicated/striped<br>subvolumes.)  Several factors guide this assignment.</p>
+<ul>
+<li><p>Assignments are done separately for each directory.</p>
+</li>
+<li><p>Historically, segments have all been the same size.  However, this can lead<br>to smaller bricks becoming full while plenty of space remains on larger<br>ones.  If the <em>cluster.weighted-rebalance</em> option is set, segments sizes<br>will be proportional to brick sizes.</p>
+</li>
+<li><p>Assignments need not include all bricks in the volume.  If the<br><em>cluster.subvols-per-directory</em> option is set, only that many bricks will<br>receive assignments for that directory.</p>
+</li>
+</ul>
+<p>However these assignments are done, they collectively become what we call a<br><em>layout</em> for a directory.  This layout is then stored using extended<br>attributes, with each brick’s copy of that extended attribute on that directory<br>consisting of four 32-bit fields.</p>
+<ul>
+<li><p>A version, which might be DHT_HASH_TYPE_DM to represent an assignment as<br>described above, or DHT_HASH_TYPE_DM_USER to represent an assignment made<br>manually by the user (or external script).</p>
+</li>
+<li><p>A “commit hash” which will be described later.</p>
+</li>
+<li><p>The first number in the assigned range (segment).</p>
+</li>
+<li><p>The last number in the assigned range.</p>
+</li>
+</ul>
+<p>For example, the extended attributes representing a weighted assignment between<br>three bricks, one twice as big as the others, might look like this.</p>
+<ul>
+<li><p>Brick A (the large one): DHT_HASH_TYPE_DM 1234 0 0x7ffffff</p>
+</li>
+<li><p>Brick B: DHT_HASH_TYPE_DM 1234 0x80000000 0xbfffffff</p>
+</li>
+<li><p>Brick C: DHT_HASH_TYPE_DM 1234 0xc0000000 0xffffffff</p>
+</li>
+</ul>
+<h2 id="Placing-Files"><a href="#Placing-Files" class="headerlink" title="Placing Files"></a>Placing Files</h2><p>To place a file in a directory, we first need a layout for that directory - as<br>described above.  Next, we calculate a hash for the file.  To minimize<br>collisions either between files in the same directory with different names or<br>between files in different directories with the same name, this hash is<br>generated using both the (containing) directory’s unique GFID and the file’s<br>name.  This hash is then matched to one of the layout assignments, to yield<br>what we call a <em>hashed location</em>.  For example, consider the layout shown<br>above.  The hash 0xabad1dea is between 0x80000000 and 0xbfffffff, so the<br>corresponding file’s hashed location would be on Brick B.  A second file with a<br>hash of 0xfaceb00c would be assigned to Brick C by the same reasoning.</p>
+<h2 id="Looking-Up-Files"><a href="#Looking-Up-Files" class="headerlink" title="Looking Up Files"></a>Looking Up Files</h2><p>Because layout assignments might change, especially as bricks are added or<br>removed, finding a file involves more than calculating its hashed location and<br>looking there.  That is in fact the first step, and works most of the time -<br>i.e. the file is found where we expected it to be - but there are a few more<br>steps when that’s not the case.  Historically, the next step has been to look<br>for the file <strong>everywhere</strong> - i.e. to broadcast our lookup request to all<br>subvolumes.  If the file isn’t found that way, it doesn’t exist.  At this<br>point, an open that requires the file’s presence will fail, or a create/mkdir<br>that requires its absence will be allowed to continue.</p>
+<p>Regardless of whether a file is found at its hashed location or elsewhere, we<br>now know its <em>cached location</em>.  As the name implies, this is stored within DHT<br>to satisfy future lookups.  If it’s not the same as the hashed location, we<br>also take an extra step.  This step is the creation of a <em>linkfile</em>, which is a<br>special stub left at the <strong>hashed</strong> location pointing to the <strong>cached</strong><br>location.  Therefore, if a client naively looks for a file at its hashed<br>location and finds a linkfile instead, it can use that linkfile to look up the<br>file where it really is instead of needing to inquire everywhere.</p>
+<h2 id="Rebalancing"><a href="#Rebalancing" class="headerlink" title="Rebalancing"></a>Rebalancing</h2><p>As bricks are added or removed, or files are renamed, many files can end up<br>somewhere other than at their hashed locations.  When this happens, the volumes<br>need to be rebalanced.  This process consists of two parts.</p>
+<ol>
+<li><p>Calculate new layouts, according to the current set of bricks (and possibly<br>their characteristics).  We call this the “fix-layout” phase.</p>
+</li>
+<li><p>Migrate any “misplaced” files to their correct (hashed) locations, and<br>clean up any linkfiles which are no longer necessary.  We call this the<br>“migrate-data” phase.</p>
+</li>
+</ol>
+<p>Usually, these two phases are done together.  (In fact, the code for them is<br>somewhat intermingled.)  However, the migrate-data phase can involve a lot of<br>I/O and be very disruptive, so users can do just the fix-layout phase and defer<br>migrate-data until a more convenient time.  This allows new files to be placed<br>on new bricks, even though old files might still be in the “wrong” place.</p>
+<p>When calculating a new layout to replace an old one, DHT specifically tries to<br>maximize overlap of the assigned ranges, thus minimizing data movement.  This<br>difference can be very large.  For example, consider the case where our example<br>layout from earlier is updated to add a new double-sided brick.  Here’s a very<br>inefficient way to do that.</p>
+<ul>
+<li><p>Brick A (the large one): 0x00000000 to 0x55555555</p>
+</li>
+<li><p>Brick B: 0x55555556 to 0x7fffffff</p>
+</li>
+<li><p>Brick C: 0x80000000 to 0xaaaaaaaa</p>
+</li>
+<li><p>Brick D (the new one): 0xaaaaaaab to 0xffffffff</p>
+</li>
+</ul>
+<p>This would cause files in the following ranges to be migrated:</p>
+<ul>
+<li><p>0x55555556 to 0x7fffffff (from A to B)</p>
+</li>
+<li><p>0x80000000 to 0xaaaaaaaa (from B to C)</p>
+</li>
+<li><p>0xaaaaaaab to 0xbfffffff (from B to D)</p>
+</li>
+<li><p>0xc0000000 to 0xffffffff (from C to D)</p>
+</li>
+</ul>
+<p>As an historical note, this is exactly what we used to do, and in this case it<br>would have meant moving 7/12 of all files in the volume.  Now let’s consider a<br>new layout that’s optimized to maximize overlap with the old one. </p>
+<ul>
+<li><p>Brick A: 0x00000000 to 0x55555555</p>
+</li>
+<li><p>Brick D: 0x55555556 to 0xaaaaaaaa  &lt;- optimized insertion point</p>
+</li>
+<li><p>Brick B: 0xaaaaaaab to 0xd5555554</p>
+</li>
+<li><p>Brick C: 0xd5555555 to 0xffffffff</p>
+</li>
+</ul>
+<p>In this case we only need to move 5/12 of all files.  In a volume with millions<br>or even billions of files, reducing data movement by 1/6 of all files is a<br>pretty big improvement.  In the future, DHT might use “virtual node IDs” or<br>multiple hash rings to make rebalancing even more efficient.</p>
+<h2 id="Rename-Optimizations"><a href="#Rename-Optimizations" class="headerlink" title="Rename Optimizations"></a>Rename Optimizations</h2><p>With the file-lookup mechanisms we already have in place, it’s not necessary to<br>move a file from one brick to another when it’s renamed - even across<br>directories.  It will still be found, albeit a little less efficiently.  The<br>first client to look for it after the rename will add a linkfile, which every<br>other client will follow from then on.  Also, every client that has found the<br>file once will continue to find it based on its cached location, without any<br>network traffic at all.  Because the extra lookup cost is small, and the<br>movement cost might be very large, DHT renames the file “in place” on its<br>current brick instead (taking advantage of the fact that directories exist<br>everywhere).</p>
+<p>This optimization is further extended to handle cases where renames are very<br>common.  For example, rsync and similar tools often use a “write new then<br>rename” idiom in which a file “xxx” is actually written as “.xxx.1234” and then<br>moved into place only after its contents have been fully written.  To make this<br>process more efficient, DHT uses a regular expression to separate the permanent<br>part of a file’s name (in this case “xxx”) from what is likely to be a<br>temporary part (the leading “.” and trailing “.1234”).  That way, after the<br>file is renamed it will be in its correct hashed location - which it wouldn’t<br>be otherwise if “xxx” and “.xxx.1234” hash differently - and no linkfiles or<br>broadcast lookups will be necessary.</p>
+<p>In fact, there are two regular expressions available for this purpose -<br><em>cluster.rsync-hash-regex</em> and <em>cluster.extra-hash-regex</em>.  As its name<br>implies, <em>rsync-hash-regex</em> defaults to the pattern that regex uses, while<br><em>extra-hash-regex</em> can be set by the user to support a second tool using the<br>same temporary-file idiom.</p>
+<h2 id="Commit-Hashes"><a href="#Commit-Hashes" class="headerlink" title="Commit Hashes"></a>Commit Hashes</h2><p>A very recent addition to DHT’s algorithmic arsenal is intended to reduce the<br>number of “broadcast” lookups the it issues.  If a volume is completely in<br>balance, then no file could exist anywhere but at its hashed location.<br>Therefore, if we’ve already looked there and not found it, then looking<br>elsewhere would be pointless (and wasteful).  The <em>commit hash</em> mechanism is<br>used to detect this case.  A commit hash is assigned to a volume, and<br>separately to each directory, and then updated according to the following<br>rules.</p>
+<ul>
+<li><p>The volume commit hash is changed whenever actions are taken that might<br>cause layout assignments across all directories to become invalid - i.e.<br>bricks being added, removed, or replaced.</p>
+</li>
+<li><p>The directory commit hash is changed whenever actions are taken that might<br>cause files to be “misplaced” - e.g. when they’re renamed.</p>
+</li>
+<li><p>The directory commit hash is set to the volume commit hash when the<br>directory is created, and whenever the directory is fully rebalanced so that<br>all files are at their hashed locations.</p>
+</li>
+</ul>
+<p>In other words, whenever either the volume or directory commit hash is changed<br>that creates a mismatch.  In that case we revert to the “pessimistic”<br>broadcast-lookup method described earlier.  However, if the two hashes match<br>then we can with skip the broadcast lookup and return a result immediately.<br>This has been observed to cause a 3x performance improvement in workloads that<br>involve creating many small files across many bricks.</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/" rel="prev" title="glusterfs global-threading挂载选项">
+      <i class="fa fa-chevron-left"></i> glusterfs global-threading挂载选项
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#How-GlusterFS-Distribution-Works"><span class="nav-number">1.</span> <span class="nav-text">How GlusterFS Distribution Works</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Layouts"><span class="nav-number">1.1.</span> <span class="nav-text">Layouts</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Placing-Files"><span class="nav-number">1.2.</span> <span class="nav-text">Placing Files</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Looking-Up-Files"><span class="nav-number">1.3.</span> <span class="nav-text">Looking Up Files</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rebalancing"><span class="nav-number">1.4.</span> <span class="nav-text">Rebalancing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rename-Optimizations"><span class="nav-number">1.5.</span> <span class="nav-text">Rename Optimizations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Commit-Hashes"><span class="nav-number">1.6.</span> <span class="nav-text">Commit Hashes</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">涉猎的主要编程语言为 C、Go，分布式存储和对象存储等。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
