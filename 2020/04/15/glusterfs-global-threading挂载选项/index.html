@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+  <meta name="description" content="123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960core: implement a global thread poolThis patch implements a thread pool that is wait-free">
 <meta property="og:type" content="article">
-<meta property="og:title" content="hexo 使用手册">
-<meta property="og:url" content="http://yoursite.com/2020/04/15/hexo%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/index.html">
+<meta property="og:title" content="glusterfs global-threading挂载选项">
+<meta property="og:url" content="http://yoursite.com/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/index.html">
 <meta property="og:site_name" content="perrynzhou">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960core: implement a global thread poolThis patch implements a thread pool that is wait-free">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-04-15T05:05:05.088Z">
-<meta property="article:modified_time" content="2020-04-15T05:05:05.084Z">
+<meta property="article:published_time" content="2020-04-15T08:13:48.000Z">
+<meta property="article:modified_time" content="2020-04-15T08:15:32.464Z">
 <meta property="article:author" content="perrynzhou">
 <meta property="article:tag" content="C">
 <meta property="article:tag" content=" Go">
@@ -36,7 +36,7 @@
 <meta property="article:tag" content=" 对象存储">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yoursite.com/2020/04/15/hexo%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/">
+<link rel="canonical" href="http://yoursite.com/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/">
 
 
 <script id="page-configurations">
@@ -49,7 +49,7 @@
   };
 </script>
 
-  <title>hexo 使用手册 | perrynzhou</title>
+  <title>glusterfs global-threading挂载选项 | perrynzhou</title>
   
 
 
@@ -155,7 +155,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/hexo%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -168,7 +168,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          hexo 使用手册
+          glusterfs global-threading挂载选项
         </h1>
 
         <div class="post-meta">
@@ -177,8 +177,9 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2020-04-15 13:05:05" itemprop="dateCreated datePublished" datetime="2020-04-15T13:05:05+08:00">2020-04-15</time>
+              <time title="Created: 2020-04-15 16:13:48 / Modified: 16:15:32" itemprop="dateCreated datePublished" datetime="2020-04-15T16:13:48+08:00">2020-04-15</time>
             </span>
 
           
@@ -192,19 +193,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server 或者 hexo s</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate 或者 hexo g</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy 或者hexo d</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">core: implement a global thread pool</span><br><span class="line"></span><br><span class="line">This patch implements a thread pool that is wait-free for adding jobs to</span><br><span class="line">the queue and uses a very small locked region to get jobs. This makes it</span><br><span class="line">possible to decrease contention drastically. It&#39;s based on wfcqueue</span><br><span class="line">structure provided by urcu library.</span><br><span class="line"></span><br><span class="line">It automatically enables more threads when load demands it, and stops</span><br><span class="line">them when not needed. There&#39;s a maximum number of threads that can be</span><br><span class="line">used. This value can be configured.</span><br><span class="line"></span><br><span class="line">Depending on the workload, the maximum number of threads plays an</span><br><span class="line">important role. So it needs to be configured for optimal performance.</span><br><span class="line">Currently the thread pool doesn&#39;t self adjust the maximum for the</span><br><span class="line">workload, so this configuration needs to be changed manually.</span><br><span class="line"></span><br><span class="line">For this reason, the global thread pool has been made optional, so that</span><br><span class="line">volumes can still use the thread pool provided by io-threads.</span><br><span class="line"></span><br><span class="line">To enable it for bricks, the following option needs to be set:</span><br><span class="line"></span><br><span class="line">config.global-threading &#x3D; on</span><br><span class="line"></span><br><span class="line">This option has no effect if bricks are already running. A restart is</span><br><span class="line">required to activate it. It&#39;s recommended to also enable the following</span><br><span class="line">option when running bricks with the global thread pool:</span><br><span class="line"></span><br><span class="line">performance.iot-pass-through &#x3D; on</span><br><span class="line"></span><br><span class="line">To enable it for a FUSE mount point, the option &#39;--global-threading&#39;</span><br><span class="line">must be added to the mount command. To change it, an umount and remount</span><br><span class="line">is needed. It&#39;s recommended to disable the following option when using</span><br><span class="line">global threading on a mount point:</span><br><span class="line"></span><br><span class="line">performance.client-io-threads &#x3D; off</span><br><span class="line"></span><br><span class="line">Currently it can only be enabled for bricks and FUSE mounts.</span><br><span class="line"></span><br><span class="line">The maximum number of threads for clients and bricks can be configured</span><br><span class="line">using the following options:</span><br><span class="line"></span><br><span class="line">config.client-threads</span><br><span class="line">config.brick-threads</span><br><span class="line"></span><br><span class="line">These options can be applied online and its effect is immediate most of</span><br><span class="line">the times. If one of them is set to 0, the maximum number of threads</span><br><span class="line">will be calcutated as #cores * 2.</span><br><span class="line"></span><br><span class="line">Some distributions use a very old userspace-rcu library (version 0.7)</span><br><span class="line">for this reason, some header files from version 0.10 have been copied</span><br><span class="line">into contrib&#x2F;userspace-rcu and are used if the detected version is 0.7</span><br><span class="line">or older.</span><br><span class="line"></span><br><span class="line">If you also want to enable global-threading for fuse clients, you also need to set this option:</span><br><span class="line"></span><br><span class="line"># gluster volume set &lt;volname&gt; performance.client-io-threads off</span><br><span class="line">And remount the volume using --global-threading mount option.</span><br><span class="line"></span><br><span class="line">gluster volume set dht_vol performance.client-io-threads off</span><br><span class="line">mount -t glusterfs -o acl,global-threading 127.0.0.1:&#x2F;dht_vol &#x2F;mnt&#x2F;data</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -220,13 +209,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/04/15/glusterfs%E5%B0%8F%E6%96%87%E4%BB%B6%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/" rel="prev" title="glusterfs小文件调优指南">
-      <i class="fa fa-chevron-left"></i> glusterfs小文件调优指南
+    <a href="/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/" rel="prev" title="go pipeline样例">
+      <i class="fa fa-chevron-left"></i> go pipeline样例
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="next" title="linux文件系统">
-      linux文件系统 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -285,7 +271,6 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
