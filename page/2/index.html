@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储等。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="perrynzhou">
+<meta property="og:url" content="http://yoursite.com/page/2/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储等。">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content=" Go">
+<meta property="article:tag" content=" 分布式存储">
+<meta property="article:tag" content=" 对象存储">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/page/2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'en'
+  };
+</script>
+
+  <title>perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">一个专注存储技术的疯子</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储等。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/" class="post-title-link" itemprop="url">glusterfs cluster.read-hash-mode的作用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-14 18:39:02 / Modified: 18:39:54" itemprop="dateCreated datePublished" datetime="2020-04-14T18:39:02+08:00">2020-04-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="1-官方解释"><a href="#1-官方解释" class="headerlink" title="1.官方解释"></a>1.官方解释</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@centos-linux ~]$ gluster volume set help|grep read-hash-mode -A7</span><br><span class="line">Option: cluster.read-hash-mode</span><br><span class="line">Default Value: 1</span><br><span class="line">Description: inode-read fops happen only on one of the bricks in replicate. AFR will prefer the one computed using the method specified using this option.</span><br><span class="line">0 &#x3D; first readable child of AFR, starting from 1st child.</span><br><span class="line">1 &#x3D; hash by GFID of file (all clients use same subvolume).</span><br><span class="line">2 &#x3D; hash by GFID of file and client PID.</span><br><span class="line">3 &#x3D; brick having the least outstanding read requests.</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储等。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/14/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" class="post-title-link" itemprop="url">glusterfsd启动过程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-14 18:37:27 / Modified: 18:46:22" itemprop="dateCreated datePublished" datetime="2020-04-14T18:37:27+08:00">2020-04-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h6 id="0-存在的疑惑"><a href="#0-存在的疑惑" class="headerlink" title="0.存在的疑惑"></a>0.存在的疑惑</h6><ul>
+<li>glusterd启动后怎么把glusterfsd的brick进程拉起来？</li>
+<li>glusterfsd启动的参数从哪里获取？</li>
+<li>glusterfsd如何加载的呢？</li>
+<li>glusterfsd和glusterd启动后各自都是什么角色？(后续再讨论)<h6 id="1-glusterfs的入口函数解释"><a href="#1-glusterfs的入口函数解释" class="headerlink" title="1. glusterfs的入口函数解释"></a>1. glusterfs的入口函数解释</h6></li>
+<li>glusterfsd中main方法加载xlator {name = 0x687dd0 “management”, type = 0x687f50 “mgmt/glusterd”}，然后fork一个子进程加载mgmt/glusterd中的init方法<h6 id="2-glusterd启动过程"><a href="#2-glusterd启动过程" class="headerlink" title="2.glusterd启动过程"></a>2.glusterd启动过程</h6></li>
+<li>子进程中调用mgmt/glusterd对应源文件中glusterd.c中的init,针对glusterd进行初始化，依次会调用如下方法:<ul>
+<li>glusterfs_volumes_init   </li>
+<li>glusterd.c:init</li>
+<li>glusterd_spawn_daemons</li>
+<li>glusterd_restart_bricks</li>
+<li>glusterd_brick_start</li>
+<li>glusterd_volume_start_glusterfs</li>
+<li>runner_run</li>
+<li>runner_start:fork子进程，调用execvp加载/usr/local/sbin/glusterfsd二进制文件<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> int runner_start(runner_t *runner)</span><br><span class="line"> &#123;</span><br><span class="line">        &#x2F;&#x2F;-----忽略----------------</span><br><span class="line">execvp(runner-&gt;argv[0], runner-&gt;argv);</span><br><span class="line">        &#x2F;&#x2F;-----忽略----------------</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h6 id="3-glusterfsd如何加载xlator"><a href="#3-glusterfsd如何加载xlator" class="headerlink" title="3.glusterfsd如何加载xlator"></a>3.glusterfsd如何加载xlator</h6></li>
+</ul>
+</li>
+<li>glusterfsd是通过读取配置文件/var/lib/glusterd/vols/dht_vol/dht_vol.172.17.0.2.data-brick.vol来加载glusterfsd运行期间需要的xlator，这些配置信息是用户创建volume时候系统生成的<br><img src="https://upload-images.jianshu.io/upload_images/2582954-d6d03fa2881d4dfe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="截屏2020-02-21下午8.03.09.png"></li>
+</ul>
+<h6 id="4-glusterd启动后进程列表"><a href="#4-glusterd启动后进程列表" class="headerlink" title="4. glusterd启动后进程列表"></a>4. glusterd启动后进程列表</h6><ul>
+<li>runner_start后继续glusterfsd.c中的main方法，启动对应的服务，glusterfsd正式启动了，就如systemctl start glusterd后出现如下的结果:<br><img src="https://upload-images.jianshu.io/upload_images/2582954-bb00ca85ed37cff0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
+</ul>
+<h6 id="5-glusterfsd启动流程"><a href="#5-glusterfsd启动流程" class="headerlink" title="5.glusterfsd启动流程"></a>5.glusterfsd启动流程</h6><ul>
+<li>上个步骤通过runner_start加载glusterfsd的二进制进程，glusterfsd进入初始化节点，首先 glusterfs_listener_init 初始化tcp连接</li>
+<li>glusterfsd通过tcp连接到glusterd获取volume xlator信息，准备构建xlator的graph.</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">volume xlator信息如下:</span><br><span class="line"></span><br><span class="line">(gdb) p rsp.spec       </span><br><span class="line">$6 &#x3D; 0x7fffe4002fc0 &quot;volume dht_vol-posix\n    type storage&#x2F;posix\n    option shared-brick-count 1\n    option volume-id 25305c2d-317f-45e9-8e60-be322ed69ee1\n    option directory &#x2F;data&#x2F;brick\nend-volume\n\nvolume dht_vol-trash\n    type features&#x2F;trash\n    option trash-internal-op off\n    option brick-path &#x2F;data&#x2F;brick\n    option trash-dir .trashcan\n    subvolumes dht_vol-posix\nend-volume\n\nvolume dht_vol-changelog\n    type features&#x2F;changelog\n    option changelog-barrier-timeout 120\n    option changelog-dir &#x2F;data&#x2F;brick&#x2F;.glusterfs&#x2F;changelogs\n    option changelog-brick &#x2F;data&#x2F;brick\n    subvolumes dht_vol-trash\nend-volume\n\nvolume dht_vol-bitrot-stub\n    type features&#x2F;bitrot-stub\n    option bitrot disable\n    option export &#x2F;data&#x2F;brick\n    subvolumes dht_vol-changelog\nend-volume\n\nvolume dht_vol-access-control\n    type features&#x2F;access-control\n    subvolumes dht_vol-bitrot-stub\nend-volume\n\nvolume dht_vol-locks\n    type features&#x2F;locks\n    option enforce-mandatory-lock off\n    subvolumes dht_vol-access-control\nend-volume\n\nvolume dht_vol-worm\n    type features&#x2F;worm\n    option worm-files-deletable on\n    option worm-file-level off\n    option worm off\n    subvolumes dht_vol-locks\nend-volume\n\nvolume dht_vol-read-only\n    type features&#x2F;read-only\n    option read-only off\n    subvolumes dht_vol-worm\nend-volume\n\nvolume dht_vol-leases\n    type features&#x2F;leases\n    option leases off\n    subvolumes dht_vol-read-only\nend-volume\n\nvolume dht_vol-upcall\n    type features&#x2F;upcall\n    option cache-invalidation off\n    subvolumes dht_vol-leases\nend-volume\n\nvolume dht_vol-io-threads\n    type performance&#x2F;io-threads\n    subvolumes dht_vol-upcall\nend-volume\n\nvolume dht_vol-selinux\n    type features&#x2F;selinux\n    option selinux on\n    subvolumes dht_vol-io-threads\nend-volume\n\nvolume dht_vol-marker\n    type features&#x2F;marker\n    option inode-quota off\n    option quota off\n    option gsync-force-xtime off\n    option xtime off\n    option quota-version 0\n    option timestamp-file &#x2F;var&#x2F;lib&#x2F;glusterd&#x2F;vols&#x2F;dht_vol&#x2F;marker.tstamp\n    option volume-uuid 25305c2d-317f-45e9-8e60-be322ed69ee1\n    subvolumes dht_vol-selinux\nend-volume\n\nvolume dht_vol-barrier\n    type features&#x2F;barrier\n    option barrier-timeout 120\n    option barrier disable\n    subvolumes dht_vol-marker\nend-volume\n\nvolume dht_vol-index\n    type features&#x2F;index\n    option xattrop-pending-watchlist trusted.afr.dht_vol-\n    option xattrop-dirty-watchlist trusted.afr.dirty\n    option index-base &#x2F;data&#x2F;brick&#x2F;.glusterfs&#x2F;indices\n    subvolumes dht_vol-barrier\nend-volume\n\nvolume dht_vol-quota\n    type features&#x2F;quota\n    option deem-statfs off\n    option server-quota off\n    option volume-uuid dht_vol\n    subvolumes dht_vol-index\nend-volume\n\nvolume dht_vol-io-stats\n    type debug&#x2F;io-stats\n    option count-fop-hits off\n    option latency-measurement off\n    option log-level INFO\n    option unique-id &#x2F;data&#x2F;brick\n    subvolumes dht_vol-quota\nend-volume\n\nvolume &#x2F;data&#x2F;brick\n    type performance&#x2F;decompounder\n    subvolumes dht_vol-io-stats\nend-volume\n\nvolume dht_vol-server\n    type protocol&#x2F;server\n    option transport.listen-backlog 1024\n    option transport.socket.keepalive-count 9\n    option transport.socket.keepalive-interval 2\n    option transport.socket.keepalive-time 20\n    option transport.socket.ssl-enabled off\n    option transport.socket.keepalive 1\n    option auth.addr.&#x2F;data&#x2F;brick.allow *\n    option auth-path &#x2F;data&#x2F;brick\n    option auth.login.b26ac1fd-40a4-4c6e-b211-a9f2b58beedc.password 4eda9afe-9466-4283-b175-6020d5981994\n    option auth.login.&#x2F;data&#x2F;brick.allow b26ac1fd-40a4-4c6e-b211-a9f2b58beedc\n    option transport.address-family inet\n    option transport-type tcp\n    subvolumes &#x2F;data&#x2F;brick\nend-volume\n&quot;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>根据xlator获取初构建graph信息，初始化每个xlator的init方法，这个时候glusterfsd初始化成功<h6 id="6-gdb-调试方法"><a href="#6-gdb-调试方法" class="headerlink" title="6. gdb 调试方法"></a>6. gdb 调试方法</h6></li>
+<li>gdb break 信息<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">set print pretty on</span><br><span class="line">&#x2F;&#x2F;调试子进程,子进程会加载执行mgmt&#x2F;glusterd&#x2F;src&#x2F;glusterd.c:init</span><br><span class="line">set follow-fork-mode child  </span><br><span class="line">set detach-on-fork off</span><br><span class="line">br glusterfsd.c:main</span><br><span class="line">br  br glusterfs_volumes_init   &#x2F;&#x2F;glusterd和glusterfsd都会调用该方法</span><br><span class="line">br glusterd.c:init</span><br><span class="line">&#x2F;&#x2F;------ 进入init函数后执行如下------</span><br><span class="line">&#x2F;* 进入这个函数后设置调试父进程   </span><br><span class="line">  set follow-fork-mode parent</span><br><span class="line">  set detach-on-fork on</span><br><span class="line"> *&#x2F;</span><br><span class="line">br glusterd_spawn_daemons</span><br><span class="line">br glusterd_restart_bricks</span><br><span class="line">br glusterd_brick_start</span><br><span class="line">br glusterd_volume_start_glusterfs</span><br><span class="line">&#x2F;* 进入这个函数后设置调试父进程   </span><br><span class="line">  set follow-fork-mode child</span><br><span class="line">  set detach-on-fork on</span><br><span class="line"> *&#x2F;</span><br><span class="line">br runner_run</span><br><span class="line">br runner_log</span><br><span class="line"></span><br><span class="line">br runner_start </span><br><span class="line"></span><br><span class="line">&#x2F;** 进入runner_start 后设置如下断点，glusterfsd启动以后会按照如下的调用链进行 *&#x2F;</span><br><span class="line">br glusterfs_volumes_init   </span><br><span class="line">br glusterfs_listener_init  &#x2F;&#x2F;glusterd不会调用该方法</span><br><span class="line">br glusterfs_mgmt_init      &#x2F;&#x2F;glusterd不会调用该方法</span><br><span class="line">br mgmt_rpc_notify</span><br><span class="line">br glusterfs_volfile_fetch</span><br><span class="line">br glusterfs_volfile_fetch_one</span><br><span class="line">br mgmt_getspec_cbk </span><br><span class="line">br glusterfs_process_volfp</span><br><span class="line">br glusterfs_graph_activate</span><br><span class="line">br glusterfs_graph_init</span><br></pre></td></tr></table></figure></li>
+<li>1.glusterd gdb日志<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br></pre></td><td class="code"><pre><span class="line">[root@b94a78ebfc80 ~]$ gdb glusterd</span><br><span class="line">GNU gdb (GDB) Red Hat Enterprise Linux 7.6.1-115.el7</span><br><span class="line">Copyright (C) 2013 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http:&#x2F;&#x2F;gnu.org&#x2F;licenses&#x2F;gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;</span><br><span class="line">and &quot;show warranty&quot; for details.</span><br><span class="line">This GDB was configured as &quot;x86_64-redhat-linux-gnu&quot;.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http:&#x2F;&#x2F;www.gnu.org&#x2F;software&#x2F;gdb&#x2F;bugs&#x2F;&gt;...</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;sbin&#x2F;glusterfsd...done.</span><br><span class="line">(gdb) br glusterfsd.c:main</span><br><span class="line">Breakpoint 1 at 0x40b71d: file glusterfsd.c, line 2746.</span><br><span class="line">(gdb) br glusterd.c:init</span><br><span class="line">No source file named glusterd.c.</span><br><span class="line">Make breakpoint pending on future shared library load? (y or [n]) y</span><br><span class="line">Breakpoint 2 (glusterd.c:init) pending.</span><br><span class="line">(gdb) set print pretty on</span><br><span class="line">(gdb) set follow-fork-mode child  </span><br><span class="line">(gdb) set detach-on-fork off</span><br><span class="line">(gdb) c</span><br><span class="line">The program is not being run.</span><br><span class="line">(gdb) r</span><br><span class="line">Starting program: &#x2F;usr&#x2F;local&#x2F;sbin&#x2F;glusterd </span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line"></span><br><span class="line">Breakpoint 1, main (argc&#x3D;1, argv&#x3D;0x7fffffffe778) at glusterfsd.c:2746</span><br><span class="line">2746        glusterfs_ctx_t *ctx &#x3D; NULL;</span><br><span class="line">Missing separate debuginfos, use: debuginfo-install glibc-2.17-292.el7.x86_64 libuuid-2.23.2-61.el7_7.1.x86_64 openssl-libs-1.0.2k-19.el7.x86_64 zlib-1.2.7-18.el7.x86_64</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">[New process 956]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line">[New Thread 0x7ffff5431700 (LWP 957)]</span><br><span class="line">[New Thread 0x7ffff4c30700 (LWP 958)]</span><br><span class="line">[New Thread 0x7ffff442f700 (LWP 959)]</span><br><span class="line">[New Thread 0x7ffff3c2e700 (LWP 960)]</span><br><span class="line">[New Thread 0x7ffff342d700 (LWP 961)]</span><br><span class="line">[New Thread 0x7ffff2c2c700 (LWP 962)]</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;lib&#x2F;glusterfs&#x2F;&#x2F;xlator&#x2F;mgmt&#x2F;glusterd.so...done.</span><br><span class="line">[Switching to Thread 0x7ffff7fea4c0 (LWP 956)]</span><br><span class="line"></span><br><span class="line">Breakpoint 2, init (this&#x3D;0x686d40) at glusterd.c:1373</span><br><span class="line">1373        int32_t ret &#x3D; -1;</span><br><span class="line">Missing separate debuginfos, use: debuginfo-install glibc-2.17-292.el7.x86_64 libuuid-2.23.2-61.el7_7.1.x86_64 libxml2-2.9.1-6.el7_2.3.x86_64 openssl-libs-1.0.2k-19.el7.x86_64 userspace-rcu-0.7.16-1.el7.x86_64 xz-libs-5.2.2-1.el7.x86_64 zlib-1.2.7-18.el7.x86_64</span><br><span class="line">(gdb)  set follow-fork-mode parent</span><br><span class="line">(gdb)   set detach-on-fork on</span><br><span class="line">(gdb) br glusterd_spawn_daemons</span><br><span class="line">Breakpoint 3 at 0x7ffff1f79f85: file glusterd-utils.c, line 3619.</span><br><span class="line">(gdb) br glusterd_restart_bricks</span><br><span class="line">Breakpoint 4 at 0x7ffff1f832e3: file glusterd-utils.c, line 6334.</span><br><span class="line">(gdb) br glusterd_brick_start</span><br><span class="line">Breakpoint 5 at 0x7ffff1f826cd: file glusterd-utils.c, line 6107.</span><br><span class="line">(gdb) br glusterd_volume_start_glusterfs</span><br><span class="line">Breakpoint 6 at 0x7ffff1f73f5f: file glusterd-utils.c, line 2024.</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;lib&#x2F;glusterfs&#x2F;&#x2F;rpc-transport&#x2F;socket.so...done.</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;lib&#x2F;glusterfs&#x2F;&#x2F;rpc-transport&#x2F;rdma.so...done.</span><br><span class="line">Detaching after fork from child process 964.</span><br><span class="line">Detaching after fork from child process 965.</span><br><span class="line">Detaching after fork from child process 966.</span><br><span class="line">Detaching after fork from child process 967.</span><br><span class="line">Detaching after fork from child process 968.</span><br><span class="line">Detaching after fork from child process 969.</span><br><span class="line">Detaching after fork from child process 970.</span><br><span class="line">Detaching after fork from child process 971.</span><br><span class="line">Detaching after fork from child process 972.</span><br><span class="line">Detaching after fork from child process 973.</span><br><span class="line">Detaching after fork from child process 974.</span><br><span class="line">Detaching after fork from child process 975.</span><br><span class="line">Detaching after fork from child process 976.</span><br><span class="line">Detaching after fork from child process 977.</span><br><span class="line">Detaching after fork from child process 978.</span><br><span class="line">Detaching after fork from child process 979.</span><br><span class="line">Detaching after fork from child process 980.</span><br><span class="line">Detaching after fork from child process 981.</span><br><span class="line">Detaching after fork from child process 982.</span><br><span class="line">Detaching after fork from child process 983.</span><br><span class="line">Detaching after fork from child process 984.</span><br><span class="line">Detaching after fork from child process 985.</span><br><span class="line">Detaching after fork from child process 986.</span><br><span class="line">Detaching after fork from child process 987.</span><br><span class="line">Detaching after fork from child process 988.</span><br><span class="line">[Switching to Thread 0x7ffff342d700 (LWP 961)]</span><br><span class="line"></span><br><span class="line">Breakpoint 3, glusterd_spawn_daemons (opaque&#x3D;0x0) at glusterd-utils.c:3619</span><br><span class="line">3619        glusterd_conf_t *conf &#x3D; THIS-&gt;private;</span><br><span class="line">Missing separate debuginfos, use: debuginfo-install keyutils-libs-1.5.8-3.el7.x86_64 krb5-libs-1.15.1-37.el7_7.2.x86_64 libcom_err-1.42.9-16.el7.x86_64 libibverbs-22.1-3.el7.x86_64 libnl3-3.2.28-4.el7.x86_64 librdmacm-22.1-3.el7.x86_64 libselinux-2.5-14.1.el7.x86_64 pcre-8.32-17.el7.x86_64</span><br><span class="line">(gdb) n</span><br><span class="line">3620        int ret &#x3D; -1;</span><br><span class="line">(gdb) </span><br><span class="line">3622        synclock_lock(&amp;conf-&gt;big_lock);</span><br><span class="line">(gdb) </span><br><span class="line">[New Thread 0x7fffef606700 (LWP 989)]</span><br><span class="line">3623        glusterd_restart_bricks();</span><br><span class="line">(gdb) </span><br><span class="line"></span><br><span class="line">Breakpoint 4, glusterd_restart_bricks (opaque&#x3D;0x7fffef9a9fc8) at glusterd-utils.c:6334</span><br><span class="line">6334        int ret &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">6335        glusterd_volinfo_t *volinfo &#x3D; NULL;</span><br><span class="line">(gdb) </span><br><span class="line">6336        glusterd_brickinfo_t *brickinfo &#x3D; NULL;</span><br><span class="line">(gdb)   set follow-fork-mode child</span><br><span class="line">(gdb)   set detach-on-fork on</span><br><span class="line">(gdb) br runner_run</span><br><span class="line">Breakpoint 7 at 0x7ffff7b35f04: runner_run. (2 locations)</span><br><span class="line">(gdb) br runner_start</span><br><span class="line">Breakpoint 8 at 0x7ffff7b35825: runner_start. (2 locations)</span><br><span class="line">(gdb) info break</span><br><span class="line">Num     Type           Disp Enb Address            What</span><br><span class="line">1       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">1.1                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 1</span><br><span class="line">1.2                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 2</span><br><span class="line">2       breakpoint     keep y   0x00007ffff1f3a7ee in init at glusterd.c:1373 inf 2</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">3       breakpoint     keep y   0x00007ffff1f79f85 in glusterd_spawn_daemons at glusterd-utils.c:3619 inf 2</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">4       breakpoint     keep y   0x00007ffff1f832e3 in glusterd_restart_bricks at glusterd-utils.c:6334 inf 2</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">5       breakpoint     keep y   0x00007ffff1f826cd in glusterd_brick_start at glusterd-utils.c:6107 inf 2</span><br><span class="line">6       breakpoint     keep y   0x00007ffff1f73f5f in glusterd_volume_start_glusterfs at glusterd-utils.c:2024 inf 2</span><br><span class="line">7       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">7.1                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 1</span><br><span class="line">7.2                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 2</span><br><span class="line">8       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">8.1                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 1</span><br><span class="line">8.2                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 2</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line"></span><br><span class="line">Breakpoint 5, glusterd_brick_start (volinfo&#x3D;0x6db4b0, brickinfo&#x3D;0x6ef490, wait&#x3D;false, only_connect&#x3D;false) at glusterd-utils.c:6107</span><br><span class="line">6107        int ret &#x3D; -1;</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">[New Thread 0x7fffeee05700 (LWP 991)]</span><br><span class="line"></span><br><span class="line">Breakpoint 6, glusterd_volume_start_glusterfs (volinfo&#x3D;0x6db4b0, brickinfo&#x3D;0x6ef490, wait&#x3D;false) at glusterd-utils.c:2024</span><br><span class="line">2024        int32_t ret &#x3D; -1;</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">[New process 992]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line">[Switching to Thread 0x7ffff342d700 (LWP 992)]</span><br><span class="line"></span><br><span class="line">Breakpoint 8, runner_start (runner&#x3D;0x7fffef800e00) at run.c:259</span><br><span class="line">259         int pi[3][2] &#x3D; &#123;&#123;-1, -1&#125;, &#123;-1, -1&#125;, &#123;-1, -1&#125;&#125;;</span><br><span class="line">(gdb) n</span><br><span class="line">261         int ret &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">262         int errno_priv &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">263         int i &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">266         if (runner-&gt;runerr || !runner-&gt;argv) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">271         GF_ASSERT(runner-&gt;argv[0]);</span><br><span class="line">(gdb)  set follow-fork-mode child</span><br><span class="line">(gdb)   set detach-on-fork on</span><br><span class="line">(gdb) n</span><br><span class="line">276         ret &#x3D; pipe(xpi);</span><br><span class="line">(gdb) </span><br><span class="line">277         if (ret !&#x3D; -1)</span><br><span class="line">(gdb) </span><br><span class="line">278             ret &#x3D; fcntl(xpi[1], F_SETFD, FD_CLOEXEC);</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">281             if (runner-&gt;chfd[i] !&#x3D; -2)</span><br><span class="line">(gdb) </span><br><span class="line">282                 continue;</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">281             if (runner-&gt;chfd[i] !&#x3D; -2)</span><br><span class="line">(gdb) </span><br><span class="line">282                 continue;</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">281             if (runner-&gt;chfd[i] !&#x3D; -2)</span><br><span class="line">(gdb) </span><br><span class="line">282                 continue;</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">291         if (ret !&#x3D; -1)</span><br><span class="line">(gdb) </span><br><span class="line">292             runner-&gt;chpid &#x3D; fork();</span><br><span class="line">(gdb) </span><br><span class="line">[New process 995]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line">[Switching to Thread 0x7ffff342d700 (LWP 995)]</span><br><span class="line">293         switch (runner-&gt;chpid) &#123;</span><br><span class="line">327                 if (ret !&#x3D; -1) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">328                     int fdv[4] &#x3D; &#123;0, 1, 2, xpi[1]&#125;;</span><br><span class="line">(gdb) </span><br><span class="line">330                     ret &#x3D; close_fds_except(fdv, sizeof(fdv) &#x2F; sizeof(*fdv));</span><br><span class="line">(gdb) </span><br><span class="line">333                 if (ret !&#x3D; -1) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">335                     sigemptyset(&amp;set);</span><br><span class="line">(gdb) </span><br><span class="line">336                     sigprocmask(SIG_SETMASK, &amp;set, NULL);</span><br><span class="line">(gdb) </span><br><span class="line">338                     execvp(runner-&gt;argv[0], runner-&gt;argv);</span><br><span class="line">(gdb) p runner-&gt;argv[0]</span><br><span class="line">$1 &#x3D; 0x7fffe8000c60 &quot;&#x2F;usr&#x2F;local&#x2F;sbin&#x2F;glusterfsd&quot;</span><br><span class="line">(gdb) p runner-&gt;argv</span><br><span class="line">$2 &#x3D; (char **) 0x7fffe8000970</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv</span><br><span class="line">$3 &#x3D; (char **) 0x7fffe8000970</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[1]</span><br><span class="line">$4 &#x3D; 0x7fffe8000ce0 &quot;-s&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[2]</span><br><span class="line">$5 &#x3D; 0x7fffe8000d50 &quot;172.17.0.2&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[3]</span><br><span class="line">$6 &#x3D; 0x7fffe8000dc0 &quot;--volfile-id&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[4]</span><br><span class="line">$7 &#x3D; 0x7fffe8000e30 &quot;dht_vol.172.17.0.2.data-brick&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[5]</span><br><span class="line">$8 &#x3D; 0x7fffe8000eb0 &quot;-p&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[6]</span><br><span class="line">$9 &#x3D; 0x7fffe8000f20 &quot;&#x2F;var&#x2F;run&#x2F;gluster&#x2F;vols&#x2F;dht_vol&#x2F;172.17.0.2-data-brick.pid&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[7]</span><br><span class="line">$10 &#x3D; 0x7fffe8000fc0 &quot;-S&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[8]</span><br><span class="line">$11 &#x3D; 0x7fffe8001030 &quot;&#x2F;var&#x2F;run&#x2F;gluster&#x2F;cb954c564295c3be.socket&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[9]</span><br><span class="line">$12 &#x3D; 0x7fffe80010c0 &quot;--brick-name&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[10]</span><br><span class="line">$13 &#x3D; 0x7fffe8001130 &quot;&#x2F;data&#x2F;brick&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[11]</span><br><span class="line">$14 &#x3D; 0x7fffe80011a0 &quot;-l&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[12]</span><br><span class="line">$15 &#x3D; 0x7fffe8001210 &quot;&#x2F;var&#x2F;log&#x2F;glusterfs&#x2F;bricks&#x2F;data-brick.log&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[13]</span><br><span class="line">$16 &#x3D; 0x7fffe80012a0 &quot;--xlator-option&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[14]</span><br><span class="line">$17 &#x3D; 0x7fffe8001310 &quot;*-posix.glusterd-uuid&#x3D;88efffbe-ce9e-4117-8d1a-77de0a8ecd75&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[15]</span><br><span class="line">$18 &#x3D; 0x7fffe80013b0 &quot;--process-name&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[16]</span><br><span class="line">$19 &#x3D; 0x7fffe8001420 &quot;brick&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[17]</span><br><span class="line">$20 &#x3D; 0x7fffe8001490 &quot;--brick-port&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[18]</span><br><span class="line">$21 &#x3D; 0x7fffe8001500 &quot;49152&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[19]</span><br><span class="line">$22 &#x3D; 0x7fffe8001570 &quot;--xlator-option&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[20]</span><br><span class="line">$23 &#x3D; 0x7fffe80015e0 &quot;dht_vol-server.listen-port&#x3D;49152&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[21]</span><br><span class="line">$24 &#x3D; 0x0</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure></li>
+<li>glusterfsd gdb 日志<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info break</span><br><span class="line">Num     Type           Disp Enb Address            What</span><br><span class="line">1       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 2 times</span><br><span class="line">1.1                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 1</span><br><span class="line">1.2                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 5, 4, 3</span><br><span class="line">2       breakpoint     keep y   &lt;PENDING&gt;          glusterd.c:init inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">3       breakpoint     keep y   &lt;PENDING&gt;          glusterd_spawn_daemons inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">4       breakpoint     keep y   &lt;PENDING&gt;          glusterd_restart_bricks inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">5       breakpoint     keep y   &lt;PENDING&gt;          glusterd_brick_start inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">6       breakpoint     keep y   &lt;PENDING&gt;          glusterd_volume_start_glusterfs inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">7       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">7.1                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 1</span><br><span class="line">7.2                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 5, 4, 3</span><br><span class="line">8       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">8.1                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 1</span><br><span class="line">8.2                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 5, 4, 3</span><br><span class="line">9       breakpoint     keep y   &lt;PENDING&gt;          server-rpc-fops_v2.c:server4_0_mkdir</span><br><span class="line">10      breakpoint     keep y   &lt;PENDING&gt;          server-resolve.c:server_resolve</span><br><span class="line">11      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">11.1                        y     0x000000000040b603 in glusterfs_volumes_init at glusterfsd.c:2704 inf 1</span><br><span class="line">11.2                        y     0x000000000040b603 in glusterfs_volumes_init at glusterfsd.c:2704 inf 5, 4, 3</span><br><span class="line">12      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">12.1                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 1</span><br><span class="line">12.2                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 5, 4, 3</span><br><span class="line">13      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">13.1                        y     0x000000000040710f in get_volfp at glusterfsd.c:781 inf 1</span><br><span class="line">13.2                        y     0x000000000040710f in get_volfp at glusterfsd.c:781 inf 5, 4, 3</span><br><span class="line">14      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">14.1                        y     0x0000000000412581 in glusterfs_mgmt_init at glusterfsd-mgmt.c:2648 inf 1</span><br><span class="line">14.2                        y     0x0000000000412581 in glusterfs_mgmt_init at glusterfsd-mgmt.c:2648 inf 5, 4, 3</span><br><span class="line">15      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">---Type &lt;return&gt; to continue, or q &lt;return&gt; to quit---</span><br><span class="line">15.1                        y     0x0000000000411848 in glusterfs_volfile_fetch at glusterfsd-mgmt.c:2270 inf 1</span><br><span class="line">15.2                        y     0x0000000000411848 in glusterfs_volfile_fetch at glusterfsd-mgmt.c:2270 inf 5, 4, 3</span><br><span class="line">16      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">16.1                        y     0x00000000004114ed in glusterfs_volfile_fetch_one at glusterfsd-mgmt.c:2166 inf 1</span><br><span class="line">16.2                        y     0x00000000004114ed in glusterfs_volfile_fetch_one at glusterfsd-mgmt.c:2166 inf 5, 4, 3</span><br><span class="line">17      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">17.1                        y     0x0000000000410a85 in mgmt_getspec_cbk at glusterfsd-mgmt.c:1922 inf 1</span><br><span class="line">17.2                        y     0x0000000000410a85 in mgmt_getspec_cbk at glusterfsd-mgmt.c:1922 inf 5, 4, 3</span><br><span class="line">18      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">18.1                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 1</span><br><span class="line">18.2                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 5, 4, 3</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfs-%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%9E%84%E5%BB%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储等。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/14/glusterfs-%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%9E%84%E5%BB%BA/" class="post-title-link" itemprop="url">glusterfs 调试环境构建</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-14 18:35:55 / Modified: 18:39:43" itemprop="dateCreated datePublished" datetime="2020-04-14T18:35:55+08:00">2020-04-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="Debug-Glusterfs"><a href="#Debug-Glusterfs" class="headerlink" title="Debug Glusterfs"></a>Debug Glusterfs</h3><h4 id="Download-source"><a href="#Download-source" class="headerlink" title="Download source"></a>Download source</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/gluster/glusterfs.git</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="Install-Deps"><a href="#Install-Deps" class="headerlink" title="Install Deps"></a>Install Deps</h4><ul>
+<li>centos<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># yum install autoconf automake bison cmockery2-devel dos2unix flex fuse-devel glib2-devel libacl-devel libaio-devel libattr-devel libcurl-devel libibverbs-devel librdmacm-devel libtirpc-devel libtool libxml2-devel lvm2-devel make openssl-devel pkgconfig pyliblzma python-devel python-eventlet python-netifaces python-paste-deploy python-simplejson python-sphinx python-webob pyxattr readline-devel rpm-build sqlite-devel systemtap-sdt-devel tar userspace-rcu-devel -y</span><br></pre></td></tr></table></figure></li>
+<li>debian</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># sudo apt-get install make automake autoconf libtool flex bison pkg-config libssl-dev libxml2-dev python-dev libaio-dev libibverbs-dev librdmacm-dev libreadline-dev liblvm2-dev libglib2.0-dev liburcu-dev libcmocka-dev libsqlite3-dev libacl1-dev uuid uuid-dev</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="Build-With-Debug"><a href="#Build-With-Debug" class="headerlink" title="Build With Debug"></a>Build With Debug</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> glusterfs-6.5</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ./autogen.sh</span></span><br><span class="line"><span class="meta">#</span><span class="bash">CFLAGS=<span class="string">"-g -O0"</span>  ./configure  --<span class="built_in">enable</span>-debug --<span class="built_in">enable</span>-gnfs  --without-libtirpc </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make -j4</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make install</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="Create-Mount-Point"><a href="#Create-Mount-Point" class="headerlink" title="Create Mount Point"></a>Create Mount Point</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> vgcreate --physicalextentsize 128K gfs_test_vg /dev/sdb</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> lvcreate -L 2G --name gfs_test_lv gfs_test_vg</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> lvdisplay</span></span><br><span class="line">  --- Logical volume ---</span><br><span class="line">  LV Path                /dev/gfs_test_vg/gfs_test_lv</span><br><span class="line">  LV Name                gfs_test_lv</span><br><span class="line">  VG Name                gfs_test_vg</span><br><span class="line">  LV UUID                1uw4WG-cdFi-vtHL-vyCZ-qluF-xknL-1Z8mY3</span><br><span class="line">  LV Write Access        read/write</span><br><span class="line">  LV Creation host, time localhost.localdomain, 2019-10-14 16:40:58 +0800</span><br><span class="line">  LV Status              available</span><br><span class="line">  LV Size                2.00 GiB</span><br><span class="line">  Current LE             16384</span><br><span class="line">  Segments               1</span><br><span class="line">  Allocation             inherit</span><br><span class="line">  Read ahead sectors     auto</span><br><span class="line">  - currently set to     8192</span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">echo</span> <span class="string">"/dev/gfs_test_vg/gfs_test_lv   /data/glusterfs/test_vol/brick1   xfs     defaults        0 0"</span> | tee --append /etc/fstab</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="Begin-Gdb"><a href="#Begin-Gdb" class="headerlink" title="Begin Gdb"></a>Begin Gdb</h4><h6 id="Debug-Volume-Info"><a href="#Debug-Volume-Info" class="headerlink" title="Debug Volume Info"></a>Debug Volume Info</h6><ul>
+<li>Set BreakPoint<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#gdb gluster </span><br><span class="line">(gdb)set args volume info</span><br><span class="line">(gdb)br main</span><br></pre></td></tr></table></figure></li>
+<li>Core Execute Path<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">main   gluster&#x2F;cli&#x2F;src&#x2F;cli.c:797</span><br><span class="line">	cli_cmds_register gluster&#x2F;cli&#x2F;src&#x2F;cli-cmd.c:208</span><br><span class="line">		cli_cmd_volume_register  gluster&#x2F;cli&#x2F;src&#x2F;cli_cmd_volume_register:3585</span><br><span class="line">			cli_cmd_register  gluster&#x2F;cli&#x2F;src&#x2F;registry.c:356</span><br><span class="line">				cli_cmd_ingest    gluster&#x2F;cli&#x2F;src&#x2F;registry.c:313</span><br><span class="line"></span><br><span class="line">	cli_input_init gluster&#x2F;cli&#x2F;src&#x2F;cli.c:862</span><br><span class="line">		cli_batch    gluster&#x2F;cli&#x2F;input.c:22</span><br><span class="line">			cli_cmd_process gluster&#x2F;cli&#x2F;src&#x2F;cli-cmd.c:87</span><br><span class="line">				cli_cmd_volume_info_cbk(state-&gt;tree.root.cbkfn) gluster&#x2F;cli&#x2F;src&#x2F;cli-cmd-volume.c:3355</span><br><span class="line">					cli_rpc_prog-&gt;proctable[GLUSTER_CLI_GET_VOLUME] &#123;</span><br><span class="line">					    &#x2F;&#x2F;gluster&#x2F;cli&#x2F;src&#x2F;cli-rpc-ops.c:12152</span><br><span class="line">							struct rpc_clnt_procedure gluster_cli_actors[GLUSTER_CLI_MAXVALUE] &#x3D; &#123;</span><br><span class="line">	    					[GLUSTER_CLI_NULL] &#x3D; &#123;&quot;NULL&quot;, NULL&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_PROBE] &#x3D; &#123;&quot;PROBE_QUERY&quot;, gf_cli_probe&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_DEPROBE] &#x3D; &#123;&quot;DEPROBE_QUERY&quot;, gf_cli_deprobe&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_LIST_FRIENDS] &#x3D; &#123;&quot;LIST_FRIENDS&quot;, gf_cli_list_friends&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_UUID_RESET] &#x3D; &#123;&quot;UUID_RESET&quot;, gf_cli3_1_uuid_reset&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_UUID_GET] &#x3D; &#123;&quot;UUID_GET&quot;, gf_cli3_1_uuid_get&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_CREATE_VOLUME] &#x3D; &#123;&quot;CREATE_VOLUME&quot;, gf_cli_create_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_DELETE_VOLUME] &#x3D; &#123;&quot;DELETE_VOLUME&quot;, gf_cli_delete_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_START_VOLUME] &#x3D; &#123;&quot;START_VOLUME&quot;, gf_cli_start_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_STOP_VOLUME] &#x3D; &#123;&quot;STOP_VOLUME&quot;, gf_cli_stop_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_RENAME_VOLUME] &#x3D; &#123;&quot;RENAME_VOLUME&quot;, gf_cli_rename_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_DEFRAG_VOLUME] &#x3D; &#123;&quot;DEFRAG_VOLUME&quot;, gf_cli_defrag_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GET_VOLUME] &#x3D; &#123;&quot;GET_VOLUME&quot;, gf_cli_get_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GET_NEXT_VOLUME] &#x3D; &#123;&quot;GET_NEXT_VOLUME&quot;, gf_cli_get_next_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_SET_VOLUME] &#x3D; &#123;&quot;SET_VOLUME&quot;, gf_cli_set_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_ADD_BRICK] &#x3D; &#123;&quot;ADD_BRICK&quot;, gf_cli_add_brick&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_REMOVE_BRICK] &#x3D; &#123;&quot;REMOVE_BRICK&quot;, gf_cli_remove_brick&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_REPLACE_BRICK] &#x3D; &#123;&quot;REPLACE_BRICK&quot;, gf_cli_replace_brick&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_LOG_ROTATE] &#x3D; &#123;&quot;LOG ROTATE&quot;, gf_cli_log_rotate&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GETSPEC] &#x3D; &#123;&quot;GETSPEC&quot;, gf_cli_getspec&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_PMAP_PORTBYBRICK] &#x3D; &#123;&quot;PMAP PORTBYBRICK&quot;, gf_cli_pmap_b2p&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_SYNC_VOLUME] &#x3D; &#123;&quot;SYNC_VOLUME&quot;, gf_cli_sync_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_RESET_VOLUME] &#x3D; &#123;&quot;RESET_VOLUME&quot;, gf_cli_reset_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_FSM_LOG] &#x3D; &#123;&quot;FSM_LOG&quot;, gf_cli_fsm_log&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GSYNC_SET] &#x3D; &#123;&quot;GSYNC_SET&quot;, gf_cli_gsync_set&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_PROFILE_VOLUME] &#x3D; &#123;&quot;PROFILE_VOLUME&quot;, gf_cli_profile_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_QUOTA] &#x3D; &#123;&quot;QUOTA&quot;, gf_cli_quota&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_TOP_VOLUME] &#x3D; &#123;&quot;TOP_VOLUME&quot;, gf_cli_top_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GETWD] &#x3D; &#123;&quot;GETWD&quot;, gf_cli_getwd&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_STATUS_VOLUME] &#x3D; &#123;&quot;STATUS_VOLUME&quot;, gf_cli_status_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_STATUS_ALL] &#x3D; &#123;&quot;STATUS_ALL&quot;, gf_cli_status_volume_all&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_MOUNT] &#x3D; &#123;&quot;MOUNT&quot;, gf_cli_mount&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_UMOUNT] &#x3D; &#123;&quot;UMOUNT&quot;, gf_cli_umount&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_HEAL_VOLUME] &#x3D; &#123;&quot;HEAL_VOLUME&quot;, gf_cli_heal_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_STATEDUMP_VOLUME] &#x3D; &#123;&quot;STATEDUMP_VOLUME&quot;,</span><br><span class="line">	    					                                  gf_cli_statedump_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_LIST_VOLUME] &#x3D; &#123;&quot;LIST_VOLUME&quot;, gf_cli_list_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_CLRLOCKS_VOLUME] &#x3D; &#123;&quot;CLEARLOCKS_VOLUME&quot;,</span><br><span class="line">	    					                                 gf_cli_clearlocks_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_COPY_FILE] &#x3D; &#123;&quot;COPY_FILE&quot;, gf_cli_copy_file&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_SYS_EXEC] &#x3D; &#123;&quot;SYS_EXEC&quot;, gf_cli_sys_exec&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_SNAP] &#x3D; &#123;&quot;SNAP&quot;, gf_cli_snapshot&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_BARRIER_VOLUME] &#x3D; &#123;&quot;BARRIER VOLUME&quot;, gf_cli_barrier_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GET_VOL_OPT] &#x3D; &#123;&quot;GET_VOL_OPT&quot;, gf_cli_get_vol_opt&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_BITROT] &#x3D; &#123;&quot;BITROT&quot;, gf_cli_bitrot&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_ATTACH_TIER] &#x3D; &#123;&quot;ATTACH_TIER&quot;, gf_cli_attach_tier&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_TIER] &#x3D; &#123;&quot;TIER&quot;, gf_cli_tier&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GET_STATE] &#x3D; &#123;&quot;GET_STATE&quot;, gf_cli_get_state&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_RESET_BRICK] &#x3D; &#123;&quot;RESET_BRICK&quot;, gf_cli_reset_brick&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_REMOVE_TIER_BRICK] &#x3D; &#123;&quot;DETACH_TIER&quot;, gf_cli_remove_tier_brick&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_ADD_TIER_BRICK] &#x3D; &#123;&quot;ADD_TIER_BRICK&quot;, gf_cli_add_tier_brick&#125;&#125;;</span><br><span class="line">	</span><br><span class="line">						struct rpc_clnt_program cli_prog &#x3D; &#123;</span><br><span class="line">						    .progname &#x3D; &quot;Gluster CLI&quot;,</span><br><span class="line">						    .prognum &#x3D; GLUSTER_CLI_PROGRAM,</span><br><span class="line">						    .progver &#x3D; GLUSTER_CLI_VERSION,</span><br><span class="line">						    .numproc &#x3D; GLUSTER_CLI_MAXVALUE,</span><br><span class="line">						    .proctable &#x3D; gluster_cli_actors,</span><br><span class="line">						&#125;;</span><br><span class="line">					&#125;</span><br><span class="line">						gf_cli_get_volume   gluster&#x2F;cli&#x2F;src&#x2F;cli-rpc-ops.c:4579</span><br><span class="line">							gf_cli_get_volume_cbk  gluster&#x2F;cli&#x2F;src&#x2F;cli-rpc-ops.c:819</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfs-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储等。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/14/glusterfs-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/" class="post-title-link" itemprop="url">glusterfs 参数说明</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-14 18:33:31 / Modified: 18:46:26" itemprop="dateCreated datePublished" datetime="2020-04-14T18:33:31+08:00">2020-04-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="选项说明"><a href="#选项说明" class="headerlink" title="选项说明"></a>选项说明</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gluster volume set help</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="left">选项</th>
+<th align="center">默认值</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">changelog.changelog-barrier-timeout</td>
+<td align="center">120</td>
+<td align="left">After ‘timeout’ seconds since the time ‘barrier’ option was set to “on”, unlink/rmdir/rename operations are no longer blocked and previously blocked fops are allowed to go through</td>
+</tr>
+<tr>
+<td align="left">cluster.enable-shared-storage</td>
+<td align="center">disable</td>
+<td align="left">Create and mount the shared storage volume(gluster_shared_storage) at /var/run/gluster/shared_storage on enabling this option. Unmount and delete the shared storage volume on disabling this option.</td>
+</tr>
+<tr>
+<td align="left">cluster.write-freq-threshold</td>
+<td align="center">0</td>
+<td align="left">Defines the number of writes, in a promotion/demotion cycle, that would mark a file HOT for promotion. Any file that has write hits less than this value will be considered as COLD and will be demoted.</td>
+</tr>
+<tr>
+<td align="left">cluster.read-freq-threshold</td>
+<td align="center">0</td>
+<td align="left">Defines the number of reads, in a promotion/demotion cycle, that would mark a file HOT for promotion. Any file that has read hits less than this value will be considered as COLD and will be demoted.</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-pause</td>
+<td align="center">off</td>
+<td align="left">(null)</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-promote-frequency</td>
+<td align="center">120</td>
+<td align="left">Frequency to promote files to fast tier</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-demote-frequency</td>
+<td align="center">120</td>
+<td align="left">Frequency to demote files to slow tier</td>
+</tr>
+<tr>
+<td align="left">cluster.watermark-hi</td>
+<td align="center">90</td>
+<td align="left">Upper % watermark for promotion. If hot tier fills above this percentage, no promotion will happen and demotion will happen with high probability.</td>
+</tr>
+<tr>
+<td align="left">cluster.watermark-low</td>
+<td align="center">75</td>
+<td align="left">Lower % watermark. If hot tier is less full than this, promotion will happen and demotion will not happen. If greater than this, promotion/demotion will happen at a probability relative to how full the hot tier is.</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-mode</td>
+<td align="center">cache</td>
+<td align="left">Either ‘test’ or ‘cache’. Test mode periodically demotes or promotes files automatically based on access. Cache mode does so based on whether the cache is full or not, as specified with watermarks.</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-max-mb</td>
+<td align="center">10000</td>
+<td align="left">The maximum number of MB that may be migrated in any direction in a given cycle by a single node.</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-max-files</td>
+<td align="center">50000</td>
+<td align="left">The maximum number of files that may be migrated in any direction in a given cycle by a single node.</td>
+</tr>
+<tr>
+<td align="left">cluster.lookup-unhashed</td>
+<td align="center">on</td>
+<td align="left">This option if set to ON, does a lookup through all the sub-volumes, in case a lookup didn’t return any result from the hash subvolume. If set to OFF, it does not do a lookup on the remaining subvolumes.</td>
+</tr>
+<tr>
+<td align="left">cluster.lookup-optimize</td>
+<td align="center">off</td>
+<td align="left">This option if set to ON enables the optimization of -ve lookups, by not doing a lookup on non-hashed subvolumes for files, in case the hashed subvolume does not return any result. This option disregards the lookup-unhashed setting, when enabled.</td>
+</tr>
+<tr>
+<td align="left">cluster.min-free-disk</td>
+<td align="center">10%</td>
+<td align="left">Percentage/Size of disk space, after which the process starts balancing out the cluster, and logs will appear in log files</td>
+</tr>
+<tr>
+<td align="left">cluster.min-free-inodes</td>
+<td align="center">5%</td>
+<td align="left">after system has only N% of inodes, warnings starts to appear in log files</td>
+</tr>
+<tr>
+<td align="left">cluster.rebalance-stats</td>
+<td align="center">off</td>
+<td align="left">This option if set to ON displays and logs the time taken for migration of each file, during the rebalance process. If set to OFF, the rebalance logs will only display the time spent in each directory.</td>
+</tr>
+<tr>
+<td align="left">cluster.subvols-per-directory</td>
+<td align="center">null</td>
+<td align="left">Specifies the directory layout spread. Takes number of subvolumes as default value.</td>
+</tr>
+<tr>
+<td align="left">cluster.readdir-optimize</td>
+<td align="center">off</td>
+<td align="left">This option if set to ON enables the optimization that allows DHT to requests non-first subvolumes to filter out directory entries.</td>
+</tr>
+<tr>
+<td align="left">cluster.rebal-throttle</td>
+<td align="center">normal</td>
+<td align="left">Sets the maximum number of parallel file migrations allowed on a node during the rebalance operation. The default value is normal and allows a max of [($(processing units) - 4) / 2), 2] files to be migrated at a time. Lazy will allow only one file to be migrated at a time and aggressive will allow max of [($(processing units) - 4) / 2), 4]</td>
+</tr>
+<tr>
+<td align="left">cluster.weighted-rebalance</td>
+<td align="center">on</td>
+<td align="left">When enabled, files will be allocated to bricks with a probability proportional to their size. Otherwise, all bricks will have the same probability (legacy behavior).</td>
+</tr>
+<tr>
+<td align="left">cluster.entry-change-log</td>
+<td align="center">on</td>
+<td align="left">Entry fops like create/unlink will not perform pre/post fop changelog operations in afr transaction if this option is disabled</td>
+</tr>
+<tr>
+<td align="left">cluster.read-subvolume</td>
+<td align="center">null</td>
+<td align="left">inode-read fops happen only on one of the bricks in replicate. Afr will prefer the one specified using this option if it is not stale. Option value must be one of the xlator names of the children. Ex: -client-0 till -client-&lt;number-of-bricks - 1&gt;</td>
+</tr>
+<tr>
+<td align="left">cluster.read-subvolume-index</td>
+<td align="center">-1</td>
+<td align="left">inode-read fops happen only on one of the bricks in replicate. AFR will prefer the one specified using this option if it is not stale. allowed options include -1 till replica-count - 1</td>
+</tr>
+<tr>
+<td align="left">cluster.read-hash-mode</td>
+<td align="center">1</td>
+<td align="left">inode-read fops happen only on one of the bricks in replicate. AFR will prefer the one computed using the method specified using this option0 = first up server, 1 = hash by GFID of file (all clients use same subvolume), 2 = hash by GFID of file and client PID</td>
+</tr>
+<tr>
+<td align="left">cluster.background-self-heal-count</td>
+<td align="center">16</td>
+<td align="left">This specifies the number of self-heals that can be performed in background without blocking the fop</td>
+</tr>
+<tr>
+<td align="left">cluster.metadata-self-heal</td>
+<td align="center">on</td>
+<td align="left">Using this option we can enable/disable metadata i.e. Permissions, ownerships, xattrs self-heal on the file/directory.</td>
+</tr>
+<tr>
+<td align="left">cluster.data-self-heal</td>
+<td align="center">on</td>
+<td align="left">Using this option we can enable/disable data self-heal on the file. “open” means data self-heal action will only be triggered by file open operations.</td>
+</tr>
+<tr>
+<td align="left">cluster.entry-self-heal</td>
+<td align="center">on</td>
+<td align="left">Using this option we can enable/disable entry self-heal on the directory.</td>
+</tr>
+<tr>
+<td align="left">cluster.self-heal-daemon</td>
+<td align="center">on</td>
+<td align="left">This option applies to only self-heal-daemon. Index directory crawl and automatic healing of files will not be performed if this option is turned off.</td>
+</tr>
+<tr>
+<td align="left">cluster.heal-timeout</td>
+<td align="center">600</td>
+<td align="left">time interval for checking the need to self-heal in self-heal-daemon</td>
+</tr>
+<tr>
+<td align="left">cluster.self-heal-window-size</td>
+<td align="center">1</td>
+<td align="left">Maximum number blocks per file for which self-heal process would be applied simultaneously.</td>
+</tr>
+<tr>
+<td align="left">cluster.data-change-log</td>
+<td align="center">on</td>
+<td align="left">Data fops like write/truncate will not perform pre/post fop changelog operations in afr transaction if this option is disabled</td>
+</tr>
+<tr>
+<td align="left">cluster.metadata-change-log</td>
+<td align="center">on</td>
+<td align="left">Metadata fops like setattr/setxattr will not perform pre/post fop changelog operations in afr transaction if this option is disabled</td>
+</tr>
+<tr>
+<td align="left">cluster.data-self-heal-algorithm</td>
+<td align="center">null</td>
+<td align="left">Select between “full”, “diff”. The “full” algorithm copies the entire file from source to sink. The “diff” algorithm copies to sink only those blocks whose checksums don’t match with those of source. If no option is configured the option is chosen dynamically as follows: If the file does not exist on one of the sinks or empty file exists or if the source file size is about the same as page size the entire file will be read and written i.e “full” algo, otherwise “diff” algo is chosen.</td>
+</tr>
+<tr>
+<td align="left">cluster.eager-lock</td>
+<td align="center">on</td>
+<td align="left">Lock phase of a transaction has two sub-phases. First is an attempt to acquire locks in parallel by broadcasting non-blocking lock requests. If lock acquisition fails on any server, then the held locks are unlocked and revert to a blocking locked mode sequentially on one server after another. If this option is enabled the initial broadcasting lock request attempt to acquire lock on the entire file. If this fails, we revert back to the sequential “regional” blocking lock as before. In the case where such an “eager” lock is granted in the non-blocking phase, it gives rise to an opportunity for optimization. i.e, if the next write transaction on the same FD arrives before the unlock phase of the first transaction, it “takes over” the full file lock. Similarly if yet another data transaction arrives before the unlock phase of the “optimized” transaction, that in turn “takes over” the lock as well. The actual unlock now happens at the end of the last “optimized” transaction.</td>
+</tr>
+<tr>
+<td align="left">cluster.quorum-type</td>
+<td align="center">none</td>
+<td align="left">If value is “fixed” only allow writes if quorum-count bricks are present. If value is “auto” only allow writes if more than half of bricks, or exactly half including the first, are present.</td>
+</tr>
+<tr>
+<td align="left">cluster.quorum-count</td>
+<td align="center">null</td>
+<td align="left">If quorum-type is “fixed” only allow writes if this many bricks or present. Other quorum types will OVERWRITE this value.</td>
+</tr>
+<tr>
+<td align="left">cluster.choose-local</td>
+<td align="center">true</td>
+<td align="left">Choose a local subvolume (i.e. Brick) to read from if read-subvolume is not explicitly set.</td>
+</tr>
+<tr>
+<td align="left">cluster.self-heal-readdir-size</td>
+<td align="center">1KB</td>
+<td align="left">readdirp size for performing entry self-heal</td>
+</tr>
+<tr>
+<td align="left">cluster.ensure-durability</td>
+<td align="center">on</td>
+<td align="left">Afr performs fsyncs for transactions if this option is on to make sure the changelogs/data is written to the disk</td>
+</tr>
+<tr>
+<td align="left">cluster.consistent-metadata</td>
+<td align="center">no</td>
+<td align="left">If this option is enabled, readdirp will force lookups on those entries read whose read child is not the same as that of the parent. This will guarantee that all read operations on a file serve attributes from the same subvol as long as it holds a good copy of the file/dir.</td>
+</tr>
+<tr>
+<td align="left">cluster.stripe-block-size</td>
+<td align="center">128KB</td>
+<td align="left">Size of the stripe unit that would be read from or written to the striped servers.</td>
+</tr>
+<tr>
+<td align="left">cluster.stripe-coalesce</td>
+<td align="center">true</td>
+<td align="left">Enable/Disable coalesce mode to flatten striped files as stored on the server (i.e., eliminate holes caused by the traditional format).</td>
+</tr>
+<tr>
+<td align="left">cluster.server-quorum-type</td>
+<td align="center">(null)</td>
+<td align="left">This feature is on the server-side i.e. in glusterd. Whenever the glusterd on a machine observes that the quorum is not met, it brings down the bricks to prevent data split-brains. When the network connections are brought back up and the quorum is restored the bricks in the volume are brought back up.</td>
+</tr>
+<tr>
+<td align="left">cluster.server-quorum-ratio</td>
+<td align="center">(null)</td>
+<td align="left">Sets the quorum percentage for the trusted storage pool.</td>
+</tr>
+<tr>
+<td align="left">cluster.quorum-reads</td>
+<td align="center">no</td>
+<td align="left">If quorum-reads is “true” only allow reads if quorum is met when quorum is enabled.</td>
+</tr>
+<tr>
+<td align="left">diagnostics.latency-measurement</td>
+<td align="center">off</td>
+<td align="left">If on stats related to the latency of each operation would be tracked inside GlusterFS data-structures.</td>
+</tr>
+<tr>
+<td align="left">diagnostics.dump-fd-stats</td>
+<td align="center">off</td>
+<td align="left">If on stats related to file-operations would be tracked inside GlusterFS data-structures.</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-log-level</td>
+<td align="center">INFO</td>
+<td align="left">Changes the log-level of the bricks</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-log-level</td>
+<td align="center">INFO</td>
+<td align="left">Changes the log-level of the clients</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-sys-log-level</td>
+<td align="center">CRITICAL</td>
+<td align="left">Gluster’s syslog log-level</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-sys-log-level</td>
+<td align="center">CRITICAL</td>
+<td align="left">Gluster’s syslog log-level</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-logger</td>
+<td align="center">null</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-logger</td>
+<td align="center">null</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-log-format</td>
+<td align="center">null</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-log-format</td>
+<td align="center">null</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-log-buf-size</td>
+<td align="center">5</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-log-buf-size</td>
+<td align="center">5</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-log-flush-timeout</td>
+<td align="center">20</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-log-flush-timeout</td>
+<td align="center">20</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">disperse.background-heals</td>
+<td align="center">8</td>
+<td align="left">This option can be used to control number of parallel heals</td>
+</tr>
+<tr>
+<td align="left">disperse.heal-wait-qlength</td>
+<td align="center">128</td>
+<td align="left">This option can be used to control number of heals that can wait</td>
+</tr>
+<tr>
+<td align="left">disperse.read-policy</td>
+<td align="center">round-robin</td>
+<td align="left">inode-read fops happen only on ‘k’ number of bricks in n=k+m disperse subvolume. ‘round-robin’ selects the read subvolume using round-robin algo. ‘gfid-hash’ selects read subvolume based on hash of the gfid of that file/directory.</td>
+</tr>
+<tr>
+<td align="left">dht.force-readdirp</td>
+<td align="center">on</td>
+<td align="left">This option if set to ON, forces the use of readdirp, and hence also displays the stats of the files.</td>
+</tr>
+<tr>
+<td align="left">performance.cache-max-file-size</td>
+<td align="center">0</td>
+<td align="left">Maximum file size which would be cached by the io-cache translator.</td>
+</tr>
+<tr>
+<td align="left">performance.cache-min-file-size</td>
+<td align="center">0</td>
+<td align="left">Minimum file size which would be cached by the io-cache translator.</td>
+</tr>
+<tr>
+<td align="left">performance.cache-refresh-timeout</td>
+<td align="center">1</td>
+<td align="left">The cached data for a file will be retained till ‘cache-refresh-timeout’ seconds, after which data re-validation is performed.</td>
+</tr>
+<tr>
+<td align="left">performance.cache-priority</td>
+<td align="center"></td>
+<td align="left">Assigns priority to filenames with specific patterns so that when a page needs to be ejected out of the cache, the page of a file whose priority is the lowest will be ejected earlier</td>
+</tr>
+<tr>
+<td align="left">performance.cache-size</td>
+<td align="center">32MB</td>
+<td align="left">Size of the read cache.</td>
+</tr>
+<tr>
+<td align="left">performance.io-thread-count</td>
+<td align="center">16</td>
+<td align="left">Number of threads in IO threads translator which perform concurrent IO operations</td>
+</tr>
+<tr>
+<td align="left">performance.high-prio-threads</td>
+<td align="center">16</td>
+<td align="left">Max number of threads in IO threads translator which perform high priority IO operations at a given time</td>
+</tr>
+<tr>
+<td align="left">performance.normal-prio-threads</td>
+<td align="center">16</td>
+<td align="left">Max number of threads in IO threads translator which perform normal priority IO operations at a given time</td>
+</tr>
+<tr>
+<td align="left">performance.low-prio-threads</td>
+<td align="center">16</td>
+<td align="left">Max number of threads in IO threads translator which perform low priority IO operations at a given time</td>
+</tr>
+<tr>
+<td align="left">performance.least-prio-threads</td>
+<td align="center">1</td>
+<td align="left">Max number of threads in IO threads translator which perform least priority IO operations at a given time</td>
+</tr>
+<tr>
+<td align="left">performance.enable-least-priority</td>
+<td align="center">on</td>
+<td align="left">Enable/Disable least priority</td>
+</tr>
+<tr>
+<td align="left">performance.least-rate-limit</td>
+<td align="center">0</td>
+<td align="left">Max number of least priority operations to handle per-second</td>
+</tr>
+<tr>
+<td align="left">performance.flush-behind</td>
+<td align="center">on</td>
+<td align="left">If this option is set ON, instructs write-behind translator to perform flush in background, by returning success (or any errors, if any of previous writes were failed) to application even before flush FOP is sent to backend filesystem.</td>
+</tr>
+<tr>
+<td align="left">performance.nfs.flush-behind</td>
+<td align="center">on</td>
+<td align="left">If this option is set ON, instructs write-behind translator to perform flush in background, by returning success (or any errors, if any of previous writes were failed) to application even before flush FOP is sent to backend filesystem.</td>
+</tr>
+<tr>
+<td align="left">performance.write-behind-window-size</td>
+<td align="center">1MB</td>
+<td align="left">Size of the write-behind buffer for a single file (inode).</td>
+</tr>
+<tr>
+<td align="left">performance.nfs.write-behind-window-size</td>
+<td align="center">1MB</td>
+<td align="left">Size of the write-behind buffer for a single file (inode).</td>
+</tr>
+<tr>
+<td align="left">performance.strict-o-direct</td>
+<td align="center">off</td>
+<td align="left">This option when set to off, ignores the O_DIRECT flag.</td>
+</tr>
+<tr>
+<td align="left">performance.nfs.strict-o-direct</td>
+<td align="center">off</td>
+<td align="left">This option when set to off, ignores the O_DIRECT flag.</td>
+</tr>
+<tr>
+<td align="left">performance.strict-write-ordering</td>
+<td align="center">off</td>
+<td align="left">Do not let later writes overtake earlier writes even if they do not overlap</td>
+</tr>
+<tr>
+<td align="left">performance.nfs.strict-write-ordering</td>
+<td align="center">off</td>
+<td align="left">Do not let later writes overtake earlier writes even if they do not overlap</td>
+</tr>
+<tr>
+<td align="left">performance.lazy-open</td>
+<td align="center">yes</td>
+<td align="left">Perform open in the backend only when a necessary FOP arrives (e.g writev on the FD, unlink of the file). When option is disabled, perform backend open right after unwinding open().</td>
+</tr>
+<tr>
+<td align="left">performance.read-after-open</td>
+<td align="center">no</td>
+<td align="left">read is sent only after actual open happens and real fd is obtained, instead of doing on anonymous fd (similar to write)</td>
+</tr>
+<tr>
+<td align="left">performance.read-ahead-page-count</td>
+<td align="center">4</td>
+<td align="left">Number of pages that will be pre-fetched</td>
+</tr>
+<tr>
+<td align="left">performance.md-cache-timeout</td>
+<td align="center">1</td>
+<td align="left">Time period after which cache has to be refreshed</td>
+</tr>
+<tr>
+<td align="left">performance.write-behind</td>
+<td align="center">on</td>
+<td align="left">enable/disable write-behind translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.read-ahead</td>
+<td align="center">on</td>
+<td align="left">enable/disable read-ahead translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.readdir-ahead</td>
+<td align="center">off</td>
+<td align="left">enable/disable readdir-ahead translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.io-cache</td>
+<td align="center">on</td>
+<td align="left">enable/disable io-cache translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.quick-read</td>
+<td align="center">on</td>
+<td align="left">enable/disable quick-read translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.open-behind</td>
+<td align="center">on</td>
+<td align="left">enable/disable open-behind translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.stat-prefetch</td>
+<td align="center">on</td>
+<td align="left">enable/disable meta-data caching translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.client-io-threads</td>
+<td align="center">off</td>
+<td align="left">enable/disable io-threads translator in the client graph of volume.</td>
+</tr>
+<tr>
+<td align="left">performance.nfs.write-behind</td>
+<td align="center">on</td>
+<td align="left">enable/disable write-behind translator in the volume</td>
+</tr>
+<tr>
+<td align="left">performance.force-readdirp</td>
+<td align="center">true</td>
+<td align="left">Convert all readdir requests to readdirplus to collect stat info on each entry.</td>
+</tr>
+<tr>
+<td align="left">features.encryption</td>
+<td align="center">off</td>
+<td align="left">enable/disable client-side encryption for the volume.</td>
+</tr>
+<tr>
+<td align="left">encryption.master-key</td>
+<td align="center">null</td>
+<td align="left">Pathname of regular file which contains master volume key</td>
+</tr>
+<tr>
+<td align="left">encryption.data-key-size</td>
+<td align="center">256</td>
+<td align="left">Data key size (bits)</td>
+</tr>
+<tr>
+<td align="left">encryption.block-size</td>
+<td align="center">4096</td>
+<td align="left">Atom size (bits)</td>
+</tr>
+<tr>
+<td align="left">nfs.enable-ino32</td>
+<td align="center">no</td>
+<td align="left">For nfs clients or apps that do not support 64-bit inode numbers, use this option to make NFS return 32-bit inode numbers instead. Disabled by default, so NFS returns 64-bit inode numbers.</td>
+</tr>
+<tr>
+<td align="left">nfs.mem-factor</td>
+<td align="center">15</td>
+<td align="left">Use this option to make NFS be faster on systems by using more memory. This option specifies a multiple that determines the total amount of memory used. Default value is 15. Increase to use more memory in order to improve performance for certain use cases.Please consult gluster-users list before using this option.</td>
+</tr>
+<tr>
+<td align="left">nfs.export-dirs</td>
+<td align="center">on</td>
+<td align="left">By default, all subvolumes of nfs are exported as individual exports. There are cases where a subdirectory or subdirectories in the volume need to be exported separately. Enabling this option allows any directory on a volumes to be exported separately.Directory exports are enabled by default.</td>
+</tr>
+<tr>
+<td align="left">nfs.export-volumes</td>
+<td align="center">on</td>
+<td align="left">Enable or disable exporting whole volumes, instead if used in conjunction with nfs3.export-dir, can allow setting up only subdirectories as exports. On by default.</td>
+</tr>
+<tr>
+<td align="left">nfs.addr-namelookup</td>
+<td align="center">off</td>
+<td align="left">Users have the option of turning on name lookup for incoming client connections using this option. Use this option to turn on name lookups during address-based authentication. Turning this on will enable you to use hostnames in nfs.rpc-auth-* filters. In some setups, the name server can take too long to reply to DNS queries resulting in timeouts of mount requests. By default, name lookup is off</td>
+</tr>
+<tr>
+<td align="left">nfs.dynamic-volumes</td>
+<td align="center">off</td>
+<td align="left">Internal option set to tell gnfs to use a different scheme for encoding file handles when DVM is being used.</td>
+</tr>
+<tr>
+<td align="left">nfs.register-with-portmap</td>
+<td align="center">on</td>
+<td align="left">For systems that need to run multiple nfs servers, only one registration is possible with portmap service. Use this option to turn off portmap registration for Gluster NFS. On by default</td>
+</tr>
+<tr>
+<td align="left">nfs.outstanding-rpc-limit</td>
+<td align="center">16</td>
+<td align="left">Parameter to throttle the number of incoming RPC requests from a client. 0 means no limit (can potentially run out of memory)</td>
+</tr>
+<tr>
+<td align="left">nfs.port</td>
+<td align="center">2049</td>
+<td align="left">Use this option on systems that need Gluster NFS to be associated with a non-default port number.</td>
+</tr>
+<tr>
+<td align="left">nfs.rpc-auth-unix</td>
+<td align="center">on</td>
+<td align="left">Disable or enable the AUTH_UNIX authentication type for a particular exported volume overriding defaults and general setting for AUTH_UNIX scheme. Must always be enabled for better interoperability. However, can be disabled if needed. Enabled by default.</td>
+</tr>
+<tr>
+<td align="left">nfs.rpc-auth-null</td>
+<td align="center">on</td>
+<td align="left">Disable or enable the AUTH_NULL authentication type for a particular exported volume overriding defaults and general setting for AUTH_NULL. Must always be enabled. This option is here only to avoid unrecognized option warnings.</td>
+</tr>
+<tr>
+<td align="left">nfs.rpc-auth-allow</td>
+<td align="center">all</td>
+<td align="left">Allow a comma separated list of addresses and/or hostnames to connect to the server. By default, all connections are allowed. This allows users to define a rule for a specific exported volume.</td>
+</tr>
+<tr>
+<td align="left">nfs.rpc-auth-reject</td>
+<td align="center">none</td>
+<td align="left">Reject a comma separated list of addresses and/or hostnames from connecting to the server. By default, all connections are allowed. This allows users to define a rule for a specific exported volume.</td>
+</tr>
+<tr>
+<td align="left">nfs.ports-insecure</td>
+<td align="center">off</td>
+<td align="left">Allow client connections from unprivileged ports. By default only privileged ports are allowed. Use this option to enable or disable insecure ports for a specific subvolume and to override the global setting set by the previous option.</td>
+</tr>
+<tr>
+<td align="left">nfs.transport-type</td>
+<td align="center">(null)</td>
+<td align="left">Specifies the nfs transport type. Valid transport types are ‘tcp’ and ‘rdma’.</td>
+</tr>
+<tr>
+<td align="left">nfs.trusted-sync</td>
+<td align="center">off</td>
+<td align="left">All writes and COMMIT requests are treated as async. This implies that no write requests are guaranteed to be on server disks when the write reply is received at the NFS client. Trusted sync includes trusted-write behaviour. Off by default.</td>
+</tr>
+<tr>
+<td align="left">nfs.trusted-write</td>
+<td align="center">off</td>
+<td align="left">On an UNSTABLE write from client, return STABLE flag to force client to not send a COMMIT request. In some environments, combined with a replicated GlusterFS setup, this option can improve write performance. This flag allows user to trust Gluster replication logic to sync data to the disks and recover when required. COMMIT requests if received will be handled in a default manner by fsyncing. STABLE writes are still handled in a sync manner. Off by default.</td>
+</tr>
+<tr>
+<td align="left">nfs.volume-access</td>
+<td align="center">read-write</td>
+<td align="left">Type of access desired for this subvolume: read-only, read-write(default)</td>
+</tr>
+<tr>
+<td align="left">nfs.export-dir</td>
+<td align="center"></td>
+<td align="left">By default, all subvolumes of nfs are exported as individual exports. There are cases where a subdirectory or subdirectories in the volume need to be exported separately. This option can also be used in conjunction with nfs3.export-volumes option to restrict exports only to the subdirectories specified through this option. Must be an absolute path. Along with path allowed list of IPs/hostname can be associated with each subdirectory. If provided connection will allowed only from these IPs. By default connections from all IPs are allowed. Format:[(hostspec[|hostspec|…])][,…]. Where hostspec can be an IP address, hostname or an IP range in CIDR notation. e.g. /foo(192.168.1.0/24|host1|10.1.1.8),/host2. NOTE: Care must be taken while configuring this option as invalid entries and/or unreachable DNS servers can introduce unwanted delay in all the mount calls.</td>
+</tr>
+<tr>
+<td align="left">nfs.disable</td>
+<td align="center">false</td>
+<td align="left">This option is used to start or stop the NFS server for individual volumes.</td>
+</tr>
+<tr>
+<td align="left">nfs.nlm</td>
+<td align="center">on</td>
+<td align="left">This option, if set to ‘off’, disables NLM server by not registering the service with the portmapper. Set it to ‘on’ to re-enable it. Default value: ‘on’</td>
+</tr>
+<tr>
+<td align="left">nfs.acl</td>
+<td align="center">on</td>
+<td align="left">This option is used to control ACL support for NFS.</td>
+</tr>
+<tr>
+<td align="left">nfs.mount-udp</td>
+<td align="center">off</td>
+<td align="left">set the option to ‘on’ to enable mountd on UDP. Required for some Solaris and AIX NFS clients. The need for enabling this option often depends on the usage of NLM.</td>
+</tr>
+<tr>
+<td align="left">nfs.mount-rmtab</td>
+<td align="center">/var/lib/glusterd/nfs/rmtab</td>
+<td align="left">Set the location of the cache file that is used to list all the NFS-clients that have connected through the MOUNT protocol. If this is on shared storage, all GlusterFS servers will update and output (with ‘showmount’) the same list. Set to “/-“ to disable.</td>
+</tr>
+<tr>
+<td align="left">nfs.drc</td>
+<td align="center">off</td>
+<td align="left">Enable Duplicate Request Cache in gNFS server to improve correctness of non-idempotent operations like write, delete, link, et al</td>
+</tr>
+<tr>
+<td align="left">nfs.drc-size</td>
+<td align="center">0x20000</td>
+<td align="left">Sets the number of non-idempotent requests to cache in drc</td>
+</tr>
+<tr>
+<td align="left">nfs.read-size</td>
+<td align="center">(1 * 1048576ULL)</td>
+<td align="left">Size in which the client should issue read requests to the Gluster NFSv3 server. Must be a multiple of 4KB (4096). Min and Max supported values are 4KB (4096) and 1MB (1048576) respectively. If the specified value is within the supported range but not a multiple of 4096, it is rounded up to the nearest multiple of 4096.</td>
+</tr>
+<tr>
+<td align="left">nfs.write-size</td>
+<td align="center">(1 * 1048576ULL)</td>
+<td align="left">Size in which the client should issue write requests to the Gluster NFSv3 server. Must be a multiple of 1KB (1024). Min and Max supported values are 4KB (4096) and 1MB(1048576) respectively. If the specified value is within the supported range but not a multiple of 4096, it is rounded up to the nearest multiple of 4096.</td>
+</tr>
+<tr>
+<td align="left">nfs.readdir-size</td>
+<td align="center">(1 * 1048576ULL)</td>
+<td align="left">Size in which the client should issue directory reading requests to the Gluster NFSv3 server. Must be a multiple of 1KB (1024). Min and Max supported values are 4KB (4096) and 1MB (1048576) respectively.If the specified value is within the supported range but not a multiple of 4096, it is rounded up to the nearest multiple of 4096.</td>
+</tr>
+<tr>
+<td align="left">nfs.exports-auth-enable</td>
+<td align="center">(null)</td>
+<td align="left">Set the option to ‘on’ to enable exports/netgroup authentication in the NFS server and mount daemon.</td>
+</tr>
+<tr>
+<td align="left">nfs.auth-refresh-interval-sec</td>
+<td align="center">(null)</td>
+<td align="left">Frequency in seconds that the daemon should check for changes in the exports/netgroups file.</td>
+</tr>
+<tr>
+<td align="left">nfs.auth-cache-ttl-sec</td>
+<td align="center">(null)</td>
+<td align="left">Sets the TTL of an entry in the auth cache. Value is in seconds.</td>
+</tr>
+<tr>
+<td align="left">ganesha.enable</td>
+<td align="center">off</td>
+<td align="left">export volume via NFS-Ganesha</td>
+</tr>
+<tr>
+<td align="left">network.frame-timeout</td>
+<td align="center">1800</td>
+<td align="left">Time frame after which the (file) operation would be declared as dead, if the server does not respond for a particular (file) operation.</td>
+</tr>
+<tr>
+<td align="left">network.ping-timeout</td>
+<td align="center">42</td>
+<td align="left">Time duration for which the client waits to check if the server is responsive.</td>
+</tr>
+<tr>
+<td align="left">network.tcp-window-size</td>
+<td align="center">null</td>
+<td align="left">Specifies the window size for tcp socket.</td>
+</tr>
+<tr>
+<td align="left">network.remote-dio</td>
+<td align="center">disable</td>
+<td align="left">If enabled, in open() and creat() calls, O_DIRECT flag will be filtered at the client protocol level so server will still continue to cache the file. This works similar to NFS’s behavior of O_DIRECT</td>
+</tr>
+<tr>
+<td align="left">network.inode-lru-limit</td>
+<td align="center">16384</td>
+<td align="left">Specifies the maximum megabytes of memory to be used in the inode cache.</td>
+</tr>
+<tr>
+<td align="left">network.compression</td>
+<td align="center">off</td>
+<td align="left">enable/disable network compression translator</td>
+</tr>
+<tr>
+<td align="left">network.compression.window-size</td>
+<td align="center">-15</td>
+<td align="left">Size of the zlib history buffer.</td>
+</tr>
+<tr>
+<td align="left">network.compression.mem-level</td>
+<td align="center">8</td>
+<td align="left">Memory allocated for internal compression state. 1 uses minimum memory but is slow and reduces compression ratio; memLevel=9 uses maximum memory for optimal speed. The default value is 8.</td>
+</tr>
+<tr>
+<td align="left">network.compression.min-size</td>
+<td align="center">0</td>
+<td align="left">Data is compressed only when its size exceeds this.</td>
+</tr>
+<tr>
+<td align="left">network.compression.compression-level</td>
+<td align="center">-1</td>
+<td align="left">Compression levels 0 : no compression, 1 : best speed, 9 : best compression, -1 : default compression</td>
+</tr>
+<tr>
+<td align="left">features.lock-heal</td>
+<td align="center">off</td>
+<td align="left">When the connection to client is lost, server cleans up all the locks held by the client. After the connection is restored, the client reacquires (heals) the fcntl locks released by the server.</td>
+</tr>
+<tr>
+<td align="left">features.grace-timeout</td>
+<td align="center">10</td>
+<td align="left">Specifies the duration for the lock state to be maintained on the client after a network disconnection. Range 10-1800 seconds.</td>
+</tr>
+<tr>
+<td align="left">features.file-snapshot</td>
+<td align="center">off</td>
+<td align="left">enable/disable file-snapshot feature in the volume.</td>
+</tr>
+<tr>
+<td align="left">features.uss</td>
+<td align="center">off</td>
+<td align="left">enable/disable User Serviceable Snapshots on the volume.</td>
+</tr>
+<tr>
+<td align="left">features.snapshot-directory</td>
+<td align="center">.snaps</td>
+<td align="left">Entry point directory for entering snapshot world</td>
+</tr>
+<tr>
+<td align="left">features.show-snapshot-directory</td>
+<td align="center">off</td>
+<td align="left">show entry point in readdir output of snapdir-entry-path which is set by samba</td>
+</tr>
+<tr>
+<td align="left">features.quota-deem-statfs</td>
+<td align="center">off</td>
+<td align="left">If set to on, it takes quota limits intoconsideration while estimating fs size. (df command) (Default is off).</td>
+</tr>
+<tr>
+<td align="left">features.read-only</td>
+<td align="center">off</td>
+<td align="left">When “on”, makes a volume read-only. It is turned “off” by default.</td>
+</tr>
+<tr>
+<td align="left">features.worm</td>
+<td align="center">off</td>
+<td align="left">When “on”, makes a volume get write once read many feature. It is turned “off” by default.</td>
+</tr>
+<tr>
+<td align="left">features.barrier-timeout</td>
+<td align="center">120</td>
+<td align="left">After ‘timeout’ seconds since the time ‘barrier’ option was set to “on”, acknowledgements to file operations are no longer blocked and previously blocked acknowledgements are sent to the application</td>
+</tr>
+<tr>
+<td align="left">features.trash</td>
+<td align="center">off</td>
+<td align="left">Enable/disable trash translator</td>
+</tr>
+<tr>
+<td align="left">features.trash-dir</td>
+<td align="center">.trashcan</td>
+<td align="left">Directory for trash files</td>
+</tr>
+<tr>
+<td align="left">features.trash-eliminate-path</td>
+<td align="center">(null)</td>
+<td align="left">Eliminate paths to be excluded from trashing</td>
+</tr>
+<tr>
+<td align="left">features.trash-max-filesize</td>
+<td align="center">5MB</td>
+<td align="left">Maximum size of file that can be moved to trash</td>
+</tr>
+<tr>
+<td align="left">features.trash-internal-op</td>
+<td align="center">off</td>
+<td align="left">Enable/disable trash translator for internal operations</td>
+</tr>
+<tr>
+<td align="left">features.ctr-enabled</td>
+<td align="center">off</td>
+<td align="left">Enable CTR xlator</td>
+</tr>
+<tr>
+<td align="left">features.record-counters</td>
+<td align="center">off</td>
+<td align="left">Its a Change Time Recorder Xlator option to enable recording write and read heat counters. The default is disabled. If enabled, “cluster.write-freq-threshold” and “cluster.read-freq-threshold” defined the number of writes (or reads) to a given file are needed before triggering migration.</td>
+</tr>
+<tr>
+<td align="left">features.ctr-sql-db-cachesize</td>
+<td align="center">1000</td>
+<td align="left">Defines the cache size of the sqlite database of changetimerecorder xlator.The input to this option is in pages.Each page is 4096 bytes. Default value is 1000 pages i.e ~ 4 MB. The max value is 262144 pages i.e 1 GB and the min value is 1000 pages i.e ~ 4 MB.</td>
+</tr>
+<tr>
+<td align="left">features.ctr-sql-db-wal-autocheckpoint</td>
+<td align="center">1000</td>
+<td align="left">Defines the autocheckpoint of the sqlite database of changetimerecorder. The input to this option is in pages. Each page is 4096 bytes. Default value is 1000 pages i.e ~ 4 MB.The max value is 262144 pages i.e 1 GB and the min value is 1000 pages i.e ~4 MB.</td>
+</tr>
+<tr>
+<td align="left">features.shard-block-size</td>
+<td align="center">4MB</td>
+<td align="left">The size unit used to break a file into multiple chunks</td>
+</tr>
+<tr>
+<td align="left">features.cache-invalidation</td>
+<td align="center">off</td>
+<td align="left">When “on”, sends cache-invalidation notifications.</td>
+</tr>
+<tr>
+<td align="left">features.cache-invalidation-timeout</td>
+<td align="center">60</td>
+<td align="left">After ‘timeout’ seconds since the time client accessed any file, cache-invalidation notifications are no longer sent to that client.</td>
+</tr>
+<tr>
+<td align="left">client.event-threads</td>
+<td align="center">2</td>
+<td align="left">Specifies the number of event threads to execute in parallel. Larger values would help process responses faster, depending on available processing power. Range 1-32 threads.</td>
+</tr>
+<tr>
+<td align="left">auth.allow</td>
+<td align="center">null</td>
+<td align="left">Allow a comma separated list of addresses and/or hostnames to connect to the server. Option auth.reject overrides this option. By default, all connections are allowed.</td>
+</tr>
+<tr>
+<td align="left">auth.reject</td>
+<td align="center">null</td>
+<td align="left">Reject a comma separated list of addresses and/or hostnames to connect to the server. This option overrides the auth.allow option. By default, all connections are allowed.</td>
+</tr>
+<tr>
+<td align="left">server.root-squash</td>
+<td align="center">off</td>
+<td align="left">Map requests from uid/gid 0 to the anonymous uid/gid. Note that this does not apply to any other uids or gids that might be equally sensitive, such as user bin or group staff.</td>
+</tr>
+<tr>
+<td align="left">server.anonuid</td>
+<td align="center">65534</td>
+<td align="left">value of the uid used for the anonymous user/nfsnobody when root-squash is enabled.</td>
+</tr>
+<tr>
+<td align="left">server.anongid</td>
+<td align="center">65534</td>
+<td align="left">value of the gid used for the anonymous user/nfsnobody when root-squash is enabled.</td>
+</tr>
+<tr>
+<td align="left">server.statedump-path</td>
+<td align="center">/var/run/gluster</td>
+<td align="left">Specifies directory in which gluster should save its statedumps.</td>
+</tr>
+<tr>
+<td align="left">server.outstanding-rpc-limit</td>
+<td align="center">64</td>
+<td align="left">Parameter to throttle the number of incoming RPC requests from a client. 0 means no limit (can potentially run out of memory)</td>
+</tr>
+<tr>
+<td align="left">server.manage-gids</td>
+<td align="center">off</td>
+<td align="left">Resolve groups on the server-side.</td>
+</tr>
+<tr>
+<td align="left">server.dynamic-auth</td>
+<td align="center">on</td>
+<td align="left">When ‘on’ perform dynamic authentication of volume options in order to allow/terminate client transport connection immediately in response to *.allow | *.reject volume set options.</td>
+</tr>
+<tr>
+<td align="left">server.gid-timeout</td>
+<td align="center">300</td>
+<td align="left">Timeout in seconds for the cached groups to expire.</td>
+</tr>
+<tr>
+<td align="left">server.event-threads</td>
+<td align="center">2</td>
+<td align="left">Specifies the number of event threads to execute in parallel. Larger values would help process responses faster, depending on available processing power. Range 1-32 threads.</td>
+</tr>
+<tr>
+<td align="left">ssl.own-cert</td>
+<td align="center">null</td>
+<td align="left">SSL certificate. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.private-key</td>
+<td align="center">null</td>
+<td align="left">SSL private key. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.ca-list</td>
+<td align="center">null</td>
+<td align="left">SSL CA list. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.crl-path</td>
+<td align="center">null</td>
+<td align="left">Path to directory containing CRL. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.certificate-depth</td>
+<td align="center">null</td>
+<td align="left">Maximum certificate-chain depth. If zero, the peer’s certificate itself must be in the local certificate list. Otherwise, there may be up to N signing certificates between the peer’s and the local list. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.cipher-list</td>
+<td align="center">null</td>
+<td align="left">Allowed SSL ciphers. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.dh-param</td>
+<td align="center">null</td>
+<td align="left">DH parameters file. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.ec-curve</td>
+<td align="center">null</td>
+<td align="left">ECDH curve name. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">storage.linux-aio</td>
+<td align="center">off</td>
+<td align="left">Support for native Linux AIO</td>
+</tr>
+<tr>
+<td align="left">storage.batch-fsync-mode</td>
+<td align="center">reverse-fsync</td>
+<td align="left">Possible values: syncfs: Perform one syncfs() on behalf oa batchof fsyncs. syncfs-single-fsync: Perform one syncfs() on behalf of a batch of fsyncs and one fsync() per batch. syncfs-reverse-fsync: Preform one syncfs() on behalf of a batch of fsyncs and fsync() each file in the batch in reverse order. reverse-fsync: Perform fsync() of each file in the batch in reverse order.</td>
+</tr>
+<tr>
+<td align="left">storage.batch-fsync-delay-usec</td>
+<td align="center">0</td>
+<td align="left">Num of usecs to wait for aggregating fsync requests</td>
+</tr>
+<tr>
+<td align="left">storage.owner-uid</td>
+<td align="center">-1</td>
+<td align="left">Support for setting uid of brick’s owner</td>
+</tr>
+<tr>
+<td align="left">storage.owner-gid</td>
+<td align="center">-1</td>
+<td align="left">Support for setting gid of brick’s owner</td>
+</tr>
+<tr>
+<td align="left">storage.node-uuid-pathinfo</td>
+<td align="center">off</td>
+<td align="left">return glusterd’s node-uuid in pathinfo xattr string instead of hostname</td>
+</tr>
+<tr>
+<td align="left">storage.health-check-interval</td>
+<td align="center">30</td>
+<td align="left">Interval in seconds for a filesystem health check, set to 0 to disable</td>
+</tr>
+<tr>
+<td align="left">storage.build-pgfid</td>
+<td align="center">off</td>
+<td align="left">Enable placeholders for gfid to path conversion</td>
+</tr>
+<tr>
+<td align="left">storage.bd-aio</td>
+<td align="center">off</td>
+<td align="left">Support for native Linux AIO</td>
+</tr>
+</tbody></table>
+<h2 id="GlusterFS的优化样例"><a href="#GlusterFS的优化样例" class="headerlink" title="GlusterFS的优化样例"></a>GlusterFS的优化样例</h2><table>
+<thead>
+<tr>
+<th align="left">选项</th>
+<th align="center">配置</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">cluster.server-quorum-type</td>
+<td align="center">server</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">cluster.quorum-type</td>
+<td align="center">auto</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">network.remote-dio</td>
+<td align="center">enable</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">cluster.eager-lock</td>
+<td align="center">enable</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">performance.stat-prefetch</td>
+<td align="center">off</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">performance.io-cache</td>
+<td align="center">off</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">performance.read-ahead</td>
+<td align="center">off</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">performance.quick-read</td>
+<td align="center">off</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">performance.readdir-ahead</td>
+<td align="center"></td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">涉猎的主要编程语言为 C、Go，分布式存储和对象存储等。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

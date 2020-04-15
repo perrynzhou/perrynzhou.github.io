@@ -20,23 +20,26 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+  <meta name="description" content="1.文件系统的系统调用 例如：read、write  2.虚拟文件系统(vfs virtual filesystem switch) 超级块对象  简介  1.代表已安装文件系统 2.每个文件系统都会对应一个超级块对象 3.描述整个文件系统信息(组织结构和管理信息),不涉及文件系统的内容 4.具体文件系统在安装时候建立，并在这些文件系统卸载时自动删除 5.vfs的超级超级块存在于内存，每个分区所">
 <meta property="og:type" content="article">
-<meta property="og:title" content="hexo 使用手册">
-<meta property="og:url" content="http://yoursite.com/2020/04/15/hexo%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/index.html">
+<meta property="og:title" content="linux文件系统">
+<meta property="og:url" content="http://yoursite.com/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="perrynzhou">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="1.文件系统的系统调用 例如：read、write  2.虚拟文件系统(vfs virtual filesystem switch) 超级块对象  简介  1.代表已安装文件系统 2.每个文件系统都会对应一个超级块对象 3.描述整个文件系统信息(组织结构和管理信息),不涉及文件系统的内容 4.具体文件系统在安装时候建立，并在这些文件系统卸载时自动删除 5.vfs的超级超级块存在于内存，每个分区所">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-04-15T05:05:05.088Z">
-<meta property="article:modified_time" content="2020-04-15T05:05:05.084Z">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2582954-a7eed89cf5b27e87.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2582954-b3fd9e17db5e44e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="article:published_time" content="2020-04-15T06:27:50.000Z">
+<meta property="article:modified_time" content="2020-04-15T06:29:17.207Z">
 <meta property="article:author" content="perrynzhou">
 <meta property="article:tag" content="C">
 <meta property="article:tag" content=" Go">
 <meta property="article:tag" content=" 分布式存储">
 <meta property="article:tag" content=" 对象存储">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/2582954-a7eed89cf5b27e87.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
-<link rel="canonical" href="http://yoursite.com/2020/04/15/hexo%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/">
+<link rel="canonical" href="http://yoursite.com/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
 
 
 <script id="page-configurations">
@@ -49,7 +52,7 @@
   };
 </script>
 
-  <title>hexo 使用手册 | perrynzhou</title>
+  <title>linux文件系统 | perrynzhou</title>
   
 
 
@@ -155,7 +158,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/hexo%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -168,7 +171,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          hexo 使用手册
+          linux文件系统
         </h1>
 
         <div class="post-meta">
@@ -177,8 +180,9 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2020-04-15 13:05:05" itemprop="dateCreated datePublished" datetime="2020-04-15T13:05:05+08:00">2020-04-15</time>
+              <time title="Created: 2020-04-15 14:27:50 / Modified: 14:29:17" itemprop="dateCreated datePublished" datetime="2020-04-15T14:27:50+08:00">2020-04-15</time>
             </span>
 
           
@@ -192,19 +196,109 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server 或者 hexo s</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate 或者 hexo g</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy 或者hexo d</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <p><img src="https://upload-images.jianshu.io/upload_images/2582954-a7eed89cf5b27e87.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="文件系统（note by perrynzhou).png"></p>
+<h5 id="1-文件系统的系统调用"><a href="#1-文件系统的系统调用" class="headerlink" title="1.文件系统的系统调用"></a>1.文件系统的系统调用</h5><ul>
+<li>例如：read、write</li>
+</ul>
+<h5 id="2-虚拟文件系统-vfs-virtual-filesystem-switch"><a href="#2-虚拟文件系统-vfs-virtual-filesystem-switch" class="headerlink" title="2.虚拟文件系统(vfs virtual filesystem switch)"></a>2.虚拟文件系统(vfs virtual filesystem switch)</h5><ul>
+<li><p>超级块对象</p>
+<ul>
+<li><p>简介</p>
+<ul>
+<li>1.代表已安装文件系统</li>
+<li>2.每个文件系统都会对应一个超级块对象</li>
+<li>3.描述整个文件系统信息(组织结构和管理信息),不涉及文件系统的内容</li>
+<li>4.具体文件系统在安装时候建立，并在这些文件系统卸载时自动删除</li>
+<li>5.vfs的超级超级块存在于内存，每个分区所挂在的文件系统都有一个属于该文件系统和分区的超级块存在于磁盘</li>
+</ul>
+</li>
+<li><p>操作对象</p>
+<ul>
+<li><p>super_operations</p>
+<ul>
+<li>包括内核对特定文件系统所能调用的方法，比如read_inide/sync_fs等</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>索引节点对象</p>
+<ul>
+<li><p>简介</p>
+<ul>
+<li>1.代表一个文件，包括访问权限、属主、组、大小、生成时间和访问时间</li>
+<li>2.内核操作文件或者目录时需要的全部信息，一个文件对应一个inode(唯一)</li>
+<li>3.具体文件系统的inode持久化在磁盘，访问时调入内存,vfs的inode存在于内存</li>
+<li>4.vfs的inode是xfs inode的抽象，映射与扩充，而后者是前者的静态信息部分，也是对前者(vfs inode)的具体化、实例化和持久化</li>
+</ul>
+</li>
+<li><p>操作对象</p>
+<ul>
+<li><p>inode_operations</p>
+<ul>
+<li>包括内核针对文件所能调用的方法，比如create/link等</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>目录项对象（动态创建)</p>
+<ul>
+<li><p>简介</p>
+<ul>
+<li><p>1.代表一个目录项，是路径组成的一部分</p>
+</li>
+<li><p>2.用于方便查找目录，找到后缓存目录到dcache中</p>
+<ul>
+<li>例如/bin/vi,这个目录bin是目录文件，vi是普通文件</li>
+</ul>
+</li>
+<li><p>3.该目录对象存在于内存，磁盘并没有任何的持久化</p>
+</li>
+</ul>
+</li>
+<li><p>操作对象</p>
+<ul>
+<li><p>dentry_operations</p>
+<ul>
+<li>内核针对目录所能调用方法，比如d_cpmpare/d_delete等</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>文件对象</p>
+<ul>
+<li><p>简介</p>
+<ul>
+<li><p>1.代表进程打开的文件的内存表现形式</p>
+<ul>
+<li>调用open/close来创建和销毁文件对象</li>
+</ul>
+</li>
+<li><p>2.文件对象存在于内存，在磁盘并没有具体的存储</p>
+</li>
+</ul>
+</li>
+<li><p>操作对象</p>
+<ul>
+<li><p>file_operations</p>
+<ul>
+<li>内核针对进程已打开的文件所能调用方法比如read/write等</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="挂在到VFS的实际文件系统"><a href="#挂在到VFS的实际文件系统" class="headerlink" title="挂在到VFS的实际文件系统"></a>挂在到VFS的实际文件系统</h5><ul>
+<li>例如:ext3、ext4、xfs</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/2582954-b3fd9e17db5e44e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="虚拟文件系统.png"></p>
 
     </div>
 
@@ -220,12 +314,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/04/15/glusterfs%E5%B0%8F%E6%96%87%E4%BB%B6%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/" rel="prev" title="glusterfs小文件调优指南">
-      <i class="fa fa-chevron-left"></i> glusterfs小文件调优指南
+    <a href="/2020/04/15/hexo%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/" rel="prev" title="hexo 使用手册">
+      <i class="fa fa-chevron-left"></i> hexo 使用手册
     </a></div>
       <div class="post-nav-item">
-    <a href="/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="next" title="linux文件系统">
-      linux文件系统 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/" rel="next" title="golang 1.4 mod 使用经验">
+      golang 1.4 mod 使用经验 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -285,7 +379,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-文件系统的系统调用"><span class="nav-number">1.</span> <span class="nav-text">1.文件系统的系统调用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-虚拟文件系统-vfs-virtual-filesystem-switch"><span class="nav-number">2.</span> <span class="nav-text">2.虚拟文件系统(vfs virtual filesystem switch)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#挂在到VFS的实际文件系统"><span class="nav-number">3.</span> <span class="nav-text">挂在到VFS的实际文件系统</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
