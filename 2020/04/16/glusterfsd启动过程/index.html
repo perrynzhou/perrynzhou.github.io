@@ -23,23 +23,23 @@
   <meta name="description" content="0.存在的疑惑 glusterd启动后怎么把glusterfsd的brick进程拉起来？ glusterfsd启动的参数从哪里获取？ glusterfsd如何加载的呢？ glusterfsd和glusterd启动后各自都是什么角色？(后续再讨论)1. glusterfs的入口函数解释 glusterfsd中main方法加载xlator {name &#x3D; 0x687dd0 “management”,">
 <meta property="og:type" content="article">
 <meta property="og:title" content="glusterfsd启动过程">
-<meta property="og:url" content="http://yoursite.com/2020/04/14/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/index.html">
+<meta property="og:url" content="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/index.html">
 <meta property="og:site_name" content="perrynzhou">
 <meta property="og:description" content="0.存在的疑惑 glusterd启动后怎么把glusterfsd的brick进程拉起来？ glusterfsd启动的参数从哪里获取？ glusterfsd如何加载的呢？ glusterfsd和glusterd启动后各自都是什么角色？(后续再讨论)1. glusterfs的入口函数解释 glusterfsd中main方法加载xlator {name &#x3D; 0x687dd0 “management”,">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://yoursite.com/2020/04/14/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-d6d03fa2881d4dfe.png">
-<meta property="og:image" content="http://yoursite.com/2020/04/14/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-bb00ca85ed37cff0.png">
-<meta property="article:published_time" content="2020-04-14T10:37:27.000Z">
-<meta property="article:modified_time" content="2020-04-16T09:04:55.169Z">
+<meta property="og:image" content="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-d6d03fa2881d4dfe.png">
+<meta property="og:image" content="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-bb00ca85ed37cff0.png">
+<meta property="article:published_time" content="2020-04-16T09:11:54.000Z">
+<meta property="article:modified_time" content="2020-04-16T09:13:40.785Z">
 <meta property="article:author" content="perrynzhou">
 <meta property="article:tag" content="C">
 <meta property="article:tag" content=" Go">
 <meta property="article:tag" content=" 分布式存储">
 <meta property="article:tag" content=" 对象存储">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yoursite.com/2020/04/14/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-d6d03fa2881d4dfe.png">
+<meta name="twitter:image" content="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-d6d03fa2881d4dfe.png">
 
-<link rel="canonical" href="http://yoursite.com/2020/04/14/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">
+<link rel="canonical" href="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">
 
 
 <script id="page-configurations">
@@ -158,7 +158,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -180,16 +180,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2020-04-14 18:37:27" itemprop="dateCreated datePublished" datetime="2020-04-14T18:37:27+08:00">2020-04-14</time>
+              <time title="Created: 2020-04-16 17:11:54 / Modified: 17:13:40" itemprop="dateCreated datePublished" datetime="2020-04-16T17:11:54+08:00">2020-04-16</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-04-16 17:04:55" itemprop="dateModified" datetime="2020-04-16T17:04:55+08:00">2020-04-16</time>
-              </span>
 
           
 
@@ -252,13 +246,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/04/14/glusterfs-%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%9E%84%E5%BB%BA/" rel="prev" title="glusterfs 调试环境构建">
-      <i class="fa fa-chevron-left"></i> glusterfs 调试环境构建
+    <a href="/2020/04/16/fork%E4%B9%8B%E5%89%8D%E7%9A%84%E7%BC%93%E5%86%B2%E5%8C%BA%E9%97%AE%E9%A2%98/" rel="prev" title="fork之前的缓冲区问题">
+      <i class="fa fa-chevron-left"></i> fork之前的缓冲区问题
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/" rel="next" title="glusterfs cluster.read-hash-mode的作用">
-      glusterfs cluster.read-hash-mode的作用 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
