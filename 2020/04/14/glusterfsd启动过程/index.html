@@ -27,17 +27,17 @@
 <meta property="og:site_name" content="perrynzhou">
 <meta property="og:description" content="0.存在的疑惑 glusterd启动后怎么把glusterfsd的brick进程拉起来？ glusterfsd启动的参数从哪里获取？ glusterfsd如何加载的呢？ glusterfsd和glusterd启动后各自都是什么角色？(后续再讨论)1. glusterfs的入口函数解释 glusterfsd中main方法加载xlator {name &#x3D; 0x687dd0 “management”,">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2582954-d6d03fa2881d4dfe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2582954-bb00ca85ed37cff0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://yoursite.com/root/perryn-blog/public/images/2582954-d6d03fa2881d4dfe.png">
+<meta property="og:image" content="http://yoursite.com/root/perryn-blog/public/images/2582954-bb00ca85ed37cff0.png">
 <meta property="article:published_time" content="2020-04-14T10:37:27.000Z">
-<meta property="article:modified_time" content="2020-04-14T10:46:22.461Z">
+<meta property="article:modified_time" content="2020-04-16T08:25:50.765Z">
 <meta property="article:author" content="perrynzhou">
 <meta property="article:tag" content="C">
 <meta property="article:tag" content=" Go">
 <meta property="article:tag" content=" 分布式存储">
 <meta property="article:tag" content=" 对象存储">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/2582954-d6d03fa2881d4dfe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:image" content="http://yoursite.com/root/perryn-blog/public/images/2582954-d6d03fa2881d4dfe.png">
 
 <link rel="canonical" href="http://yoursite.com/2020/04/14/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">
 
@@ -180,10 +180,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-04-14 18:37:27 / Modified: 18:46:22" itemprop="dateCreated datePublished" datetime="2020-04-14T18:37:27+08:00">2020-04-14</time>
+              <time title="Created: 2020-04-14 18:37:27" itemprop="dateCreated datePublished" datetime="2020-04-14T18:37:27+08:00">2020-04-14</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-04-16 16:25:50" itemprop="dateModified" datetime="2020-04-16T16:25:50+08:00">2020-04-16</time>
+              </span>
 
           
 
@@ -214,10 +220,10 @@
 <h6 id="3-glusterfsd如何加载xlator"><a href="#3-glusterfsd如何加载xlator" class="headerlink" title="3.glusterfsd如何加载xlator"></a>3.glusterfsd如何加载xlator</h6></li>
 </ul>
 </li>
-<li>glusterfsd是通过读取配置文件/var/lib/glusterd/vols/dht_vol/dht_vol.172.17.0.2.data-brick.vol来加载glusterfsd运行期间需要的xlator，这些配置信息是用户创建volume时候系统生成的<br><img src="https://upload-images.jianshu.io/upload_images/2582954-d6d03fa2881d4dfe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="截屏2020-02-21下午8.03.09.png"></li>
+<li>glusterfsd是通过读取配置文件/var/lib/glusterd/vols/dht_vol/dht_vol.172.17.0.2.data-brick.vol来加载glusterfsd运行期间需要的xlator，这些配置信息是用户创建volume时候系统生成的<br><img src="/root/perryn-blog/public/images/2582954-d6d03fa2881d4dfe.png" alt="截屏2020-02-21下午8.03.09.png"></li>
 </ul>
 <h6 id="4-glusterd启动后进程列表"><a href="#4-glusterd启动后进程列表" class="headerlink" title="4. glusterd启动后进程列表"></a>4. glusterd启动后进程列表</h6><ul>
-<li>runner_start后继续glusterfsd.c中的main方法，启动对应的服务，glusterfsd正式启动了，就如systemctl start glusterd后出现如下的结果:<br><img src="https://upload-images.jianshu.io/upload_images/2582954-bb00ca85ed37cff0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
+<li>runner_start后继续glusterfsd.c中的main方法，启动对应的服务，glusterfsd正式启动了，就如systemctl start glusterd后出现如下的结果:<br><img src="/root/perryn-blog/public/images/2582954-bb00ca85ed37cff0.png" alt="image.png"></li>
 </ul>
 <h6 id="5-glusterfsd启动流程"><a href="#5-glusterfsd启动流程" class="headerlink" title="5.glusterfsd启动流程"></a>5.glusterfsd启动流程</h6><ul>
 <li>上个步骤通过runner_start加载glusterfsd的二进制进程，glusterfsd进入初始化节点，首先 glusterfs_listener_init 初始化tcp连接</li>
@@ -325,7 +331,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-count">19</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

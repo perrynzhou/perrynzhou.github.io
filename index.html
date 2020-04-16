@@ -152,6 +152,83 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/fork%E4%B9%8B%E5%89%8D%E7%9A%84%E7%BC%93%E5%86%B2%E5%8C%BA%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/16/fork%E4%B9%8B%E5%89%8D%E7%9A%84%E7%BC%93%E5%86%B2%E5%8C%BA%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">fork之前的缓冲区问题</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-16 16:29:50 / Modified: 16:36:40" itemprop="dateCreated datePublished" datetime="2020-04-16T16:29:50+08:00">2020-04-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="fork-系统调用"><a href="#fork-系统调用" class="headerlink" title="fork 系统调用"></a>fork 系统调用</h3><h4 id="Description"><a href="#Description" class="headerlink" title="Description"></a>Description</h4><ul>
+<li>fork()  creates  a  new process by duplicating the calling process.  The new process, referred to as the child, is an exact duplicate of the calling process<h4 id="代码例子"><a href="#代码例子" class="headerlink" title="代码例子"></a>代码例子</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: fork0.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Tue 11 Jun 2019 10:27:20 AM CST</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;stdbool.h&gt;</span><br><span class="line">#include &lt;ctype.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;getopt.h&gt;</span><br><span class="line">void usage(char *s)</span><br><span class="line">&#123;</span><br><span class="line">  printf(&quot;%s -f &#123;0 | 1&#125;\n&quot;, s);</span><br><span class="line">  printf(&quot;   1  -- force flush all opened stream before fork\n&quot;);</span><br><span class="line">  printf(&quot;   0  -- not flush all opened stream before fork\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line">bool is_number(const char *s)</span><br><span class="line">&#123;</span><br><span class="line">  if (s &#x3D;&#x3D; NULL)</span><br><span class="line">  &#123;</span><br><span class="line">    return false;</span><br><span class="line">  &#125;</span><br><span class="line">  while (*s !&#x3D; &#39;\0&#39;)</span><br><span class="line">  &#123;</span><br><span class="line">    if (isdigit(*s++) &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      return false;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return true;</span><br><span class="line">&#125;</span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">  if (argc !&#x3D; 3)</span><br><span class="line">  &#123;</span><br><span class="line">    usage(argv[0]);</span><br><span class="line">    exit(0);</span><br><span class="line">  &#125;</span><br><span class="line">  const char *cmd_parse_fmt &#x3D; &quot;f:&quot;;</span><br><span class="line">  char ch;</span><br><span class="line">  int force_flush_flag &#x3D; 0;</span><br><span class="line">  while ((ch &#x3D; getopt(argc, argv, cmd_parse_fmt)) !&#x3D; -1)</span><br><span class="line">  &#123;</span><br><span class="line">    switch (ch)</span><br><span class="line">    &#123;</span><br><span class="line">    case &#39;f&#39;:</span><br><span class="line">      if (!is_number(optarg))</span><br><span class="line">      &#123;</span><br><span class="line">        force_flush_flag &#x3D; -1;</span><br><span class="line">      &#125;</span><br><span class="line">      else</span><br><span class="line">      &#123;</span><br><span class="line">        force_flush_flag &#x3D; atoi(optarg);</span><br><span class="line">      &#125;</span><br><span class="line">      break;</span><br><span class="line">    default:</span><br><span class="line">      break;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  if (force_flush_flag &gt; 1 || force_flush_flag &lt; 0)</span><br><span class="line">  &#123;</span><br><span class="line">    usage(argv[0]);</span><br><span class="line">    exit(0);</span><br><span class="line">  &#125;</span><br><span class="line">  printf(&quot;flush opened stream :%d\n&quot;, force_flush_flag);</span><br><span class="line"></span><br><span class="line">  printf(&quot;[%ld]begin\n&quot;, getpid());</span><br><span class="line">  pid_t pid;</span><br><span class="line">  if (force_flush_flag &#x3D;&#x3D; 1)</span><br><span class="line">  &#123;</span><br><span class="line">    fflush(NULL);</span><br><span class="line">  &#125;</span><br><span class="line">  if ((pid &#x3D; fork()) &lt; 0)</span><br><span class="line">  &#123;</span><br><span class="line">    perror(&quot;fork&quot;);</span><br><span class="line">    exit(0);</span><br><span class="line">  &#125;</span><br><span class="line">  else if (pid &#x3D;&#x3D; 0)</span><br><span class="line">  &#123;</span><br><span class="line">    printf(&quot;[%ld] child process working\n&quot;, getpid());</span><br><span class="line">    exit(0);</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    printf(&quot;[%ld] parent process working\n&quot;, getpid());</span><br><span class="line">  &#125;</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="标准输出"><a href="#标准输出" class="headerlink" title="标准输出"></a>标准输出</h4><p><img src="/root/perryn-blog/public/images/2582954-efab53de7a749c60.png" alt="image.png"></p>
+<ul>
+<li>标准输出 红色标记的都是输出一个。</li>
+</ul>
+<h4 id="文件输出"><a href="#文件输出" class="headerlink" title="文件输出"></a>文件输出</h4><p><img src="/root/perryn-blog/public/images/2582954-cfdbfc9753b23360.png" alt="image.png"></p>
+<ul>
+<li>文件输出 f=1和f=0 结果完全不同，这是为什么？</li>
+</ul>
+<h4 id="标准输出和文件输出"><a href="#标准输出和文件输出" class="headerlink" title="标准输出和文件输出"></a>标准输出和文件输出</h4><ul>
+<li>标准输入输出是行缓冲模式(\n,强制输出)，在终端执行fork之前的printf，都是执行一次。</li>
+<li>文件输入输出是全缓冲模式(buffer到了指定的size，才会输出)</li>
+<li>当执行 test_fork -f 0重定向文件 时候，父进程执行fork之后，父子进程的地址空间是cow,没有任何改动的前提下，都是执行同一个地址空间。此时，父子进程执行的缓冲区都是一模一样，所以可以看到父子进程都会执行fork之前的printf.所以文件看到的是2个”flush opened stream :0”和”[92741]begin”.</li>
+<li>当f=1，重定向文件时候可以看到，父子进程仅仅执行一次 “flush opened stream :1”和”[92741]begin”.原因在于f=1的时候会在父进程fork之前执行fflush(NULL),此时执行这个函数目的在于强制flush所有的已经打开的stream.</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/global-threading%E5%90%8E%E5%AF%BC%E8%87%B4mount%E5%AE%A2%E6%88%B7%E7%AB%AFcrash/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1090,167 +1167,6 @@ SECTION .data;
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" class="post-title-link" itemprop="url">linux文件系统</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 14:27:50 / Modified: 14:29:17" itemprop="dateCreated datePublished" datetime="2020-04-15T14:27:50+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><img src="https://upload-images.jianshu.io/upload_images/2582954-a7eed89cf5b27e87.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="文件系统（note by perrynzhou).png"></p>
-<h5 id="1-文件系统的系统调用"><a href="#1-文件系统的系统调用" class="headerlink" title="1.文件系统的系统调用"></a>1.文件系统的系统调用</h5><ul>
-<li>例如：read、write</li>
-</ul>
-<h5 id="2-虚拟文件系统-vfs-virtual-filesystem-switch"><a href="#2-虚拟文件系统-vfs-virtual-filesystem-switch" class="headerlink" title="2.虚拟文件系统(vfs virtual filesystem switch)"></a>2.虚拟文件系统(vfs virtual filesystem switch)</h5><ul>
-<li><p>超级块对象</p>
-<ul>
-<li><p>简介</p>
-<ul>
-<li>1.代表已安装文件系统</li>
-<li>2.每个文件系统都会对应一个超级块对象</li>
-<li>3.描述整个文件系统信息(组织结构和管理信息),不涉及文件系统的内容</li>
-<li>4.具体文件系统在安装时候建立，并在这些文件系统卸载时自动删除</li>
-<li>5.vfs的超级超级块存在于内存，每个分区所挂在的文件系统都有一个属于该文件系统和分区的超级块存在于磁盘</li>
-</ul>
-</li>
-<li><p>操作对象</p>
-<ul>
-<li><p>super_operations</p>
-<ul>
-<li>包括内核对特定文件系统所能调用的方法，比如read_inide/sync_fs等</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>索引节点对象</p>
-<ul>
-<li><p>简介</p>
-<ul>
-<li>1.代表一个文件，包括访问权限、属主、组、大小、生成时间和访问时间</li>
-<li>2.内核操作文件或者目录时需要的全部信息，一个文件对应一个inode(唯一)</li>
-<li>3.具体文件系统的inode持久化在磁盘，访问时调入内存,vfs的inode存在于内存</li>
-<li>4.vfs的inode是xfs inode的抽象，映射与扩充，而后者是前者的静态信息部分，也是对前者(vfs inode)的具体化、实例化和持久化</li>
-</ul>
-</li>
-<li><p>操作对象</p>
-<ul>
-<li><p>inode_operations</p>
-<ul>
-<li>包括内核针对文件所能调用的方法，比如create/link等</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>目录项对象（动态创建)</p>
-<ul>
-<li><p>简介</p>
-<ul>
-<li><p>1.代表一个目录项，是路径组成的一部分</p>
-</li>
-<li><p>2.用于方便查找目录，找到后缓存目录到dcache中</p>
-<ul>
-<li>例如/bin/vi,这个目录bin是目录文件，vi是普通文件</li>
-</ul>
-</li>
-<li><p>3.该目录对象存在于内存，磁盘并没有任何的持久化</p>
-</li>
-</ul>
-</li>
-<li><p>操作对象</p>
-<ul>
-<li><p>dentry_operations</p>
-<ul>
-<li>内核针对目录所能调用方法，比如d_cpmpare/d_delete等</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>文件对象</p>
-<ul>
-<li><p>简介</p>
-<ul>
-<li><p>1.代表进程打开的文件的内存表现形式</p>
-<ul>
-<li>调用open/close来创建和销毁文件对象</li>
-</ul>
-</li>
-<li><p>2.文件对象存在于内存，在磁盘并没有具体的存储</p>
-</li>
-</ul>
-</li>
-<li><p>操作对象</p>
-<ul>
-<li><p>file_operations</p>
-<ul>
-<li>内核针对进程已打开的文件所能调用方法比如read/write等</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h5 id="挂在到VFS的实际文件系统"><a href="#挂在到VFS的实际文件系统" class="headerlink" title="挂在到VFS的实际文件系统"></a>挂在到VFS的实际文件系统</h5><ul>
-<li>例如:ext3、ext4、xfs</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/2582954-b3fd9e17db5e44e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="虚拟文件系统.png"></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1320,7 +1236,7 @@ SECTION .data;
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-count">19</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
