@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="0.存在的疑惑 glusterd启动后怎么把glusterfsd的brick进程拉起来？ glusterfsd启动的参数从哪里获取？ glusterfsd如何加载的呢？ glusterfsd和glusterd启动后各自都是什么角色？(后续再讨论)1. glusterfs的入口函数解释 glusterfsd中main方法加载xlator {name &#x3D; 0x687dd0 “management”,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="glusterfsd启动过程">
+<meta property="og:url" content="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="0.存在的疑惑 glusterd启动后怎么把glusterfsd的brick进程拉起来？ glusterfsd启动的参数从哪里获取？ glusterfsd如何加载的呢？ glusterfsd和glusterd启动后各自都是什么角色？(后续再讨论)1. glusterfs的入口函数解释 glusterfsd中main方法加载xlator {name &#x3D; 0x687dd0 “management”,">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-d6d03fa2881d4dfe.png">
+<meta property="og:image" content="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-bb00ca85ed37cff0.png">
+<meta property="article:published_time" content="2020-04-16T09:11:54.000Z">
+<meta property="article:modified_time" content="2020-04-16T09:41:07.061Z">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content=" Go">
+<meta property="article:tag" content=" 分布式存储">
+<meta property="article:tag" content=" 对象存储">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-d6d03fa2881d4dfe.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>glusterfsd启动过程 | perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">一个专注存储技术的疯子,https://github.com/perrynzhou</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          glusterfsd启动过程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-16 17:11:54 / Modified: 17:41:07" itemprop="dateCreated datePublished" datetime="2020-04-16T17:11:54+08:00">2020-04-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h6 id="0-存在的疑惑"><a href="#0-存在的疑惑" class="headerlink" title="0.存在的疑惑"></a>0.存在的疑惑</h6><ul>
+<li>glusterd启动后怎么把glusterfsd的brick进程拉起来？</li>
+<li>glusterfsd启动的参数从哪里获取？</li>
+<li>glusterfsd如何加载的呢？</li>
+<li>glusterfsd和glusterd启动后各自都是什么角色？(后续再讨论)<h6 id="1-glusterfs的入口函数解释"><a href="#1-glusterfs的入口函数解释" class="headerlink" title="1. glusterfs的入口函数解释"></a>1. glusterfs的入口函数解释</h6></li>
+<li>glusterfsd中main方法加载xlator {name = 0x687dd0 “management”, type = 0x687f50 “mgmt/glusterd”}，然后fork一个子进程加载mgmt/glusterd中的init方法<h6 id="2-glusterd启动过程"><a href="#2-glusterd启动过程" class="headerlink" title="2.glusterd启动过程"></a>2.glusterd启动过程</h6></li>
+<li>子进程中调用mgmt/glusterd对应源文件中glusterd.c中的init,针对glusterd进行初始化，依次会调用如下方法:<ul>
+<li>glusterfs_volumes_init   </li>
+<li>glusterd.c:init</li>
+<li>glusterd_spawn_daemons</li>
+<li>glusterd_restart_bricks</li>
+<li>glusterd_brick_start</li>
+<li>glusterd_volume_start_glusterfs</li>
+<li>runner_run</li>
+<li>runner_start:fork子进程，调用execvp加载/usr/local/sbin/glusterfsd二进制文件<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> int runner_start(runner_t *runner)</span><br><span class="line"> &#123;</span><br><span class="line">        &#x2F;&#x2F;-----忽略----------------</span><br><span class="line">execvp(runner-&gt;argv[0], runner-&gt;argv);</span><br><span class="line">        &#x2F;&#x2F;-----忽略----------------</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h6 id="3-glusterfsd如何加载xlator"><a href="#3-glusterfsd如何加载xlator" class="headerlink" title="3.glusterfsd如何加载xlator"></a>3.glusterfsd如何加载xlator</h6></li>
+</ul>
+</li>
+<li>glusterfsd是通过读取配置文件/var/lib/glusterd/vols/dht_vol/dht_vol.172.17.0.2.data-brick.vol来加载glusterfsd运行期间需要的xlator，这些配置信息是用户创建volume时候系统生成的<br><img src="/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-d6d03fa2881d4dfe.png" alt></li>
+</ul>
+<h6 id="4-glusterd启动后进程列表"><a href="#4-glusterd启动后进程列表" class="headerlink" title="4. glusterd启动后进程列表"></a>4. glusterd启动后进程列表</h6><ul>
+<li>runner_start后继续glusterfsd.c中的main方法，启动对应的服务，glusterfsd正式启动了，就如systemctl start glusterd后出现如下的结果:<br><img src="/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-bb00ca85ed37cff0.png" alt></li>
+</ul>
+<h6 id="5-glusterfsd启动流程"><a href="#5-glusterfsd启动流程" class="headerlink" title="5.glusterfsd启动流程"></a>5.glusterfsd启动流程</h6><ul>
+<li>上个步骤通过runner_start加载glusterfsd的二进制进程，glusterfsd进入初始化节点，首先 glusterfs_listener_init 初始化tcp连接</li>
+<li>glusterfsd通过tcp连接到glusterd获取volume xlator信息，准备构建xlator的graph.</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">volume xlator信息如下:</span><br><span class="line"></span><br><span class="line">(gdb) p rsp.spec       </span><br><span class="line">$6 &#x3D; 0x7fffe4002fc0 &quot;volume dht_vol-posix\n    type storage&#x2F;posix\n    option shared-brick-count 1\n    option volume-id 25305c2d-317f-45e9-8e60-be322ed69ee1\n    option directory &#x2F;data&#x2F;brick\nend-volume\n\nvolume dht_vol-trash\n    type features&#x2F;trash\n    option trash-internal-op off\n    option brick-path &#x2F;data&#x2F;brick\n    option trash-dir .trashcan\n    subvolumes dht_vol-posix\nend-volume\n\nvolume dht_vol-changelog\n    type features&#x2F;changelog\n    option changelog-barrier-timeout 120\n    option changelog-dir &#x2F;data&#x2F;brick&#x2F;.glusterfs&#x2F;changelogs\n    option changelog-brick &#x2F;data&#x2F;brick\n    subvolumes dht_vol-trash\nend-volume\n\nvolume dht_vol-bitrot-stub\n    type features&#x2F;bitrot-stub\n    option bitrot disable\n    option export &#x2F;data&#x2F;brick\n    subvolumes dht_vol-changelog\nend-volume\n\nvolume dht_vol-access-control\n    type features&#x2F;access-control\n    subvolumes dht_vol-bitrot-stub\nend-volume\n\nvolume dht_vol-locks\n    type features&#x2F;locks\n    option enforce-mandatory-lock off\n    subvolumes dht_vol-access-control\nend-volume\n\nvolume dht_vol-worm\n    type features&#x2F;worm\n    option worm-files-deletable on\n    option worm-file-level off\n    option worm off\n    subvolumes dht_vol-locks\nend-volume\n\nvolume dht_vol-read-only\n    type features&#x2F;read-only\n    option read-only off\n    subvolumes dht_vol-worm\nend-volume\n\nvolume dht_vol-leases\n    type features&#x2F;leases\n    option leases off\n    subvolumes dht_vol-read-only\nend-volume\n\nvolume dht_vol-upcall\n    type features&#x2F;upcall\n    option cache-invalidation off\n    subvolumes dht_vol-leases\nend-volume\n\nvolume dht_vol-io-threads\n    type performance&#x2F;io-threads\n    subvolumes dht_vol-upcall\nend-volume\n\nvolume dht_vol-selinux\n    type features&#x2F;selinux\n    option selinux on\n    subvolumes dht_vol-io-threads\nend-volume\n\nvolume dht_vol-marker\n    type features&#x2F;marker\n    option inode-quota off\n    option quota off\n    option gsync-force-xtime off\n    option xtime off\n    option quota-version 0\n    option timestamp-file &#x2F;var&#x2F;lib&#x2F;glusterd&#x2F;vols&#x2F;dht_vol&#x2F;marker.tstamp\n    option volume-uuid 25305c2d-317f-45e9-8e60-be322ed69ee1\n    subvolumes dht_vol-selinux\nend-volume\n\nvolume dht_vol-barrier\n    type features&#x2F;barrier\n    option barrier-timeout 120\n    option barrier disable\n    subvolumes dht_vol-marker\nend-volume\n\nvolume dht_vol-index\n    type features&#x2F;index\n    option xattrop-pending-watchlist trusted.afr.dht_vol-\n    option xattrop-dirty-watchlist trusted.afr.dirty\n    option index-base &#x2F;data&#x2F;brick&#x2F;.glusterfs&#x2F;indices\n    subvolumes dht_vol-barrier\nend-volume\n\nvolume dht_vol-quota\n    type features&#x2F;quota\n    option deem-statfs off\n    option server-quota off\n    option volume-uuid dht_vol\n    subvolumes dht_vol-index\nend-volume\n\nvolume dht_vol-io-stats\n    type debug&#x2F;io-stats\n    option count-fop-hits off\n    option latency-measurement off\n    option log-level INFO\n    option unique-id &#x2F;data&#x2F;brick\n    subvolumes dht_vol-quota\nend-volume\n\nvolume &#x2F;data&#x2F;brick\n    type performance&#x2F;decompounder\n    subvolumes dht_vol-io-stats\nend-volume\n\nvolume dht_vol-server\n    type protocol&#x2F;server\n    option transport.listen-backlog 1024\n    option transport.socket.keepalive-count 9\n    option transport.socket.keepalive-interval 2\n    option transport.socket.keepalive-time 20\n    option transport.socket.ssl-enabled off\n    option transport.socket.keepalive 1\n    option auth.addr.&#x2F;data&#x2F;brick.allow *\n    option auth-path &#x2F;data&#x2F;brick\n    option auth.login.b26ac1fd-40a4-4c6e-b211-a9f2b58beedc.password 4eda9afe-9466-4283-b175-6020d5981994\n    option auth.login.&#x2F;data&#x2F;brick.allow b26ac1fd-40a4-4c6e-b211-a9f2b58beedc\n    option transport.address-family inet\n    option transport-type tcp\n    subvolumes &#x2F;data&#x2F;brick\nend-volume\n&quot;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>根据xlator获取初构建graph信息，初始化每个xlator的init方法，这个时候glusterfsd初始化成功<h6 id="6-gdb-调试方法"><a href="#6-gdb-调试方法" class="headerlink" title="6. gdb 调试方法"></a>6. gdb 调试方法</h6></li>
+<li>gdb break 信息<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">set print pretty on</span><br><span class="line">&#x2F;&#x2F;调试子进程,子进程会加载执行mgmt&#x2F;glusterd&#x2F;src&#x2F;glusterd.c:init</span><br><span class="line">set follow-fork-mode child  </span><br><span class="line">set detach-on-fork off</span><br><span class="line">br glusterfsd.c:main</span><br><span class="line">br  br glusterfs_volumes_init   &#x2F;&#x2F;glusterd和glusterfsd都会调用该方法</span><br><span class="line">br glusterd.c:init</span><br><span class="line">&#x2F;&#x2F;------ 进入init函数后执行如下------</span><br><span class="line">&#x2F;* 进入这个函数后设置调试父进程   </span><br><span class="line">  set follow-fork-mode parent</span><br><span class="line">  set detach-on-fork on</span><br><span class="line"> *&#x2F;</span><br><span class="line">br glusterd_spawn_daemons</span><br><span class="line">br glusterd_restart_bricks</span><br><span class="line">br glusterd_brick_start</span><br><span class="line">br glusterd_volume_start_glusterfs</span><br><span class="line">&#x2F;* 进入这个函数后设置调试父进程   </span><br><span class="line">  set follow-fork-mode child</span><br><span class="line">  set detach-on-fork on</span><br><span class="line"> *&#x2F;</span><br><span class="line">br runner_run</span><br><span class="line">br runner_log</span><br><span class="line"></span><br><span class="line">br runner_start </span><br><span class="line"></span><br><span class="line">&#x2F;** 进入runner_start 后设置如下断点，glusterfsd启动以后会按照如下的调用链进行 *&#x2F;</span><br><span class="line">br glusterfs_volumes_init   </span><br><span class="line">br glusterfs_listener_init  &#x2F;&#x2F;glusterd不会调用该方法</span><br><span class="line">br glusterfs_mgmt_init      &#x2F;&#x2F;glusterd不会调用该方法</span><br><span class="line">br mgmt_rpc_notify</span><br><span class="line">br glusterfs_volfile_fetch</span><br><span class="line">br glusterfs_volfile_fetch_one</span><br><span class="line">br mgmt_getspec_cbk </span><br><span class="line">br glusterfs_process_volfp</span><br><span class="line">br glusterfs_graph_activate</span><br><span class="line">br glusterfs_graph_init</span><br></pre></td></tr></table></figure></li>
+<li>1.glusterd gdb日志<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br></pre></td><td class="code"><pre><span class="line">[root@b94a78ebfc80 ~]$ gdb glusterd</span><br><span class="line">GNU gdb (GDB) Red Hat Enterprise Linux 7.6.1-115.el7</span><br><span class="line">Copyright (C) 2013 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http:&#x2F;&#x2F;gnu.org&#x2F;licenses&#x2F;gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;</span><br><span class="line">and &quot;show warranty&quot; for details.</span><br><span class="line">This GDB was configured as &quot;x86_64-redhat-linux-gnu&quot;.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http:&#x2F;&#x2F;www.gnu.org&#x2F;software&#x2F;gdb&#x2F;bugs&#x2F;&gt;...</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;sbin&#x2F;glusterfsd...done.</span><br><span class="line">(gdb) br glusterfsd.c:main</span><br><span class="line">Breakpoint 1 at 0x40b71d: file glusterfsd.c, line 2746.</span><br><span class="line">(gdb) br glusterd.c:init</span><br><span class="line">No source file named glusterd.c.</span><br><span class="line">Make breakpoint pending on future shared library load? (y or [n]) y</span><br><span class="line">Breakpoint 2 (glusterd.c:init) pending.</span><br><span class="line">(gdb) set print pretty on</span><br><span class="line">(gdb) set follow-fork-mode child  </span><br><span class="line">(gdb) set detach-on-fork off</span><br><span class="line">(gdb) c</span><br><span class="line">The program is not being run.</span><br><span class="line">(gdb) r</span><br><span class="line">Starting program: &#x2F;usr&#x2F;local&#x2F;sbin&#x2F;glusterd </span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line"></span><br><span class="line">Breakpoint 1, main (argc&#x3D;1, argv&#x3D;0x7fffffffe778) at glusterfsd.c:2746</span><br><span class="line">2746        glusterfs_ctx_t *ctx &#x3D; NULL;</span><br><span class="line">Missing separate debuginfos, use: debuginfo-install glibc-2.17-292.el7.x86_64 libuuid-2.23.2-61.el7_7.1.x86_64 openssl-libs-1.0.2k-19.el7.x86_64 zlib-1.2.7-18.el7.x86_64</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">[New process 956]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line">[New Thread 0x7ffff5431700 (LWP 957)]</span><br><span class="line">[New Thread 0x7ffff4c30700 (LWP 958)]</span><br><span class="line">[New Thread 0x7ffff442f700 (LWP 959)]</span><br><span class="line">[New Thread 0x7ffff3c2e700 (LWP 960)]</span><br><span class="line">[New Thread 0x7ffff342d700 (LWP 961)]</span><br><span class="line">[New Thread 0x7ffff2c2c700 (LWP 962)]</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;lib&#x2F;glusterfs&#x2F;&#x2F;xlator&#x2F;mgmt&#x2F;glusterd.so...done.</span><br><span class="line">[Switching to Thread 0x7ffff7fea4c0 (LWP 956)]</span><br><span class="line"></span><br><span class="line">Breakpoint 2, init (this&#x3D;0x686d40) at glusterd.c:1373</span><br><span class="line">1373        int32_t ret &#x3D; -1;</span><br><span class="line">Missing separate debuginfos, use: debuginfo-install glibc-2.17-292.el7.x86_64 libuuid-2.23.2-61.el7_7.1.x86_64 libxml2-2.9.1-6.el7_2.3.x86_64 openssl-libs-1.0.2k-19.el7.x86_64 userspace-rcu-0.7.16-1.el7.x86_64 xz-libs-5.2.2-1.el7.x86_64 zlib-1.2.7-18.el7.x86_64</span><br><span class="line">(gdb)  set follow-fork-mode parent</span><br><span class="line">(gdb)   set detach-on-fork on</span><br><span class="line">(gdb) br glusterd_spawn_daemons</span><br><span class="line">Breakpoint 3 at 0x7ffff1f79f85: file glusterd-utils.c, line 3619.</span><br><span class="line">(gdb) br glusterd_restart_bricks</span><br><span class="line">Breakpoint 4 at 0x7ffff1f832e3: file glusterd-utils.c, line 6334.</span><br><span class="line">(gdb) br glusterd_brick_start</span><br><span class="line">Breakpoint 5 at 0x7ffff1f826cd: file glusterd-utils.c, line 6107.</span><br><span class="line">(gdb) br glusterd_volume_start_glusterfs</span><br><span class="line">Breakpoint 6 at 0x7ffff1f73f5f: file glusterd-utils.c, line 2024.</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;lib&#x2F;glusterfs&#x2F;&#x2F;rpc-transport&#x2F;socket.so...done.</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;lib&#x2F;glusterfs&#x2F;&#x2F;rpc-transport&#x2F;rdma.so...done.</span><br><span class="line">Detaching after fork from child process 964.</span><br><span class="line">Detaching after fork from child process 965.</span><br><span class="line">Detaching after fork from child process 966.</span><br><span class="line">Detaching after fork from child process 967.</span><br><span class="line">Detaching after fork from child process 968.</span><br><span class="line">Detaching after fork from child process 969.</span><br><span class="line">Detaching after fork from child process 970.</span><br><span class="line">Detaching after fork from child process 971.</span><br><span class="line">Detaching after fork from child process 972.</span><br><span class="line">Detaching after fork from child process 973.</span><br><span class="line">Detaching after fork from child process 974.</span><br><span class="line">Detaching after fork from child process 975.</span><br><span class="line">Detaching after fork from child process 976.</span><br><span class="line">Detaching after fork from child process 977.</span><br><span class="line">Detaching after fork from child process 978.</span><br><span class="line">Detaching after fork from child process 979.</span><br><span class="line">Detaching after fork from child process 980.</span><br><span class="line">Detaching after fork from child process 981.</span><br><span class="line">Detaching after fork from child process 982.</span><br><span class="line">Detaching after fork from child process 983.</span><br><span class="line">Detaching after fork from child process 984.</span><br><span class="line">Detaching after fork from child process 985.</span><br><span class="line">Detaching after fork from child process 986.</span><br><span class="line">Detaching after fork from child process 987.</span><br><span class="line">Detaching after fork from child process 988.</span><br><span class="line">[Switching to Thread 0x7ffff342d700 (LWP 961)]</span><br><span class="line"></span><br><span class="line">Breakpoint 3, glusterd_spawn_daemons (opaque&#x3D;0x0) at glusterd-utils.c:3619</span><br><span class="line">3619        glusterd_conf_t *conf &#x3D; THIS-&gt;private;</span><br><span class="line">Missing separate debuginfos, use: debuginfo-install keyutils-libs-1.5.8-3.el7.x86_64 krb5-libs-1.15.1-37.el7_7.2.x86_64 libcom_err-1.42.9-16.el7.x86_64 libibverbs-22.1-3.el7.x86_64 libnl3-3.2.28-4.el7.x86_64 librdmacm-22.1-3.el7.x86_64 libselinux-2.5-14.1.el7.x86_64 pcre-8.32-17.el7.x86_64</span><br><span class="line">(gdb) n</span><br><span class="line">3620        int ret &#x3D; -1;</span><br><span class="line">(gdb) </span><br><span class="line">3622        synclock_lock(&amp;conf-&gt;big_lock);</span><br><span class="line">(gdb) </span><br><span class="line">[New Thread 0x7fffef606700 (LWP 989)]</span><br><span class="line">3623        glusterd_restart_bricks();</span><br><span class="line">(gdb) </span><br><span class="line"></span><br><span class="line">Breakpoint 4, glusterd_restart_bricks (opaque&#x3D;0x7fffef9a9fc8) at glusterd-utils.c:6334</span><br><span class="line">6334        int ret &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">6335        glusterd_volinfo_t *volinfo &#x3D; NULL;</span><br><span class="line">(gdb) </span><br><span class="line">6336        glusterd_brickinfo_t *brickinfo &#x3D; NULL;</span><br><span class="line">(gdb)   set follow-fork-mode child</span><br><span class="line">(gdb)   set detach-on-fork on</span><br><span class="line">(gdb) br runner_run</span><br><span class="line">Breakpoint 7 at 0x7ffff7b35f04: runner_run. (2 locations)</span><br><span class="line">(gdb) br runner_start</span><br><span class="line">Breakpoint 8 at 0x7ffff7b35825: runner_start. (2 locations)</span><br><span class="line">(gdb) info break</span><br><span class="line">Num     Type           Disp Enb Address            What</span><br><span class="line">1       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">1.1                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 1</span><br><span class="line">1.2                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 2</span><br><span class="line">2       breakpoint     keep y   0x00007ffff1f3a7ee in init at glusterd.c:1373 inf 2</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">3       breakpoint     keep y   0x00007ffff1f79f85 in glusterd_spawn_daemons at glusterd-utils.c:3619 inf 2</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">4       breakpoint     keep y   0x00007ffff1f832e3 in glusterd_restart_bricks at glusterd-utils.c:6334 inf 2</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">5       breakpoint     keep y   0x00007ffff1f826cd in glusterd_brick_start at glusterd-utils.c:6107 inf 2</span><br><span class="line">6       breakpoint     keep y   0x00007ffff1f73f5f in glusterd_volume_start_glusterfs at glusterd-utils.c:2024 inf 2</span><br><span class="line">7       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">7.1                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 1</span><br><span class="line">7.2                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 2</span><br><span class="line">8       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">8.1                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 1</span><br><span class="line">8.2                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 2</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line"></span><br><span class="line">Breakpoint 5, glusterd_brick_start (volinfo&#x3D;0x6db4b0, brickinfo&#x3D;0x6ef490, wait&#x3D;false, only_connect&#x3D;false) at glusterd-utils.c:6107</span><br><span class="line">6107        int ret &#x3D; -1;</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">[New Thread 0x7fffeee05700 (LWP 991)]</span><br><span class="line"></span><br><span class="line">Breakpoint 6, glusterd_volume_start_glusterfs (volinfo&#x3D;0x6db4b0, brickinfo&#x3D;0x6ef490, wait&#x3D;false) at glusterd-utils.c:2024</span><br><span class="line">2024        int32_t ret &#x3D; -1;</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">[New process 992]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line">[Switching to Thread 0x7ffff342d700 (LWP 992)]</span><br><span class="line"></span><br><span class="line">Breakpoint 8, runner_start (runner&#x3D;0x7fffef800e00) at run.c:259</span><br><span class="line">259         int pi[3][2] &#x3D; &#123;&#123;-1, -1&#125;, &#123;-1, -1&#125;, &#123;-1, -1&#125;&#125;;</span><br><span class="line">(gdb) n</span><br><span class="line">261         int ret &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">262         int errno_priv &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">263         int i &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">266         if (runner-&gt;runerr || !runner-&gt;argv) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">271         GF_ASSERT(runner-&gt;argv[0]);</span><br><span class="line">(gdb)  set follow-fork-mode child</span><br><span class="line">(gdb)   set detach-on-fork on</span><br><span class="line">(gdb) n</span><br><span class="line">276         ret &#x3D; pipe(xpi);</span><br><span class="line">(gdb) </span><br><span class="line">277         if (ret !&#x3D; -1)</span><br><span class="line">(gdb) </span><br><span class="line">278             ret &#x3D; fcntl(xpi[1], F_SETFD, FD_CLOEXEC);</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">281             if (runner-&gt;chfd[i] !&#x3D; -2)</span><br><span class="line">(gdb) </span><br><span class="line">282                 continue;</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">281             if (runner-&gt;chfd[i] !&#x3D; -2)</span><br><span class="line">(gdb) </span><br><span class="line">282                 continue;</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">281             if (runner-&gt;chfd[i] !&#x3D; -2)</span><br><span class="line">(gdb) </span><br><span class="line">282                 continue;</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">291         if (ret !&#x3D; -1)</span><br><span class="line">(gdb) </span><br><span class="line">292             runner-&gt;chpid &#x3D; fork();</span><br><span class="line">(gdb) </span><br><span class="line">[New process 995]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line">[Switching to Thread 0x7ffff342d700 (LWP 995)]</span><br><span class="line">293         switch (runner-&gt;chpid) &#123;</span><br><span class="line">327                 if (ret !&#x3D; -1) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">328                     int fdv[4] &#x3D; &#123;0, 1, 2, xpi[1]&#125;;</span><br><span class="line">(gdb) </span><br><span class="line">330                     ret &#x3D; close_fds_except(fdv, sizeof(fdv) &#x2F; sizeof(*fdv));</span><br><span class="line">(gdb) </span><br><span class="line">333                 if (ret !&#x3D; -1) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">335                     sigemptyset(&amp;set);</span><br><span class="line">(gdb) </span><br><span class="line">336                     sigprocmask(SIG_SETMASK, &amp;set, NULL);</span><br><span class="line">(gdb) </span><br><span class="line">338                     execvp(runner-&gt;argv[0], runner-&gt;argv);</span><br><span class="line">(gdb) p runner-&gt;argv[0]</span><br><span class="line">$1 &#x3D; 0x7fffe8000c60 &quot;&#x2F;usr&#x2F;local&#x2F;sbin&#x2F;glusterfsd&quot;</span><br><span class="line">(gdb) p runner-&gt;argv</span><br><span class="line">$2 &#x3D; (char **) 0x7fffe8000970</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv</span><br><span class="line">$3 &#x3D; (char **) 0x7fffe8000970</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[1]</span><br><span class="line">$4 &#x3D; 0x7fffe8000ce0 &quot;-s&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[2]</span><br><span class="line">$5 &#x3D; 0x7fffe8000d50 &quot;172.17.0.2&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[3]</span><br><span class="line">$6 &#x3D; 0x7fffe8000dc0 &quot;--volfile-id&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[4]</span><br><span class="line">$7 &#x3D; 0x7fffe8000e30 &quot;dht_vol.172.17.0.2.data-brick&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[5]</span><br><span class="line">$8 &#x3D; 0x7fffe8000eb0 &quot;-p&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[6]</span><br><span class="line">$9 &#x3D; 0x7fffe8000f20 &quot;&#x2F;var&#x2F;run&#x2F;gluster&#x2F;vols&#x2F;dht_vol&#x2F;172.17.0.2-data-brick.pid&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[7]</span><br><span class="line">$10 &#x3D; 0x7fffe8000fc0 &quot;-S&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[8]</span><br><span class="line">$11 &#x3D; 0x7fffe8001030 &quot;&#x2F;var&#x2F;run&#x2F;gluster&#x2F;cb954c564295c3be.socket&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[9]</span><br><span class="line">$12 &#x3D; 0x7fffe80010c0 &quot;--brick-name&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[10]</span><br><span class="line">$13 &#x3D; 0x7fffe8001130 &quot;&#x2F;data&#x2F;brick&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[11]</span><br><span class="line">$14 &#x3D; 0x7fffe80011a0 &quot;-l&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[12]</span><br><span class="line">$15 &#x3D; 0x7fffe8001210 &quot;&#x2F;var&#x2F;log&#x2F;glusterfs&#x2F;bricks&#x2F;data-brick.log&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[13]</span><br><span class="line">$16 &#x3D; 0x7fffe80012a0 &quot;--xlator-option&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[14]</span><br><span class="line">$17 &#x3D; 0x7fffe8001310 &quot;*-posix.glusterd-uuid&#x3D;88efffbe-ce9e-4117-8d1a-77de0a8ecd75&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[15]</span><br><span class="line">$18 &#x3D; 0x7fffe80013b0 &quot;--process-name&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[16]</span><br><span class="line">$19 &#x3D; 0x7fffe8001420 &quot;brick&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[17]</span><br><span class="line">$20 &#x3D; 0x7fffe8001490 &quot;--brick-port&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[18]</span><br><span class="line">$21 &#x3D; 0x7fffe8001500 &quot;49152&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[19]</span><br><span class="line">$22 &#x3D; 0x7fffe8001570 &quot;--xlator-option&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[20]</span><br><span class="line">$23 &#x3D; 0x7fffe80015e0 &quot;dht_vol-server.listen-port&#x3D;49152&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[21]</span><br><span class="line">$24 &#x3D; 0x0</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure></li>
+<li>glusterfsd gdb 日志<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info break</span><br><span class="line">Num     Type           Disp Enb Address            What</span><br><span class="line">1       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 2 times</span><br><span class="line">1.1                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 1</span><br><span class="line">1.2                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 5, 4, 3</span><br><span class="line">2       breakpoint     keep y   &lt;PENDING&gt;          glusterd.c:init inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">3       breakpoint     keep y   &lt;PENDING&gt;          glusterd_spawn_daemons inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">4       breakpoint     keep y   &lt;PENDING&gt;          glusterd_restart_bricks inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">5       breakpoint     keep y   &lt;PENDING&gt;          glusterd_brick_start inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">6       breakpoint     keep y   &lt;PENDING&gt;          glusterd_volume_start_glusterfs inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">7       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">7.1                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 1</span><br><span class="line">7.2                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 5, 4, 3</span><br><span class="line">8       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">8.1                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 1</span><br><span class="line">8.2                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 5, 4, 3</span><br><span class="line">9       breakpoint     keep y   &lt;PENDING&gt;          server-rpc-fops_v2.c:server4_0_mkdir</span><br><span class="line">10      breakpoint     keep y   &lt;PENDING&gt;          server-resolve.c:server_resolve</span><br><span class="line">11      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">11.1                        y     0x000000000040b603 in glusterfs_volumes_init at glusterfsd.c:2704 inf 1</span><br><span class="line">11.2                        y     0x000000000040b603 in glusterfs_volumes_init at glusterfsd.c:2704 inf 5, 4, 3</span><br><span class="line">12      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">12.1                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 1</span><br><span class="line">12.2                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 5, 4, 3</span><br><span class="line">13      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">13.1                        y     0x000000000040710f in get_volfp at glusterfsd.c:781 inf 1</span><br><span class="line">13.2                        y     0x000000000040710f in get_volfp at glusterfsd.c:781 inf 5, 4, 3</span><br><span class="line">14      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">14.1                        y     0x0000000000412581 in glusterfs_mgmt_init at glusterfsd-mgmt.c:2648 inf 1</span><br><span class="line">14.2                        y     0x0000000000412581 in glusterfs_mgmt_init at glusterfsd-mgmt.c:2648 inf 5, 4, 3</span><br><span class="line">15      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">---Type &lt;return&gt; to continue, or q &lt;return&gt; to quit---</span><br><span class="line">15.1                        y     0x0000000000411848 in glusterfs_volfile_fetch at glusterfsd-mgmt.c:2270 inf 1</span><br><span class="line">15.2                        y     0x0000000000411848 in glusterfs_volfile_fetch at glusterfsd-mgmt.c:2270 inf 5, 4, 3</span><br><span class="line">16      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">16.1                        y     0x00000000004114ed in glusterfs_volfile_fetch_one at glusterfsd-mgmt.c:2166 inf 1</span><br><span class="line">16.2                        y     0x00000000004114ed in glusterfs_volfile_fetch_one at glusterfsd-mgmt.c:2166 inf 5, 4, 3</span><br><span class="line">17      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">17.1                        y     0x0000000000410a85 in mgmt_getspec_cbk at glusterfsd-mgmt.c:1922 inf 1</span><br><span class="line">17.2                        y     0x0000000000410a85 in mgmt_getspec_cbk at glusterfsd-mgmt.c:1922 inf 5, 4, 3</span><br><span class="line">18      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">18.1                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 1</span><br><span class="line">18.2                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 5, 4, 3</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/15/global-threading%E5%90%8E%E5%AF%BC%E8%87%B4mount%E5%AE%A2%E6%88%B7%E7%AB%AFcrash/" rel="prev" title="global-threading后导致mount客户端crash">
+      <i class="fa fa-chevron-left"></i> global-threading后导致mount客户端crash
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/16/fork%E4%B9%8B%E5%89%8D%E7%9A%84%E7%BC%93%E5%86%B2%E5%8C%BA%E9%97%AE%E9%A2%98/" rel="next" title="fork之前的缓冲区问题">
+      fork之前的缓冲区问题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-6"><a class="nav-link" href="#0-存在的疑惑"><span class="nav-number">1.</span> <span class="nav-text">0.存在的疑惑</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#1-glusterfs的入口函数解释"><span class="nav-number">2.</span> <span class="nav-text">1. glusterfs的入口函数解释</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2-glusterd启动过程"><span class="nav-number">3.</span> <span class="nav-text">2.glusterd启动过程</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#3-glusterfsd如何加载xlator"><span class="nav-number">4.</span> <span class="nav-text">3.glusterfsd如何加载xlator</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#4-glusterd启动后进程列表"><span class="nav-number">5.</span> <span class="nav-text">4. glusterd启动后进程列表</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#5-glusterfsd启动流程"><span class="nav-number">6.</span> <span class="nav-text">5.glusterfsd启动流程</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#6-gdb-调试方法"><span class="nav-number">7.</span> <span class="nav-text">6. gdb 调试方法</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
