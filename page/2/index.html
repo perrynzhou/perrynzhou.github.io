@@ -152,6 +152,371 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/glusterfs-dht%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/glusterfs-dht%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/" class="post-title-link" itemprop="url">How GlusterFs Distribution Works</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-15 16:24:54 / Modified: 16:29:05" itemprop="dateCreated datePublished" datetime="2020-04-15T16:24:54+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="How-GlusterFS-Distribution-Works"><a href="#How-GlusterFS-Distribution-Works" class="headerlink" title="How GlusterFS Distribution Works"></a>How GlusterFS Distribution Works</h1><p>The defining feature of any scale-out system is its ability to distribute work<br>or data among many servers.  Accordingly, people in the distributed-system<br>community have developed many powerful techniques to perform such distribution,<br>but those techniques often remain little known or understood even among other<br>members of the file system and database communities that benefit.  This<br>confusion is represented even in the name of the GlusterFS component that<br>performs distribution - DHT, which stands for Distributed Hash Table but is not<br>actually a DHT as that term is most commonly used or defined.  The way<br>GlusterFS’s DHT works is based on a few basic principles:</p>
+<ul>
+<li><p>All operations are driven by clients, which are all equal.  There are no<br>special nodes with special knowledge of where files are or should be.</p>
+</li>
+<li><p>Directories exist on all subvolumes (bricks or lower-level aggregations of<br>bricks); files exist on only one.</p>
+</li>
+<li><p>Files are assigned to subvolumes based on <em>consistent hashing</em>, and even<br>more specifically a form of consistent hashing exemplified by Amazon’s<br><a href="http://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf" target="_blank" rel="noopener">Dynamo</a>.</p>
+</li>
+</ul>
+<p>The result of all this is that users are presented with a set of files that is<br>the union of the files present on all subvolumes.  The following sections<br>describe how this “uniting” process actually works.</p>
+<h2 id="Layouts"><a href="#Layouts" class="headerlink" title="Layouts"></a>Layouts</h2><p>The conceptual basis of Dynamo-style consistent hashing is of numbers around a<br>circle, like a clock.  First, the circle is divided into segments and those<br>segments are assigned to bricks.  (For the sake of simplicity we’ll use<br>“bricks” hereafter even though they might actually be replicated/striped<br>subvolumes.)  Several factors guide this assignment.</p>
+<ul>
+<li><p>Assignments are done separately for each directory.</p>
+</li>
+<li><p>Historically, segments have all been the same size.  However, this can lead<br>to smaller bricks becoming full while plenty of space remains on larger<br>ones.  If the <em>cluster.weighted-rebalance</em> option is set, segments sizes<br>will be proportional to brick sizes.</p>
+</li>
+<li><p>Assignments need not include all bricks in the volume.  If the<br><em>cluster.subvols-per-directory</em> option is set, only that many bricks will<br>receive assignments for that directory.</p>
+</li>
+</ul>
+<p>However these assignments are done, they collectively become what we call a<br><em>layout</em> for a directory.  This layout is then stored using extended<br>attributes, with each brick’s copy of that extended attribute on that directory<br>consisting of four 32-bit fields.</p>
+<ul>
+<li><p>A version, which might be DHT_HASH_TYPE_DM to represent an assignment as<br>described above, or DHT_HASH_TYPE_DM_USER to represent an assignment made<br>manually by the user (or external script).</p>
+</li>
+<li><p>A “commit hash” which will be described later.</p>
+</li>
+<li><p>The first number in the assigned range (segment).</p>
+</li>
+<li><p>The last number in the assigned range.</p>
+</li>
+</ul>
+<p>For example, the extended attributes representing a weighted assignment between<br>three bricks, one twice as big as the others, might look like this.</p>
+<ul>
+<li><p>Brick A (the large one): DHT_HASH_TYPE_DM 1234 0 0x7ffffff</p>
+</li>
+<li><p>Brick B: DHT_HASH_TYPE_DM 1234 0x80000000 0xbfffffff</p>
+</li>
+<li><p>Brick C: DHT_HASH_TYPE_DM 1234 0xc0000000 0xffffffff</p>
+</li>
+</ul>
+<h2 id="Placing-Files"><a href="#Placing-Files" class="headerlink" title="Placing Files"></a>Placing Files</h2><p>To place a file in a directory, we first need a layout for that directory - as<br>described above.  Next, we calculate a hash for the file.  To minimize<br>collisions either between files in the same directory with different names or<br>between files in different directories with the same name, this hash is<br>generated using both the (containing) directory’s unique GFID and the file’s<br>name.  This hash is then matched to one of the layout assignments, to yield<br>what we call a <em>hashed location</em>.  For example, consider the layout shown<br>above.  The hash 0xabad1dea is between 0x80000000 and 0xbfffffff, so the<br>corresponding file’s hashed location would be on Brick B.  A second file with a<br>hash of 0xfaceb00c would be assigned to Brick C by the same reasoning.</p>
+<h2 id="Looking-Up-Files"><a href="#Looking-Up-Files" class="headerlink" title="Looking Up Files"></a>Looking Up Files</h2><p>Because layout assignments might change, especially as bricks are added or<br>removed, finding a file involves more than calculating its hashed location and<br>looking there.  That is in fact the first step, and works most of the time -<br>i.e. the file is found where we expected it to be - but there are a few more<br>steps when that’s not the case.  Historically, the next step has been to look<br>for the file <strong>everywhere</strong> - i.e. to broadcast our lookup request to all<br>subvolumes.  If the file isn’t found that way, it doesn’t exist.  At this<br>point, an open that requires the file’s presence will fail, or a create/mkdir<br>that requires its absence will be allowed to continue.</p>
+<p>Regardless of whether a file is found at its hashed location or elsewhere, we<br>now know its <em>cached location</em>.  As the name implies, this is stored within DHT<br>to satisfy future lookups.  If it’s not the same as the hashed location, we<br>also take an extra step.  This step is the creation of a <em>linkfile</em>, which is a<br>special stub left at the <strong>hashed</strong> location pointing to the <strong>cached</strong><br>location.  Therefore, if a client naively looks for a file at its hashed<br>location and finds a linkfile instead, it can use that linkfile to look up the<br>file where it really is instead of needing to inquire everywhere.</p>
+<h2 id="Rebalancing"><a href="#Rebalancing" class="headerlink" title="Rebalancing"></a>Rebalancing</h2><p>As bricks are added or removed, or files are renamed, many files can end up<br>somewhere other than at their hashed locations.  When this happens, the volumes<br>need to be rebalanced.  This process consists of two parts.</p>
+<ol>
+<li><p>Calculate new layouts, according to the current set of bricks (and possibly<br>their characteristics).  We call this the “fix-layout” phase.</p>
+</li>
+<li><p>Migrate any “misplaced” files to their correct (hashed) locations, and<br>clean up any linkfiles which are no longer necessary.  We call this the<br>“migrate-data” phase.</p>
+</li>
+</ol>
+<p>Usually, these two phases are done together.  (In fact, the code for them is<br>somewhat intermingled.)  However, the migrate-data phase can involve a lot of<br>I/O and be very disruptive, so users can do just the fix-layout phase and defer<br>migrate-data until a more convenient time.  This allows new files to be placed<br>on new bricks, even though old files might still be in the “wrong” place.</p>
+<p>When calculating a new layout to replace an old one, DHT specifically tries to<br>maximize overlap of the assigned ranges, thus minimizing data movement.  This<br>difference can be very large.  For example, consider the case where our example<br>layout from earlier is updated to add a new double-sided brick.  Here’s a very<br>inefficient way to do that.</p>
+<ul>
+<li><p>Brick A (the large one): 0x00000000 to 0x55555555</p>
+</li>
+<li><p>Brick B: 0x55555556 to 0x7fffffff</p>
+</li>
+<li><p>Brick C: 0x80000000 to 0xaaaaaaaa</p>
+</li>
+<li><p>Brick D (the new one): 0xaaaaaaab to 0xffffffff</p>
+</li>
+</ul>
+<p>This would cause files in the following ranges to be migrated:</p>
+<ul>
+<li><p>0x55555556 to 0x7fffffff (from A to B)</p>
+</li>
+<li><p>0x80000000 to 0xaaaaaaaa (from B to C)</p>
+</li>
+<li><p>0xaaaaaaab to 0xbfffffff (from B to D)</p>
+</li>
+<li><p>0xc0000000 to 0xffffffff (from C to D)</p>
+</li>
+</ul>
+<p>As an historical note, this is exactly what we used to do, and in this case it<br>would have meant moving 7/12 of all files in the volume.  Now let’s consider a<br>new layout that’s optimized to maximize overlap with the old one. </p>
+<ul>
+<li><p>Brick A: 0x00000000 to 0x55555555</p>
+</li>
+<li><p>Brick D: 0x55555556 to 0xaaaaaaaa  &lt;- optimized insertion point</p>
+</li>
+<li><p>Brick B: 0xaaaaaaab to 0xd5555554</p>
+</li>
+<li><p>Brick C: 0xd5555555 to 0xffffffff</p>
+</li>
+</ul>
+<p>In this case we only need to move 5/12 of all files.  In a volume with millions<br>or even billions of files, reducing data movement by 1/6 of all files is a<br>pretty big improvement.  In the future, DHT might use “virtual node IDs” or<br>multiple hash rings to make rebalancing even more efficient.</p>
+<h2 id="Rename-Optimizations"><a href="#Rename-Optimizations" class="headerlink" title="Rename Optimizations"></a>Rename Optimizations</h2><p>With the file-lookup mechanisms we already have in place, it’s not necessary to<br>move a file from one brick to another when it’s renamed - even across<br>directories.  It will still be found, albeit a little less efficiently.  The<br>first client to look for it after the rename will add a linkfile, which every<br>other client will follow from then on.  Also, every client that has found the<br>file once will continue to find it based on its cached location, without any<br>network traffic at all.  Because the extra lookup cost is small, and the<br>movement cost might be very large, DHT renames the file “in place” on its<br>current brick instead (taking advantage of the fact that directories exist<br>everywhere).</p>
+<p>This optimization is further extended to handle cases where renames are very<br>common.  For example, rsync and similar tools often use a “write new then<br>rename” idiom in which a file “xxx” is actually written as “.xxx.1234” and then<br>moved into place only after its contents have been fully written.  To make this<br>process more efficient, DHT uses a regular expression to separate the permanent<br>part of a file’s name (in this case “xxx”) from what is likely to be a<br>temporary part (the leading “.” and trailing “.1234”).  That way, after the<br>file is renamed it will be in its correct hashed location - which it wouldn’t<br>be otherwise if “xxx” and “.xxx.1234” hash differently - and no linkfiles or<br>broadcast lookups will be necessary.</p>
+<p>In fact, there are two regular expressions available for this purpose -<br><em>cluster.rsync-hash-regex</em> and <em>cluster.extra-hash-regex</em>.  As its name<br>implies, <em>rsync-hash-regex</em> defaults to the pattern that regex uses, while<br><em>extra-hash-regex</em> can be set by the user to support a second tool using the<br>same temporary-file idiom.</p>
+<h2 id="Commit-Hashes"><a href="#Commit-Hashes" class="headerlink" title="Commit Hashes"></a>Commit Hashes</h2><p>A very recent addition to DHT’s algorithmic arsenal is intended to reduce the<br>number of “broadcast” lookups the it issues.  If a volume is completely in<br>balance, then no file could exist anywhere but at its hashed location.<br>Therefore, if we’ve already looked there and not found it, then looking<br>elsewhere would be pointless (and wasteful).  The <em>commit hash</em> mechanism is<br>used to detect this case.  A commit hash is assigned to a volume, and<br>separately to each directory, and then updated according to the following<br>rules.</p>
+<ul>
+<li><p>The volume commit hash is changed whenever actions are taken that might<br>cause layout assignments across all directories to become invalid - i.e.<br>bricks being added, removed, or replaced.</p>
+</li>
+<li><p>The directory commit hash is changed whenever actions are taken that might<br>cause files to be “misplaced” - e.g. when they’re renamed.</p>
+</li>
+<li><p>The directory commit hash is set to the volume commit hash when the<br>directory is created, and whenever the directory is fully rebalanced so that<br>all files are at their hashed locations.</p>
+</li>
+</ul>
+<p>In other words, whenever either the volume or directory commit hash is changed<br>that creates a mismatch.  In that case we revert to the “pessimistic”<br>broadcast-lookup method described earlier.  However, if the two hashes match<br>then we can with skip the broadcast lookup and return a result immediately.<br>This has been observed to cause a 3x performance improvement in workloads that<br>involve creating many small files across many bricks.</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/" class="post-title-link" itemprop="url">glusterfs global-threading挂载选项</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-15 16:13:48 / Modified: 16:15:32" itemprop="dateCreated datePublished" datetime="2020-04-15T16:13:48+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">core: implement a global thread pool</span><br><span class="line"></span><br><span class="line">This patch implements a thread pool that is wait-free for adding jobs to</span><br><span class="line">the queue and uses a very small locked region to get jobs. This makes it</span><br><span class="line">possible to decrease contention drastically. It&#39;s based on wfcqueue</span><br><span class="line">structure provided by urcu library.</span><br><span class="line"></span><br><span class="line">It automatically enables more threads when load demands it, and stops</span><br><span class="line">them when not needed. There&#39;s a maximum number of threads that can be</span><br><span class="line">used. This value can be configured.</span><br><span class="line"></span><br><span class="line">Depending on the workload, the maximum number of threads plays an</span><br><span class="line">important role. So it needs to be configured for optimal performance.</span><br><span class="line">Currently the thread pool doesn&#39;t self adjust the maximum for the</span><br><span class="line">workload, so this configuration needs to be changed manually.</span><br><span class="line"></span><br><span class="line">For this reason, the global thread pool has been made optional, so that</span><br><span class="line">volumes can still use the thread pool provided by io-threads.</span><br><span class="line"></span><br><span class="line">To enable it for bricks, the following option needs to be set:</span><br><span class="line"></span><br><span class="line">config.global-threading &#x3D; on</span><br><span class="line"></span><br><span class="line">This option has no effect if bricks are already running. A restart is</span><br><span class="line">required to activate it. It&#39;s recommended to also enable the following</span><br><span class="line">option when running bricks with the global thread pool:</span><br><span class="line"></span><br><span class="line">performance.iot-pass-through &#x3D; on</span><br><span class="line"></span><br><span class="line">To enable it for a FUSE mount point, the option &#39;--global-threading&#39;</span><br><span class="line">must be added to the mount command. To change it, an umount and remount</span><br><span class="line">is needed. It&#39;s recommended to disable the following option when using</span><br><span class="line">global threading on a mount point:</span><br><span class="line"></span><br><span class="line">performance.client-io-threads &#x3D; off</span><br><span class="line"></span><br><span class="line">Currently it can only be enabled for bricks and FUSE mounts.</span><br><span class="line"></span><br><span class="line">The maximum number of threads for clients and bricks can be configured</span><br><span class="line">using the following options:</span><br><span class="line"></span><br><span class="line">config.client-threads</span><br><span class="line">config.brick-threads</span><br><span class="line"></span><br><span class="line">These options can be applied online and its effect is immediate most of</span><br><span class="line">the times. If one of them is set to 0, the maximum number of threads</span><br><span class="line">will be calcutated as #cores * 2.</span><br><span class="line"></span><br><span class="line">Some distributions use a very old userspace-rcu library (version 0.7)</span><br><span class="line">for this reason, some header files from version 0.10 have been copied</span><br><span class="line">into contrib&#x2F;userspace-rcu and are used if the detected version is 0.7</span><br><span class="line">or older.</span><br><span class="line"></span><br><span class="line">If you also want to enable global-threading for fuse clients, you also need to set this option:</span><br><span class="line"></span><br><span class="line"># gluster volume set &lt;volname&gt; performance.client-io-threads off</span><br><span class="line">And remount the volume using --global-threading mount option.</span><br><span class="line"></span><br><span class="line">gluster volume set dht_vol performance.client-io-threads off</span><br><span class="line">mount -t glusterfs -o acl,global-threading 127.0.0.1:&#x2F;dht_vol &#x2F;mnt&#x2F;data</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/" class="post-title-link" itemprop="url">go pipeline样例</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-15 14:44:56 / Modified: 14:46:29" itemprop="dateCreated datePublished" datetime="2020-04-15T14:44:56+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="workflow-for-pipeline"><a href="#workflow-for-pipeline" class="headerlink" title="workflow for pipeline"></a>workflow for pipeline</h3><p><img src="https://upload-images.jianshu.io/upload_images/2582954-e811c2065a9f1b09.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="pipeline-v1.jpg"></p>
+<h3 id="runing-result"><a href="#runing-result" class="headerlink" title="runing result"></a>runing result</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">enter contrl+c  to stop pipeline program</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/2582954-1c05168284572a19.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="result.png"></p>
+<h3 id="code-example"><a href="#code-example" class="headerlink" title="code example"></a>code example</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">        &quot;log&quot;</span><br><span class="line">        &quot;math&#x2F;rand&quot;</span><br><span class="line">        &quot;os&quot;</span><br><span class="line">        &quot;os&#x2F;signal&quot;</span><br><span class="line">        &quot;syscall&quot;</span><br><span class="line">        &quot;time&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">classic pipeline demo write by perrynzhou@gmail.com</span><br><span class="line">*&#x2F;</span><br><span class="line">const (</span><br><span class="line">        batchSize &#x3D; 8</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">note:</span><br><span class="line">        for range 在chan上有如下特性</span><br><span class="line">                1.如果chan上有数据，则for 继续往下执行，如果chan没有数据则for 会阻塞</span><br><span class="line">                2.如果chan被close了，则chan为nil,for range会退出循环。</span><br><span class="line">*&#x2F;</span><br><span class="line">type PipeFeature struct &#123;</span><br><span class="line">        input1 chan int64</span><br><span class="line">        input2 chan int64</span><br><span class="line">        input3 chan int64</span><br><span class="line">        done   chan struct&#123;&#125;</span><br><span class="line">        stop   chan struct&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func NewPipeFeature() *PipeFeature &#123;</span><br><span class="line">        return &amp;PipeFeature&#123;</span><br><span class="line">                input1: make(chan int64, batchSize),</span><br><span class="line">                input2: make(chan int64, batchSize),</span><br><span class="line">                input3: make(chan int64, batchSize),</span><br><span class="line">                done:   make(chan struct&#123;&#125;),</span><br><span class="line">                stop:   make(chan struct&#123;&#125;),</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) init() &#123;</span><br><span class="line">        log.Println(&quot;...init running...&quot;)</span><br><span class="line">        defer close(p.input1)</span><br><span class="line">        for &#123;</span><br><span class="line">                select &#123;</span><br><span class="line">                case &lt;-p.done:</span><br><span class="line">                        log.Println(&quot;...init stop...&quot;)</span><br><span class="line">                        return</span><br><span class="line">                default:</span><br><span class="line">                        time.Sleep(5 * time.Millisecond)</span><br><span class="line">                        p.input1 &lt;- rand.Int63n(65535)</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) stage1() &#123;</span><br><span class="line">        log.Println(&quot;...stage1 running...&quot;)</span><br><span class="line">        defer close(p.input2)</span><br><span class="line">        for v :&#x3D; range p.input1 &#123; &#x2F;&#x2F;will block util input1 close</span><br><span class="line">                v &#x3D; v - rand.Int63n(1024)</span><br><span class="line">                p.input2 &lt;- v</span><br><span class="line">        &#125;</span><br><span class="line">        log.Println(&quot;stage1 done...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) stage2() &#123;</span><br><span class="line">        log.Println(&quot;...stage2 running...&quot;)</span><br><span class="line">        defer close(p.input3)</span><br><span class="line">        for v :&#x3D; range p.input2 &#123;</span><br><span class="line">                v &#x3D; v + 1</span><br><span class="line">                p.input3 &lt;- v</span><br><span class="line">        &#125;</span><br><span class="line">        log.Println(&quot;stage2 done...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) stage3() &#123;</span><br><span class="line">        log.Println(&quot;...stage3 running...&quot;)</span><br><span class="line">        for v3 :&#x3D; range p.input3 &#123; &#x2F;&#x2F;will block</span><br><span class="line">                v3 &#x3D; v3 + rand.Int63n(100)</span><br><span class="line">        &#125;</span><br><span class="line">        log.Println(&quot;stage3 done...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) Run() &#123;</span><br><span class="line">        log.Println(&quot;start pipeline...&quot;)</span><br><span class="line">        go p.init() &#x2F;&#x2F;order2- recv data from done and closed input1, return this function</span><br><span class="line">        go p.stage1() order 3-if input1 is closed,break for loop, and close input2 before return </span><br><span class="line">        go p.stage2() &#x2F;&#x2F;order 4-if input2 is closed ,break for range input2 and close input3 before return </span><br><span class="line">       &#x2F;&#x2F; order 5- if input3 is closed,stage3 return</span><br><span class="line">        p.stage3() &#x2F;&#x2F;  will block util input3 closed after call stage2</span><br><span class="line">        p.stop &lt;- struct&#123;&#125;&#123;&#125; &#x2F;&#x2F; order 6-send stop flag to stop chan before end Run function</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) Stop() &#123;</span><br><span class="line">        p.done &lt;- struct&#123;&#125;&#123;&#125;  &#x2F;&#x2F; order 1-let init function to stop</span><br><span class="line">      &#x2F;&#x2F;order 7 - already recv data from stop chan</span><br><span class="line">        &lt;-p.stop &#x2F;&#x2F;wait for recv stop chan</span><br><span class="line">        log.Println(&quot;stop pipeline...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func main() &#123;</span><br><span class="line">        pipe :&#x3D; NewPipeFeature()</span><br><span class="line">        defer pipe.Stop()</span><br><span class="line">        sigs :&#x3D; make(chan os.Signal, 1)</span><br><span class="line">        signal.Notify(sigs, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)</span><br><span class="line">        go pipe.Run()</span><br><span class="line">        for &#123;</span><br><span class="line">                select &#123;</span><br><span class="line">                case &lt;-sigs:</span><br><span class="line">                        log.Println(&quot;recieve stop signal&quot;)</span><br><span class="line">                        return</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/System-IO%E5%92%8CStandard-IO%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/System-IO%E5%92%8CStandard-IO%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">System IO和Standard IO详解</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-15 14:34:12 / Modified: 14:43:24" itemprop="dateCreated datePublished" datetime="2020-04-15T14:34:12+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="System-IO"><a href="#System-IO" class="headerlink" title="System IO"></a>System IO</h2><ul>
+<li>System IO指的是使用open/close/read/write/lseek系统调用使用io的方式，这样的方式是实打实的从user space-&gt;kernel space中函数调用,这样的方式是实时性高。<h2 id="Standard-IO"><a href="#Standard-IO" class="headerlink" title="Standard IO"></a>Standard IO</h2></li>
+<li>Standard IO 是是指使用stdio中的FILE中的fopen/fclose/fread/fwrite/fseek等方式进行IO的操作.使用stdio中的函数实现是依赖底层system io的系统函数。stdio中的函数是带有cache的机制，说简单点就是merge system io函数的调用，已达到在kernel层面减少系统调用的，这样的IO方式可以提高吞吐量。</li>
+</ul>
+<h2 id="文件描述符本质"><a href="#文件描述符本质" class="headerlink" title="文件描述符本质"></a>文件描述符本质</h2><p><img src="https://upload-images.jianshu.io/upload_images/2582954-b0b70b4672c56758.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<ul>
+<li><p>每个文件open/fopen以后会产生一个inode-struct.一个inode-struct包含了文件操作的基本属性以及position，position是这个文件读写的位置。每个inode-struct会保存在每个进程中的文件描述符的数组中，open返回的fd就是这个数组的下边。</p>
+</li>
+<li><p>每个进程在默认情况下最多打开1024个文件描述符，0/1/2默认是是输入、输出、错误输出。</p>
+</li>
+<li><p>进程中文件描述符数组使用方式按照最小下标方式。</p>
+</li>
+<li><p>FILE 结构中的position和inode-struct中的postition基本不是一样的，这个为什么？比如执行三次fput(FILE,’a’)，这样的操作在FILE结构中postion会++3次。这个position中是揍batch然后在kernel层面统一执行一次系统调用。</p>
+</li>
+<li><p>System IO 和 Standard IO 不能混用。</p>
+<h2 id="验证推断"><a href="#验证推断" class="headerlink" title="验证推断"></a>验证推断</h2></li>
+<li><p>实例代码验证standard io缓冲以及system io 实打实的调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: test.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Sat May  4 21:58:45 2019</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line"></span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line"></span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line">    exit(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>执行结果如下</p>
+</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/2582954-77a03ea892dfc791.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Snipaste_2019-05-04_22-11-44.png"></p>
+<ul>
+<li><p>trace下test执行路径<br><img src="https://upload-images.jianshu.io/upload_images/2582954-f654d46749be9fcb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Snipaste_2019-05-04_22-16-58.png"></p>
+</li>
+<li><p>分析<br>strace后的执行路径，可以看出，putchar执行三次最后是一次write(1,”aaa”,3)写入。其他的关于b的写入，每一次write都会写一次。</p>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/zombies-%E5%92%8C-init-process/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -715,372 +1080,6 @@ SECTION .data;
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/%E4%BD%BF%E7%94%A8-Intel-Open-Cas%E5%8A%A0%E9%80%9Fglusterfs/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/14/%E4%BD%BF%E7%94%A8-Intel-Open-Cas%E5%8A%A0%E9%80%9Fglusterfs/" class="post-title-link" itemprop="url">使用 Intel Open Cas加速glusterfs</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-14 18:54:16 / Modified: 18:55:44" itemprop="dateCreated datePublished" datetime="2020-04-14T18:54:16+08:00">2020-04-14</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="Open-Cas-架构概览"><a href="#Open-Cas-架构概览" class="headerlink" title="Open Cas 架构概览"></a>Open Cas 架构概览</h3><ul>
-<li><p>数据从HDD盘读取然后拷贝到open cas 的cache中，后续数据读取都是从内存读取，提高读写效率。</p>
-</li>
-<li><p>在write-through模式，所有的数据都是同步刷新到open cas的ssd和后端hdd硬盘中。</p>
-</li>
-<li><p>在write-back模式中，所有数据同步写入open cas的ssd中，然后异步刷新到HDD中。</p>
-</li>
-<li><p>open cas 缓存满后，采用open cas的淘汰算法，用最新写入的数据淘汰以前旧数据，已达到oepn cas始终可以缓存数据。</p>
-<p><img src="https://open-cas.github.io/images/guide_figure1.jpg" alt="alt text"> </p>
-</li>
-</ul>
-<h3 id="系统组件以来"><a href="#系统组件以来" class="headerlink" title="系统组件以来"></a>系统组件以来</h3><ul>
-<li>sed</li>
-<li>make</li>
-<li>gcc</li>
-<li>kernel-devel</li>
-<li>kernel-headers</li>
-<li>python3</li>
-<li>lsblk</li>
-<li>argparse (python module)</li>
-</ul>
-<h3 id="安装linux-open-cas"><a href="#安装linux-open-cas" class="headerlink" title="安装linux open cas"></a>安装linux open cas</h3><h5 id="1-open-cas-由kernel-modules和cli工具组成"><a href="#1-open-cas-由kernel-modules和cli工具组成" class="headerlink" title="1.open cas 由kernel modules和cli工具组成"></a>1.open cas 由kernel modules和cli工具组成</h5><h5 id="2-为了获取最佳性能，强烈推荐在SSD-device采用noop的IO调度策略"><a href="#2-为了获取最佳性能，强烈推荐在SSD-device采用noop的IO调度策略" class="headerlink" title="2.为了获取最佳性能，强烈推荐在SSD device采用noop的IO调度策略"></a>2.为了获取最佳性能，强烈推荐在SSD device采用noop的IO调度策略</h5><h5 id="3-具体安装步骤"><a href="#3-具体安装步骤" class="headerlink" title="3.具体安装步骤:"></a>3.具体安装步骤:</h5><ul>
-<li><p>下载open cas linux source</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;Open-CAS&#x2F;open-cas-linux</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ul>
-<ul>
-<li><p>获取子模块</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd open-cas-linux </span><br><span class="line">git submodule update –init</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置和安装</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>检查和验证</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cas_disk.ko  &#x2F;&#x2F;open cas 磁盘内核模块</span><br><span class="line">cas_cache.ko &#x2F;&#x2F;open cas 缓存内核模块</span><br><span class="line">casadm       &#x2F;&#x2F;open cas 管理员工具</span><br><span class="line">casadm -V    &#x2F;&#x2F;install 检验</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h3 id="open-cas配置"><a href="#open-cas配置" class="headerlink" title="open cas配置"></a>open cas配置</h3><ul>
-<li><p>配置文件在utils/opencas.conf中，包括cache的配置和core devices的配置</p>
-<ul>
-<li><p>caches配置说明</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1.cache id:执行设备的启动实例ID,整形取值范围在1~16384</span><br><span class="line">2.path:指向ssd的磁盘路径</span><br><span class="line">3.desired mode:预期模式，一共有5中模式，分别是write-through&#x2F;write-back&#x2F;write-only&#x2F;pass-through</span><br><span class="line">4.extra fields:用户自定义IO配置</span><br><span class="line">	4.1 ioclass_file：允许用户加载自定义IO策略</span><br><span class="line">   	4.2 cleaning_policy ：允许用户缓存清理的策略，包括了acp&#x2F;alru&#x2F;nop</span><br><span class="line">	4.3 promotion_policy ：允许用户使用缓存的推进策略，包括了always&#x2F;nhit</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>core devices配置说明</p>
-</li>
-</ul>
-</li>
-</ul>
-<pre><code>1.cache id:每个core device对应的Cache id，整形，取值范围0~4095
-2.core id:每个core device的id
-3.path:core device的路径
-    //每个cache和core devices必须执行已经存储在hdd和ssd,core device应该引用wwn的标识，cache device必须顺序数据。</code></pre><ul>
-<li><p>配置样例</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">## Caches configuration section</span><br><span class="line"></span><br><span class="line">[caches]</span><br><span class="line"></span><br><span class="line">## Cache ID Cache device Cache mode Extra fields (optional)</span><br><span class="line"></span><br><span class="line">1 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;nvme-INTEL_SSD WT ioclass_file&#x3D;&#x2F;etc&#x2F;opencas&#x2F;ioclass-config.csv</span><br><span class="line"></span><br><span class="line">## Core devices configuration</span><br><span class="line"></span><br><span class="line">[cores]</span><br><span class="line"></span><br><span class="line">## Cache ID Core ID Core device</span><br><span class="line"></span><br><span class="line">1 1 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0aed22393</span><br><span class="line"></span><br><span class="line">1 2 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0042769ef</span><br><span class="line"></span><br><span class="line">1 3 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee00429bf94</span><br><span class="line"></span><br><span class="line">1 4 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0aed45a6d</span><br><span class="line"></span><br><span class="line">1 5 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee6b11be556</span><br><span class="line"></span><br><span class="line">1 6 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0aed229a4</span><br><span class="line"></span><br><span class="line">1 7 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee004276c68</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ul>
-<ul>
-<li><p>cas管理工具</p>
-<ul>
-<li><p>手动配置 write-through 模式</p>
-<ul>
-<li>在该模式下，   caching  software 写入数据到flash device，然后顺序的写到到core device中，这种模式100%保证core device中数据和cache中数据一致，同时可以共享给其他的服务读取，这种类型可以加速读操作</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc  &#x2F;&#x2F;创建id&#x3D;1的cache</span><br><span class="line">casadm -A -i 1 -d &#x2F;dev&#x2F;sdb  &#x2F;&#x2F;匹配&#x2F;dev&#x2F;sdb到cache</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>手动配置write-back模式</p>
-<ul>
-<li>在该模式下， caching  software首先把数据先写入到cache中，然后通知用户写完毕了，最后周期性的把数据写入到core device中,write-back模式提高了读写性能，但是会有数据丢失的风险  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c wb</span><br><span class="line">casadm -A -i 1 -d &#x2F;dev&#x2F;sdb  &#x2F;&#x2F;匹配&#x2F;dev&#x2F;sdb到cache</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li><p>手动配置Write-around模式</p>
-<ul>
-<li><p>在write-around模式下， 只有block数据已经存在于cache中，caching  software把数据才会写入到flash device中，然后顺序写数据到core device.这种模式100%保证core device和cache一致， 写回操作进一步优化了缓存，以避免在写入数据且随后不经常重新读取数据的情况下对缓存的污染 。</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c wa</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>手动配置pass-through模式</p>
-</li>
-<li><p>在该模式下,caching software所有操作都绕开cache.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c pt</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>手动配置write-only模式</p>
-<ul>
-<li>在write-only模式下,缓存系统先把数据写入到cache中，然后通知应用端写完成。后续周期性的同步写到core device中,当有新的读请求。只有当之前写入数据在cache device中，读请求会绕开cache software,直接读取caching device的数据。该模式仅仅提高写性能，但是会有数据丢失风险。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c wo</span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ul>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/" class="post-title-link" itemprop="url">glusterfs issue列表</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-14 18:42:25 / Modified: 18:46:17" itemprop="dateCreated datePublished" datetime="2020-04-14T18:42:25+08:00">2020-04-14</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="issue-列表"><a href="#issue-列表" class="headerlink" title="issue 列表"></a>issue 列表</h3><ul>
-<li>1.glusterfsd crash due to health-check failed, going down ,system call errorno not return<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;gluster&#x2F;glusterfs&#x2F;issues&#x2F;1168</span><br></pre></td></tr></table></figure></li>
-<li>2.glusterfsd memory leak killed by os #1166<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;gluster&#x2F;glusterfs&#x2F;issues&#x2F;1166</span><br></pre></td></tr></table></figure></li>
-<li>3.Major bug,glusterfsd consume to much cpu resource #1133<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;gluster&#x2F;glusterfs&#x2F;issues&#x2F;1133</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/" class="post-title-link" itemprop="url">glusterfs cluster.read-hash-mode的作用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-14 18:39:02 / Modified: 18:39:54" itemprop="dateCreated datePublished" datetime="2020-04-14T18:39:02+08:00">2020-04-14</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="1-官方解释"><a href="#1-官方解释" class="headerlink" title="1.官方解释"></a>1.官方解释</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@centos-linux ~]$ gluster volume set help|grep read-hash-mode -A7</span><br><span class="line">Option: cluster.read-hash-mode</span><br><span class="line">Default Value: 1</span><br><span class="line">Description: inode-read fops happen only on one of the bricks in replicate. AFR will prefer the one computed using the method specified using this option.</span><br><span class="line">0 &#x3D; first readable child of AFR, starting from 1st child.</span><br><span class="line">1 &#x3D; hash by GFID of file (all clients use same subvolume).</span><br><span class="line">2 &#x3D; hash by GFID of file and client PID.</span><br><span class="line">3 &#x3D; brick having the least outstanding read requests.</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfs-%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%9E%84%E5%BB%BA/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/14/glusterfs-%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%9E%84%E5%BB%BA/" class="post-title-link" itemprop="url">glusterfs 调试环境构建</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-14 18:35:55 / Modified: 18:39:43" itemprop="dateCreated datePublished" datetime="2020-04-14T18:35:55+08:00">2020-04-14</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="Debug-Glusterfs"><a href="#Debug-Glusterfs" class="headerlink" title="Debug Glusterfs"></a>Debug Glusterfs</h3><h4 id="Download-source"><a href="#Download-source" class="headerlink" title="Download source"></a>Download source</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/gluster/glusterfs.git</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="Install-Deps"><a href="#Install-Deps" class="headerlink" title="Install Deps"></a>Install Deps</h4><ul>
-<li>centos<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># yum install autoconf automake bison cmockery2-devel dos2unix flex fuse-devel glib2-devel libacl-devel libaio-devel libattr-devel libcurl-devel libibverbs-devel librdmacm-devel libtirpc-devel libtool libxml2-devel lvm2-devel make openssl-devel pkgconfig pyliblzma python-devel python-eventlet python-netifaces python-paste-deploy python-simplejson python-sphinx python-webob pyxattr readline-devel rpm-build sqlite-devel systemtap-sdt-devel tar userspace-rcu-devel -y</span><br></pre></td></tr></table></figure></li>
-<li>debian</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># sudo apt-get install make automake autoconf libtool flex bison pkg-config libssl-dev libxml2-dev python-dev libaio-dev libibverbs-dev librdmacm-dev libreadline-dev liblvm2-dev libglib2.0-dev liburcu-dev libcmocka-dev libsqlite3-dev libacl1-dev uuid uuid-dev</span><br></pre></td></tr></table></figure>
-
-
-<h4 id="Build-With-Debug"><a href="#Build-With-Debug" class="headerlink" title="Build With Debug"></a>Build With Debug</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> glusterfs-6.5</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ./autogen.sh</span></span><br><span class="line"><span class="meta">#</span><span class="bash">CFLAGS=<span class="string">"-g -O0"</span>  ./configure  --<span class="built_in">enable</span>-debug --<span class="built_in">enable</span>-gnfs  --without-libtirpc </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make -j4</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make install</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="Create-Mount-Point"><a href="#Create-Mount-Point" class="headerlink" title="Create Mount Point"></a>Create Mount Point</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> vgcreate --physicalextentsize 128K gfs_test_vg /dev/sdb</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> lvcreate -L 2G --name gfs_test_lv gfs_test_vg</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> lvdisplay</span></span><br><span class="line">  --- Logical volume ---</span><br><span class="line">  LV Path                /dev/gfs_test_vg/gfs_test_lv</span><br><span class="line">  LV Name                gfs_test_lv</span><br><span class="line">  VG Name                gfs_test_vg</span><br><span class="line">  LV UUID                1uw4WG-cdFi-vtHL-vyCZ-qluF-xknL-1Z8mY3</span><br><span class="line">  LV Write Access        read/write</span><br><span class="line">  LV Creation host, time localhost.localdomain, 2019-10-14 16:40:58 +0800</span><br><span class="line">  LV Status              available</span><br><span class="line">  LV Size                2.00 GiB</span><br><span class="line">  Current LE             16384</span><br><span class="line">  Segments               1</span><br><span class="line">  Allocation             inherit</span><br><span class="line">  Read ahead sectors     auto</span><br><span class="line">  - currently set to     8192</span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">echo</span> <span class="string">"/dev/gfs_test_vg/gfs_test_lv   /data/glusterfs/test_vol/brick1   xfs     defaults        0 0"</span> | tee --append /etc/fstab</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="Begin-Gdb"><a href="#Begin-Gdb" class="headerlink" title="Begin Gdb"></a>Begin Gdb</h4><h6 id="Debug-Volume-Info"><a href="#Debug-Volume-Info" class="headerlink" title="Debug Volume Info"></a>Debug Volume Info</h6><ul>
-<li>Set BreakPoint<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#gdb gluster </span><br><span class="line">(gdb)set args volume info</span><br><span class="line">(gdb)br main</span><br></pre></td></tr></table></figure></li>
-<li>Core Execute Path<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">main   gluster&#x2F;cli&#x2F;src&#x2F;cli.c:797</span><br><span class="line">	cli_cmds_register gluster&#x2F;cli&#x2F;src&#x2F;cli-cmd.c:208</span><br><span class="line">		cli_cmd_volume_register  gluster&#x2F;cli&#x2F;src&#x2F;cli_cmd_volume_register:3585</span><br><span class="line">			cli_cmd_register  gluster&#x2F;cli&#x2F;src&#x2F;registry.c:356</span><br><span class="line">				cli_cmd_ingest    gluster&#x2F;cli&#x2F;src&#x2F;registry.c:313</span><br><span class="line"></span><br><span class="line">	cli_input_init gluster&#x2F;cli&#x2F;src&#x2F;cli.c:862</span><br><span class="line">		cli_batch    gluster&#x2F;cli&#x2F;input.c:22</span><br><span class="line">			cli_cmd_process gluster&#x2F;cli&#x2F;src&#x2F;cli-cmd.c:87</span><br><span class="line">				cli_cmd_volume_info_cbk(state-&gt;tree.root.cbkfn) gluster&#x2F;cli&#x2F;src&#x2F;cli-cmd-volume.c:3355</span><br><span class="line">					cli_rpc_prog-&gt;proctable[GLUSTER_CLI_GET_VOLUME] &#123;</span><br><span class="line">					    &#x2F;&#x2F;gluster&#x2F;cli&#x2F;src&#x2F;cli-rpc-ops.c:12152</span><br><span class="line">							struct rpc_clnt_procedure gluster_cli_actors[GLUSTER_CLI_MAXVALUE] &#x3D; &#123;</span><br><span class="line">	    					[GLUSTER_CLI_NULL] &#x3D; &#123;&quot;NULL&quot;, NULL&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_PROBE] &#x3D; &#123;&quot;PROBE_QUERY&quot;, gf_cli_probe&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_DEPROBE] &#x3D; &#123;&quot;DEPROBE_QUERY&quot;, gf_cli_deprobe&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_LIST_FRIENDS] &#x3D; &#123;&quot;LIST_FRIENDS&quot;, gf_cli_list_friends&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_UUID_RESET] &#x3D; &#123;&quot;UUID_RESET&quot;, gf_cli3_1_uuid_reset&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_UUID_GET] &#x3D; &#123;&quot;UUID_GET&quot;, gf_cli3_1_uuid_get&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_CREATE_VOLUME] &#x3D; &#123;&quot;CREATE_VOLUME&quot;, gf_cli_create_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_DELETE_VOLUME] &#x3D; &#123;&quot;DELETE_VOLUME&quot;, gf_cli_delete_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_START_VOLUME] &#x3D; &#123;&quot;START_VOLUME&quot;, gf_cli_start_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_STOP_VOLUME] &#x3D; &#123;&quot;STOP_VOLUME&quot;, gf_cli_stop_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_RENAME_VOLUME] &#x3D; &#123;&quot;RENAME_VOLUME&quot;, gf_cli_rename_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_DEFRAG_VOLUME] &#x3D; &#123;&quot;DEFRAG_VOLUME&quot;, gf_cli_defrag_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GET_VOLUME] &#x3D; &#123;&quot;GET_VOLUME&quot;, gf_cli_get_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GET_NEXT_VOLUME] &#x3D; &#123;&quot;GET_NEXT_VOLUME&quot;, gf_cli_get_next_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_SET_VOLUME] &#x3D; &#123;&quot;SET_VOLUME&quot;, gf_cli_set_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_ADD_BRICK] &#x3D; &#123;&quot;ADD_BRICK&quot;, gf_cli_add_brick&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_REMOVE_BRICK] &#x3D; &#123;&quot;REMOVE_BRICK&quot;, gf_cli_remove_brick&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_REPLACE_BRICK] &#x3D; &#123;&quot;REPLACE_BRICK&quot;, gf_cli_replace_brick&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_LOG_ROTATE] &#x3D; &#123;&quot;LOG ROTATE&quot;, gf_cli_log_rotate&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GETSPEC] &#x3D; &#123;&quot;GETSPEC&quot;, gf_cli_getspec&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_PMAP_PORTBYBRICK] &#x3D; &#123;&quot;PMAP PORTBYBRICK&quot;, gf_cli_pmap_b2p&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_SYNC_VOLUME] &#x3D; &#123;&quot;SYNC_VOLUME&quot;, gf_cli_sync_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_RESET_VOLUME] &#x3D; &#123;&quot;RESET_VOLUME&quot;, gf_cli_reset_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_FSM_LOG] &#x3D; &#123;&quot;FSM_LOG&quot;, gf_cli_fsm_log&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GSYNC_SET] &#x3D; &#123;&quot;GSYNC_SET&quot;, gf_cli_gsync_set&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_PROFILE_VOLUME] &#x3D; &#123;&quot;PROFILE_VOLUME&quot;, gf_cli_profile_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_QUOTA] &#x3D; &#123;&quot;QUOTA&quot;, gf_cli_quota&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_TOP_VOLUME] &#x3D; &#123;&quot;TOP_VOLUME&quot;, gf_cli_top_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GETWD] &#x3D; &#123;&quot;GETWD&quot;, gf_cli_getwd&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_STATUS_VOLUME] &#x3D; &#123;&quot;STATUS_VOLUME&quot;, gf_cli_status_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_STATUS_ALL] &#x3D; &#123;&quot;STATUS_ALL&quot;, gf_cli_status_volume_all&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_MOUNT] &#x3D; &#123;&quot;MOUNT&quot;, gf_cli_mount&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_UMOUNT] &#x3D; &#123;&quot;UMOUNT&quot;, gf_cli_umount&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_HEAL_VOLUME] &#x3D; &#123;&quot;HEAL_VOLUME&quot;, gf_cli_heal_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_STATEDUMP_VOLUME] &#x3D; &#123;&quot;STATEDUMP_VOLUME&quot;,</span><br><span class="line">	    					                                  gf_cli_statedump_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_LIST_VOLUME] &#x3D; &#123;&quot;LIST_VOLUME&quot;, gf_cli_list_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_CLRLOCKS_VOLUME] &#x3D; &#123;&quot;CLEARLOCKS_VOLUME&quot;,</span><br><span class="line">	    					                                 gf_cli_clearlocks_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_COPY_FILE] &#x3D; &#123;&quot;COPY_FILE&quot;, gf_cli_copy_file&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_SYS_EXEC] &#x3D; &#123;&quot;SYS_EXEC&quot;, gf_cli_sys_exec&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_SNAP] &#x3D; &#123;&quot;SNAP&quot;, gf_cli_snapshot&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_BARRIER_VOLUME] &#x3D; &#123;&quot;BARRIER VOLUME&quot;, gf_cli_barrier_volume&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GET_VOL_OPT] &#x3D; &#123;&quot;GET_VOL_OPT&quot;, gf_cli_get_vol_opt&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_BITROT] &#x3D; &#123;&quot;BITROT&quot;, gf_cli_bitrot&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_ATTACH_TIER] &#x3D; &#123;&quot;ATTACH_TIER&quot;, gf_cli_attach_tier&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_TIER] &#x3D; &#123;&quot;TIER&quot;, gf_cli_tier&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_GET_STATE] &#x3D; &#123;&quot;GET_STATE&quot;, gf_cli_get_state&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_RESET_BRICK] &#x3D; &#123;&quot;RESET_BRICK&quot;, gf_cli_reset_brick&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_REMOVE_TIER_BRICK] &#x3D; &#123;&quot;DETACH_TIER&quot;, gf_cli_remove_tier_brick&#125;,</span><br><span class="line">	    					[GLUSTER_CLI_ADD_TIER_BRICK] &#x3D; &#123;&quot;ADD_TIER_BRICK&quot;, gf_cli_add_tier_brick&#125;&#125;;</span><br><span class="line">	</span><br><span class="line">						struct rpc_clnt_program cli_prog &#x3D; &#123;</span><br><span class="line">						    .progname &#x3D; &quot;Gluster CLI&quot;,</span><br><span class="line">						    .prognum &#x3D; GLUSTER_CLI_PROGRAM,</span><br><span class="line">						    .progver &#x3D; GLUSTER_CLI_VERSION,</span><br><span class="line">						    .numproc &#x3D; GLUSTER_CLI_MAXVALUE,</span><br><span class="line">						    .proctable &#x3D; gluster_cli_actors,</span><br><span class="line">						&#125;;</span><br><span class="line">					&#125;</span><br><span class="line">						gf_cli_get_volume   gluster&#x2F;cli&#x2F;src&#x2F;cli-rpc-ops.c:4579</span><br><span class="line">							gf_cli_get_volume_cbk  gluster&#x2F;cli&#x2F;src&#x2F;cli-rpc-ops.c:819</span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1150,7 +1149,7 @@ SECTION .data;
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-count">25</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

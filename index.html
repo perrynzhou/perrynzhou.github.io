@@ -152,6 +152,1316 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/Go%E8%AF%AD%E8%A8%80%E8%B0%83%E7%94%A8C%E5%87%BD%E6%95%B0%E4%BE%8B%E5%AD%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/16/Go%E8%AF%AD%E8%A8%80%E8%B0%83%E7%94%A8C%E5%87%BD%E6%95%B0%E4%BE%8B%E5%AD%90/" class="post-title-link" itemprop="url">Go语言调用C函数例子</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-16 18:05:07 / Modified: 18:07:17" itemprop="dateCreated datePublished" datetime="2020-04-16T18:05:07+08:00">2020-04-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>go access c struct</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">  &#x2F;&#x2F; go run cgo.go</span><br><span class="line">  package main</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;assert.h&gt;</span><br><span class="line">typedef struct student &#123;</span><br><span class="line">        int age;</span><br><span class="line">        char *name;</span><br><span class="line">&#125;student;</span><br><span class="line"></span><br><span class="line">void student_init(void **ptr,char *name,int age) &#123;</span><br><span class="line">        size_t len &#x3D; strlen(name);</span><br><span class="line">        student *st &#x3D; (student *)calloc(1,sizeof(student));</span><br><span class="line">        assert(st!&#x3D;NULL);</span><br><span class="line">        st-&gt;age &#x3D; age;</span><br><span class="line">        st-&gt;name &#x3D; (char *)calloc(1,len+1);</span><br><span class="line">        memcpy(st-&gt;name,name,len);</span><br><span class="line">        *ptr &#x3D; st;</span><br><span class="line">        fprintf(stdout,&quot;...call student_init...\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line">student *student_new(char *name,int age) &#123;</span><br><span class="line">        size_t len &#x3D; strlen(name);</span><br><span class="line">        student *st &#x3D; (student *)calloc(1,sizeof(student));</span><br><span class="line">        assert(st!&#x3D;NULL);</span><br><span class="line">        st-&gt;age &#x3D; age;</span><br><span class="line">        st-&gt;name &#x3D; (char *)calloc(1,len+1);</span><br><span class="line">        memcpy(st-&gt;name,name,len);</span><br><span class="line"></span><br><span class="line">        fprintf(stdout,&quot;...call student_new...\n&quot;);</span><br><span class="line">        return st;</span><br><span class="line">&#125;</span><br><span class="line">void student_destroy(void *ptr) &#123;</span><br><span class="line">        student *st &#x3D; (student *)ptr;</span><br><span class="line">        if(st !&#x3D;NULL)</span><br><span class="line">        &#123;</span><br><span class="line">                free(st-&gt;name);</span><br><span class="line">                free(st);</span><br><span class="line">                st&#x3D;NULL;</span><br><span class="line">                fprintf(stdout,&quot;...call student_destroy...\n&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">void student_print(void  *ptr) &#123;</span><br><span class="line">        student *st &#x3D; (student *)ptr;</span><br><span class="line">        fprintf(stdout,&quot;student addr&#x3D;%p,name&#x3D;%p,age&#x3D;%p\n&quot;,st,st-&gt;name,&amp;st-&gt;age);</span><br><span class="line">        fprintf(stdout,&quot; student &#123;name&#x3D;%s,age&#x3D;%d&#125;\n&quot;,st-&gt;name,st-&gt;age);</span><br><span class="line">&#125;</span><br><span class="line">*&#x2F;</span><br><span class="line">import &quot;C&quot;</span><br><span class="line">import (</span><br><span class="line">        &quot;fmt&quot;</span><br><span class="line">        &quot;unsafe&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">        var st1 unsafe.Pointer</span><br><span class="line">        name :&#x3D; C.CString(&quot;perrynzhou&quot;)</span><br><span class="line">        C.student_init(&amp;st1, name, 30)</span><br><span class="line">        C.student_print(st1)</span><br><span class="line">        C.student_destroy(st1)</span><br><span class="line">        C.free(unsafe.Pointer(name))</span><br><span class="line"></span><br><span class="line">        var st2 *C.student</span><br><span class="line">        name2 :&#x3D; C.CString(&quot;hello&quot;)</span><br><span class="line">        st2 &#x3D; C.student_new(name2, 100)</span><br><span class="line">        fmt.Printf(&quot;init student st2 &#123;age:%d,name:%s&#125;\n&quot;, st2.age, C.GoString(st2.name))</span><br><span class="line">        C.student_print(unsafe.Pointer(st2))</span><br><span class="line"></span><br><span class="line">        C.free(unsafe.Pointer(st2.name))</span><br><span class="line">        name3 :&#x3D; C.CString(&quot;join&quot;)</span><br><span class="line">        st2.name &#x3D; name3</span><br><span class="line">        st2.age &#x3D; 67</span><br><span class="line">        fmt.Printf(&quot;after change student st2 &#123;age:%d,name:%s&#125;\n&quot;, st2.age, C.GoString(st2.name))</span><br><span class="line">        C.student_print(unsafe.Pointer(st2))</span><br><span class="line">        C.student_destroy(unsafe.Pointer(st2))</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2020/04/16/Go%E8%AF%AD%E8%A8%80%E8%B0%83%E7%94%A8C%E5%87%BD%E6%95%B0%E4%BE%8B%E5%AD%90/2582954-7ff22e6700b629e6.png" alt></p>
+<ul>
+<li>go access c memory<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;    go build  -o cgo_test cgo.go </span><br><span class="line"></span><br><span class="line">package main</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line"></span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line"></span><br><span class="line">void *alloc() &#123;</span><br><span class="line">        static int count &#x3D; 0;</span><br><span class="line">        void *d &#x3D; malloc(sizeof(int));</span><br><span class="line">        *((int *)d) &#x3D; count++;</span><br><span class="line">        return d;</span><br><span class="line">&#125;</span><br><span class="line">*&#x2F;</span><br><span class="line">import &quot;C&quot;</span><br><span class="line">import (</span><br><span class="line">        &quot;fmt&quot;</span><br><span class="line">        &quot;runtime&quot;</span><br><span class="line">        &quot;sync&quot;</span><br><span class="line">        &quot;time&quot;</span><br><span class="line">        &quot;unsafe&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type CStruct struct &#123;</span><br><span class="line">        sync.Mutex</span><br><span class="line">        name     string</span><br><span class="line">        allocCnt int</span><br><span class="line">        memory   unsafe.Pointer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (cs *CStruct) alloc(name string, id int) &#123;</span><br><span class="line">        cs.name &#x3D; fmt.Sprintf(&quot;CStruct-%s-%d&quot;, name, id)</span><br><span class="line">        cs.Lock()</span><br><span class="line">        defer cs.Unlock()</span><br><span class="line">        cs.allocCnt++</span><br><span class="line">        fmt.Printf(&quot;%s begin with alloc,count&#x3D;%d\n&quot;, cs.name, cs.allocCnt)</span><br><span class="line">        cs.memory &#x3D; C.alloc()</span><br><span class="line">        runtime.SetFinalizer(cs, free)</span><br><span class="line">&#125;</span><br><span class="line">func free(cs *CStruct) &#123;</span><br><span class="line">        C.free(unsafe.Pointer(cs.memory))</span><br><span class="line">        cs.Lock()</span><br><span class="line">        defer cs.Unlock()</span><br><span class="line">        cs.allocCnt--</span><br><span class="line">        fmt.Printf(&quot;%s end with free count&#x3D;%d\n&quot;, cs.name, cs.allocCnt)</span><br><span class="line">&#125;</span><br><span class="line">func CStructTest(i int) &#123;</span><br><span class="line">        var c1, c2 CStruct</span><br><span class="line">        c1.alloc(&quot;c1&quot;, i)</span><br><span class="line">        c2.alloc(&quot;c2&quot;, i)</span><br><span class="line">&#125;</span><br><span class="line">func main() &#123;</span><br><span class="line">        for i :&#x3D; 0; i &lt; 10; i++ &#123;</span><br><span class="line">                CStructTest(i)</span><br><span class="line">                time.Sleep(time.Second)</span><br><span class="line">        &#125;</span><br><span class="line">        runtime.GC()</span><br><span class="line">        time.Sleep(time.Second)</span><br><span class="line">        fmt.Println(&quot;done..&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="/2020/04/16/Go%E8%AF%AD%E8%A8%80%E8%B0%83%E7%94%A8C%E5%87%BD%E6%95%B0%E4%BE%8B%E5%AD%90/2582954-4171fe1cc79448ad.png" alt></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84shell/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/16/%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84shell/" class="post-title-link" itemprop="url">实现简单的shell</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-16 18:01:22 / Modified: 18:02:44" itemprop="dateCreated datePublished" datetime="2020-04-16T18:01:22+08:00">2020-04-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>shell实现代码<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: shell.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Thu 20 Jun 2019 09:15:59 PM CST</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;glob.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;wait.h&gt;</span><br><span class="line">static const char *delimiter &#x3D; &quot; \t\n&quot;;</span><br><span class="line">typedef struct</span><br><span class="line">&#123;</span><br><span class="line">  glob_t gt;</span><br><span class="line">  int (*cmd_cd_fn)(char **argv);</span><br><span class="line">  int (*cmd_exit_fn)(char **argv);</span><br><span class="line">  int (*cmd_help_fn)(char **argv);</span><br><span class="line">&#125; cmd_t;</span><br><span class="line">static void prompt()</span><br><span class="line">&#123;</span><br><span class="line">  fprintf(stdout, &quot;zsh-0.1$ &quot;);</span><br><span class="line">&#125;</span><br><span class="line">void parsed_cmd(char *line, cmd_t *cmd)</span><br><span class="line">&#123;</span><br><span class="line">  char *token;</span><br><span class="line">  int flag &#x3D; 0;</span><br><span class="line">  while (1)</span><br><span class="line">  &#123;</span><br><span class="line">    token &#x3D; strsep(&amp;line, delimiter);</span><br><span class="line">    if (token &#x3D;&#x3D; NULL)</span><br><span class="line">    &#123;</span><br><span class="line">      break;</span><br><span class="line">    &#125;</span><br><span class="line">    if (*token &#x3D;&#x3D; &#39;\0&#39;)</span><br><span class="line">    &#123;</span><br><span class="line">      continue;</span><br><span class="line">    &#125;</span><br><span class="line">    glob(token, GLOB_NOCHECK | GLOB_APPEND * flag, NULL, &amp;cmd-&gt;gt);</span><br><span class="line">    flag &#x3D; 1;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">  char *line &#x3D; NULL;</span><br><span class="line">  size_t line_size &#x3D; 0;</span><br><span class="line">  cmd_t cmd;</span><br><span class="line">  pid_t pid;</span><br><span class="line">  while (1)</span><br><span class="line">  &#123;</span><br><span class="line">    prompt();</span><br><span class="line">    if (getline(&amp;line, &amp;line_size, stdin) &lt; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      break;</span><br><span class="line">    &#125;</span><br><span class="line">    parsed_cmd(line, &amp;cmd);</span><br><span class="line">    pid &#x3D; fork();</span><br><span class="line">    switch (pid)</span><br><span class="line">    &#123;</span><br><span class="line">    case -1:</span><br><span class="line">      perror(&quot;fork()&quot;);</span><br><span class="line">      exit(1);</span><br><span class="line">    case 0:</span><br><span class="line">      execvp(cmd.gt.gl_pathv[0], cmd.gt.gl_pathv);</span><br><span class="line">      exit(0);</span><br><span class="line">    default:</span><br><span class="line">      wait(NULL);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/%E5%85%B3%E4%BA%8ECPU%E5%AD%97%E8%8A%82%E5%BA%8F%E7%9A%84%E7%90%86%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/16/%E5%85%B3%E4%BA%8ECPU%E5%AD%97%E8%8A%82%E5%BA%8F%E7%9A%84%E7%90%86%E8%A7%A3/" class="post-title-link" itemprop="url">关于CPU字节序的理解</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-16 17:59:50 / Modified: 18:01:04" itemprop="dateCreated datePublished" datetime="2020-04-16T17:59:50+08:00">2020-04-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="为什么会有字节序这一说法"><a href="#为什么会有字节序这一说法" class="headerlink" title="为什么会有字节序这一说法"></a>为什么会有字节序这一说法</h2><ul>
+<li>对于单字节处理器不存在字节序，对于大于1个字节的位数的CPU，其寄存器的宽度也大于1个字节，所以存储字节排序的问题</li>
+</ul>
+<h2 id="大端字节序排序"><a href="#大端字节序排序" class="headerlink" title="大端字节序排序"></a>大端字节序排序</h2><ul>
+<li>大端：高字节位在低地址存储，低字节位在高地址存储</li>
+<li>小端: 高字节位存储在高地址，低字节位存储在低地址<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> 例如 int  x &#x3D; 0x0001,假设是在64位的CPU上，它的地址空间为：0xff13,其字节排序可能有两种可能：</span><br><span class="line">  oxff13: 0  0  0  1   ---&gt;第一种情况 大端</span><br><span class="line">  0xff13: 1  0  0  0   ---&gt;第二种情况 小端</span><br><span class="line">在x这个值中0001从左往右是高字节位到低字节位，也就是 0,0 是高字节，0 1 是低字节位。</span><br></pre></td></tr></table></figure>
+<h2 id="如何验证CPU的字节序呢？"><a href="#如何验证CPU的字节序呢？" class="headerlink" title="如何验证CPU的字节序呢？"></a>如何验证CPU的字节序呢？</h2></li>
+<li>C语言中有union结构，这个结构的数据存储是从低地址向高地址依次存储值，可以通过这个特性来验证CPU的字节序<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: byte_order.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Fri 15 Nov 2019 03:42:37 PM CST</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">typedef union object_t &#123;</span><br><span class="line">    int a;</span><br><span class="line">    char b;</span><br><span class="line">&#125; object;</span><br><span class="line">enum</span><br><span class="line">&#123;</span><br><span class="line">    big_endian_type &#x3D; 0,</span><br><span class="line">    small_endian_type,</span><br><span class="line">&#125;;</span><br><span class="line">int checkCpu(object *obj)</span><br><span class="line">&#123;</span><br><span class="line">    return obj-&gt;b &#x3D;&#x3D; 1 ? small_endian_type : big_endian_type;</span><br><span class="line">&#125;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    int v &#x3D; 0x0001;</span><br><span class="line">    object obj;</span><br><span class="line">    obj.a &#x3D; v;</span><br><span class="line">    fprintf(stdout, &quot;value:%d,value_string:%s,object address:%p\n&quot;, v, &quot;0x0001&quot;, &amp;obj);</span><br><span class="line">    if (checkCpu(&amp;obj) &#x3D;&#x3D; big_endian_type)</span><br><span class="line">    &#123;</span><br><span class="line">        fprintf(stdout, &quot;store plan: |%d|%d|%d|%d|,big endian\n&quot;, 0, 0, 0, 1);</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        fprintf(stdout, &quot;store plan: |%d|%d|%d|%d|,small endian\n&quot;, 1, 0, 0, 0);</span><br><span class="line">    &#125;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[perrynzhou@localhost ~&#x2F;Source&#x2F;vivo&#x2F;linux_kernel_study&#x2F;chapter_01]$ .&#x2F;test </span><br><span class="line">value:1,value_string:0x0001,object address:0x7ffcaf058a08</span><br><span class="line">store plan: |0|0|0|1|,big endian</span><br><span class="line">[perrynzhou@localhost ~&#x2F;Source&#x2F;vivo&#x2F;linux_kernel_study&#x2F;chapter_01]$</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/glusterfs%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/16/glusterfs%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/" class="post-title-link" itemprop="url">glusterfs参数说明</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-16 17:58:49 / Modified: 18:10:39" itemprop="dateCreated datePublished" datetime="2020-04-16T17:58:49+08:00">2020-04-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="选项说明"><a href="#选项说明" class="headerlink" title="选项说明"></a>选项说明</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gluster volume set help</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="left">选项</th>
+<th align="center">默认值</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">changelog.changelog-barrier-timeout</td>
+<td align="center">120</td>
+<td align="left">After ‘timeout’ seconds since the time ‘barrier’ option was set to “on”, unlink/rmdir/rename operations are no longer blocked and previously blocked fops are allowed to go through</td>
+</tr>
+<tr>
+<td align="left">cluster.enable-shared-storage</td>
+<td align="center">disable</td>
+<td align="left">Create and mount the shared storage volume(gluster_shared_storage) at /var/run/gluster/shared_storage on enabling this option. Unmount and delete the shared storage volume on disabling this option.</td>
+</tr>
+<tr>
+<td align="left">cluster.write-freq-threshold</td>
+<td align="center">0</td>
+<td align="left">Defines the number of writes, in a promotion/demotion cycle, that would mark a file HOT for promotion. Any file that has write hits less than this value will be considered as COLD and will be demoted.</td>
+</tr>
+<tr>
+<td align="left">cluster.read-freq-threshold</td>
+<td align="center">0</td>
+<td align="left">Defines the number of reads, in a promotion/demotion cycle, that would mark a file HOT for promotion. Any file that has read hits less than this value will be considered as COLD and will be demoted.</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-pause</td>
+<td align="center">off</td>
+<td align="left">(null)</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-promote-frequency</td>
+<td align="center">120</td>
+<td align="left">Frequency to promote files to fast tier</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-demote-frequency</td>
+<td align="center">120</td>
+<td align="left">Frequency to demote files to slow tier</td>
+</tr>
+<tr>
+<td align="left">cluster.watermark-hi</td>
+<td align="center">90</td>
+<td align="left">Upper % watermark for promotion. If hot tier fills above this percentage, no promotion will happen and demotion will happen with high probability.</td>
+</tr>
+<tr>
+<td align="left">cluster.watermark-low</td>
+<td align="center">75</td>
+<td align="left">Lower % watermark. If hot tier is less full than this, promotion will happen and demotion will not happen. If greater than this, promotion/demotion will happen at a probability relative to how full the hot tier is.</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-mode</td>
+<td align="center">cache</td>
+<td align="left">Either ‘test’ or ‘cache’. Test mode periodically demotes or promotes files automatically based on access. Cache mode does so based on whether the cache is full or not, as specified with watermarks.</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-max-mb</td>
+<td align="center">10000</td>
+<td align="left">The maximum number of MB that may be migrated in any direction in a given cycle by a single node.</td>
+</tr>
+<tr>
+<td align="left">cluster.tier-max-files</td>
+<td align="center">50000</td>
+<td align="left">The maximum number of files that may be migrated in any direction in a given cycle by a single node.</td>
+</tr>
+<tr>
+<td align="left">cluster.lookup-unhashed</td>
+<td align="center">on</td>
+<td align="left">This option if set to ON, does a lookup through all the sub-volumes, in case a lookup didn’t return any result from the hash subvolume. If set to OFF, it does not do a lookup on the remaining subvolumes.</td>
+</tr>
+<tr>
+<td align="left">cluster.lookup-optimize</td>
+<td align="center">off</td>
+<td align="left">This option if set to ON enables the optimization of -ve lookups, by not doing a lookup on non-hashed subvolumes for files, in case the hashed subvolume does not return any result. This option disregards the lookup-unhashed setting, when enabled.</td>
+</tr>
+<tr>
+<td align="left">cluster.min-free-disk</td>
+<td align="center">10%</td>
+<td align="left">Percentage/Size of disk space, after which the process starts balancing out the cluster, and logs will appear in log files</td>
+</tr>
+<tr>
+<td align="left">cluster.min-free-inodes</td>
+<td align="center">5%</td>
+<td align="left">after system has only N% of inodes, warnings starts to appear in log files</td>
+</tr>
+<tr>
+<td align="left">cluster.rebalance-stats</td>
+<td align="center">off</td>
+<td align="left">This option if set to ON displays and logs the time taken for migration of each file, during the rebalance process. If set to OFF, the rebalance logs will only display the time spent in each directory.</td>
+</tr>
+<tr>
+<td align="left">cluster.subvols-per-directory</td>
+<td align="center">null</td>
+<td align="left">Specifies the directory layout spread. Takes number of subvolumes as default value.</td>
+</tr>
+<tr>
+<td align="left">cluster.readdir-optimize</td>
+<td align="center">off</td>
+<td align="left">This option if set to ON enables the optimization that allows DHT to requests non-first subvolumes to filter out directory entries.</td>
+</tr>
+<tr>
+<td align="left">cluster.rebal-throttle</td>
+<td align="center">normal</td>
+<td align="left">Sets the maximum number of parallel file migrations allowed on a node during the rebalance operation. The default value is normal and allows a max of [($(processing units) - 4) / 2), 2] files to be migrated at a time. Lazy will allow only one file to be migrated at a time and aggressive will allow max of [($(processing units) - 4) / 2), 4]</td>
+</tr>
+<tr>
+<td align="left">cluster.weighted-rebalance</td>
+<td align="center">on</td>
+<td align="left">When enabled, files will be allocated to bricks with a probability proportional to their size. Otherwise, all bricks will have the same probability (legacy behavior).</td>
+</tr>
+<tr>
+<td align="left">cluster.entry-change-log</td>
+<td align="center">on</td>
+<td align="left">Entry fops like create/unlink will not perform pre/post fop changelog operations in afr transaction if this option is disabled</td>
+</tr>
+<tr>
+<td align="left">cluster.read-subvolume</td>
+<td align="center">null</td>
+<td align="left">inode-read fops happen only on one of the bricks in replicate. Afr will prefer the one specified using this option if it is not stale. Option value must be one of the xlator names of the children. Ex: -client-0 till -client-&lt;number-of-bricks - 1&gt;</td>
+</tr>
+<tr>
+<td align="left">cluster.read-subvolume-index</td>
+<td align="center">-1</td>
+<td align="left">inode-read fops happen only on one of the bricks in replicate. AFR will prefer the one specified using this option if it is not stale. allowed options include -1 till replica-count - 1</td>
+</tr>
+<tr>
+<td align="left">cluster.read-hash-mode</td>
+<td align="center">1</td>
+<td align="left">inode-read fops happen only on one of the bricks in replicate. AFR will prefer the one computed using the method specified using this option0 = first up server, 1 = hash by GFID of file (all clients use same subvolume), 2 = hash by GFID of file and client PID</td>
+</tr>
+<tr>
+<td align="left">cluster.background-self-heal-count</td>
+<td align="center">16</td>
+<td align="left">This specifies the number of self-heals that can be performed in background without blocking the fop</td>
+</tr>
+<tr>
+<td align="left">cluster.metadata-self-heal</td>
+<td align="center">on</td>
+<td align="left">Using this option we can enable/disable metadata i.e. Permissions, ownerships, xattrs self-heal on the file/directory.</td>
+</tr>
+<tr>
+<td align="left">cluster.data-self-heal</td>
+<td align="center">on</td>
+<td align="left">Using this option we can enable/disable data self-heal on the file. “open” means data self-heal action will only be triggered by file open operations.</td>
+</tr>
+<tr>
+<td align="left">cluster.entry-self-heal</td>
+<td align="center">on</td>
+<td align="left">Using this option we can enable/disable entry self-heal on the directory.</td>
+</tr>
+<tr>
+<td align="left">cluster.self-heal-daemon</td>
+<td align="center">on</td>
+<td align="left">This option applies to only self-heal-daemon. Index directory crawl and automatic healing of files will not be performed if this option is turned off.</td>
+</tr>
+<tr>
+<td align="left">cluster.heal-timeout</td>
+<td align="center">600</td>
+<td align="left">time interval for checking the need to self-heal in self-heal-daemon</td>
+</tr>
+<tr>
+<td align="left">cluster.self-heal-window-size</td>
+<td align="center">1</td>
+<td align="left">Maximum number blocks per file for which self-heal process would be applied simultaneously.</td>
+</tr>
+<tr>
+<td align="left">cluster.data-change-log</td>
+<td align="center">on</td>
+<td align="left">Data fops like write/truncate will not perform pre/post fop changelog operations in afr transaction if this option is disabled</td>
+</tr>
+<tr>
+<td align="left">cluster.metadata-change-log</td>
+<td align="center">on</td>
+<td align="left">Metadata fops like setattr/setxattr will not perform pre/post fop changelog operations in afr transaction if this option is disabled</td>
+</tr>
+<tr>
+<td align="left">cluster.data-self-heal-algorithm</td>
+<td align="center">null</td>
+<td align="left">Select between “full”, “diff”. The “full” algorithm copies the entire file from source to sink. The “diff” algorithm copies to sink only those blocks whose checksums don’t match with those of source. If no option is configured the option is chosen dynamically as follows: If the file does not exist on one of the sinks or empty file exists or if the source file size is about the same as page size the entire file will be read and written i.e “full” algo, otherwise “diff” algo is chosen.</td>
+</tr>
+<tr>
+<td align="left">cluster.eager-lock</td>
+<td align="center">on</td>
+<td align="left">Lock phase of a transaction has two sub-phases. First is an attempt to acquire locks in parallel by broadcasting non-blocking lock requests. If lock acquisition fails on any server, then the held locks are unlocked and revert to a blocking locked mode sequentially on one server after another. If this option is enabled the initial broadcasting lock request attempt to acquire lock on the entire file. If this fails, we revert back to the sequential “regional” blocking lock as before. In the case where such an “eager” lock is granted in the non-blocking phase, it gives rise to an opportunity for optimization. i.e, if the next write transaction on the same FD arrives before the unlock phase of the first transaction, it “takes over” the full file lock. Similarly if yet another data transaction arrives before the unlock phase of the “optimized” transaction, that in turn “takes over” the lock as well. The actual unlock now happens at the end of the last “optimized” transaction.</td>
+</tr>
+<tr>
+<td align="left">cluster.quorum-type</td>
+<td align="center">none</td>
+<td align="left">If value is “fixed” only allow writes if quorum-count bricks are present. If value is “auto” only allow writes if more than half of bricks, or exactly half including the first, are present.</td>
+</tr>
+<tr>
+<td align="left">cluster.quorum-count</td>
+<td align="center">null</td>
+<td align="left">If quorum-type is “fixed” only allow writes if this many bricks or present. Other quorum types will OVERWRITE this value.</td>
+</tr>
+<tr>
+<td align="left">cluster.choose-local</td>
+<td align="center">true</td>
+<td align="left">Choose a local subvolume (i.e. Brick) to read from if read-subvolume is not explicitly set.</td>
+</tr>
+<tr>
+<td align="left">cluster.self-heal-readdir-size</td>
+<td align="center">1KB</td>
+<td align="left">readdirp size for performing entry self-heal</td>
+</tr>
+<tr>
+<td align="left">cluster.ensure-durability</td>
+<td align="center">on</td>
+<td align="left">Afr performs fsyncs for transactions if this option is on to make sure the changelogs/data is written to the disk</td>
+</tr>
+<tr>
+<td align="left">cluster.consistent-metadata</td>
+<td align="center">no</td>
+<td align="left">If this option is enabled, readdirp will force lookups on those entries read whose read child is not the same as that of the parent. This will guarantee that all read operations on a file serve attributes from the same subvol as long as it holds a good copy of the file/dir.</td>
+</tr>
+<tr>
+<td align="left">cluster.stripe-block-size</td>
+<td align="center">128KB</td>
+<td align="left">Size of the stripe unit that would be read from or written to the striped servers.</td>
+</tr>
+<tr>
+<td align="left">cluster.stripe-coalesce</td>
+<td align="center">true</td>
+<td align="left">Enable/Disable coalesce mode to flatten striped files as stored on the server (i.e., eliminate holes caused by the traditional format).</td>
+</tr>
+<tr>
+<td align="left">cluster.server-quorum-type</td>
+<td align="center">(null)</td>
+<td align="left">This feature is on the server-side i.e. in glusterd. Whenever the glusterd on a machine observes that the quorum is not met, it brings down the bricks to prevent data split-brains. When the network connections are brought back up and the quorum is restored the bricks in the volume are brought back up.</td>
+</tr>
+<tr>
+<td align="left">cluster.server-quorum-ratio</td>
+<td align="center">(null)</td>
+<td align="left">Sets the quorum percentage for the trusted storage pool.</td>
+</tr>
+<tr>
+<td align="left">cluster.quorum-reads</td>
+<td align="center">no</td>
+<td align="left">If quorum-reads is “true” only allow reads if quorum is met when quorum is enabled.</td>
+</tr>
+<tr>
+<td align="left">diagnostics.latency-measurement</td>
+<td align="center">off</td>
+<td align="left">If on stats related to the latency of each operation would be tracked inside GlusterFS data-structures.</td>
+</tr>
+<tr>
+<td align="left">diagnostics.dump-fd-stats</td>
+<td align="center">off</td>
+<td align="left">If on stats related to file-operations would be tracked inside GlusterFS data-structures.</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-log-level</td>
+<td align="center">INFO</td>
+<td align="left">Changes the log-level of the bricks</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-log-level</td>
+<td align="center">INFO</td>
+<td align="left">Changes the log-level of the clients</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-sys-log-level</td>
+<td align="center">CRITICAL</td>
+<td align="left">Gluster’s syslog log-level</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-sys-log-level</td>
+<td align="center">CRITICAL</td>
+<td align="left">Gluster’s syslog log-level</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-logger</td>
+<td align="center">null</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-logger</td>
+<td align="center">null</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-log-format</td>
+<td align="center">null</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-log-format</td>
+<td align="center">null</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-log-buf-size</td>
+<td align="center">5</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-log-buf-size</td>
+<td align="center">5</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.brick-log-flush-timeout</td>
+<td align="center">20</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">diagnostics.client-log-flush-timeout</td>
+<td align="center">20</td>
+<td align="left">null</td>
+</tr>
+<tr>
+<td align="left">disperse.background-heals</td>
+<td align="center">8</td>
+<td align="left">This option can be used to control number of parallel heals</td>
+</tr>
+<tr>
+<td align="left">disperse.heal-wait-qlength</td>
+<td align="center">128</td>
+<td align="left">This option can be used to control number of heals that can wait</td>
+</tr>
+<tr>
+<td align="left">disperse.read-policy</td>
+<td align="center">round-robin</td>
+<td align="left">inode-read fops happen only on ‘k’ number of bricks in n=k+m disperse subvolume. ‘round-robin’ selects the read subvolume using round-robin algo. ‘gfid-hash’ selects read subvolume based on hash of the gfid of that file/directory.</td>
+</tr>
+<tr>
+<td align="left">dht.force-readdirp</td>
+<td align="center">on</td>
+<td align="left">This option if set to ON, forces the use of readdirp, and hence also displays the stats of the files.</td>
+</tr>
+<tr>
+<td align="left">performance.cache-max-file-size</td>
+<td align="center">0</td>
+<td align="left">Maximum file size which would be cached by the io-cache translator.</td>
+</tr>
+<tr>
+<td align="left">performance.cache-min-file-size</td>
+<td align="center">0</td>
+<td align="left">Minimum file size which would be cached by the io-cache translator.</td>
+</tr>
+<tr>
+<td align="left">performance.cache-refresh-timeout</td>
+<td align="center">1</td>
+<td align="left">The cached data for a file will be retained till ‘cache-refresh-timeout’ seconds, after which data re-validation is performed.</td>
+</tr>
+<tr>
+<td align="left">performance.cache-priority</td>
+<td align="center"></td>
+<td align="left">Assigns priority to filenames with specific patterns so that when a page needs to be ejected out of the cache, the page of a file whose priority is the lowest will be ejected earlier</td>
+</tr>
+<tr>
+<td align="left">performance.cache-size</td>
+<td align="center">32MB</td>
+<td align="left">Size of the read cache.</td>
+</tr>
+<tr>
+<td align="left">performance.io-thread-count</td>
+<td align="center">16</td>
+<td align="left">Number of threads in IO threads translator which perform concurrent IO operations</td>
+</tr>
+<tr>
+<td align="left">performance.high-prio-threads</td>
+<td align="center">16</td>
+<td align="left">Max number of threads in IO threads translator which perform high priority IO operations at a given time</td>
+</tr>
+<tr>
+<td align="left">performance.normal-prio-threads</td>
+<td align="center">16</td>
+<td align="left">Max number of threads in IO threads translator which perform normal priority IO operations at a given time</td>
+</tr>
+<tr>
+<td align="left">performance.low-prio-threads</td>
+<td align="center">16</td>
+<td align="left">Max number of threads in IO threads translator which perform low priority IO operations at a given time</td>
+</tr>
+<tr>
+<td align="left">performance.least-prio-threads</td>
+<td align="center">1</td>
+<td align="left">Max number of threads in IO threads translator which perform least priority IO operations at a given time</td>
+</tr>
+<tr>
+<td align="left">performance.enable-least-priority</td>
+<td align="center">on</td>
+<td align="left">Enable/Disable least priority</td>
+</tr>
+<tr>
+<td align="left">performance.least-rate-limit</td>
+<td align="center">0</td>
+<td align="left">Max number of least priority operations to handle per-second</td>
+</tr>
+<tr>
+<td align="left">performance.flush-behind</td>
+<td align="center">on</td>
+<td align="left">If this option is set ON, instructs write-behind translator to perform flush in background, by returning success (or any errors, if any of previous writes were failed) to application even before flush FOP is sent to backend filesystem.</td>
+</tr>
+<tr>
+<td align="left">performance.nfs.flush-behind</td>
+<td align="center">on</td>
+<td align="left">If this option is set ON, instructs write-behind translator to perform flush in background, by returning success (or any errors, if any of previous writes were failed) to application even before flush FOP is sent to backend filesystem.</td>
+</tr>
+<tr>
+<td align="left">performance.write-behind-window-size</td>
+<td align="center">1MB</td>
+<td align="left">Size of the write-behind buffer for a single file (inode).</td>
+</tr>
+<tr>
+<td align="left">performance.nfs.write-behind-window-size</td>
+<td align="center">1MB</td>
+<td align="left">Size of the write-behind buffer for a single file (inode).</td>
+</tr>
+<tr>
+<td align="left">performance.strict-o-direct</td>
+<td align="center">off</td>
+<td align="left">This option when set to off, ignores the O_DIRECT flag.</td>
+</tr>
+<tr>
+<td align="left">performance.nfs.strict-o-direct</td>
+<td align="center">off</td>
+<td align="left">This option when set to off, ignores the O_DIRECT flag.</td>
+</tr>
+<tr>
+<td align="left">performance.strict-write-ordering</td>
+<td align="center">off</td>
+<td align="left">Do not let later writes overtake earlier writes even if they do not overlap</td>
+</tr>
+<tr>
+<td align="left">performance.nfs.strict-write-ordering</td>
+<td align="center">off</td>
+<td align="left">Do not let later writes overtake earlier writes even if they do not overlap</td>
+</tr>
+<tr>
+<td align="left">performance.lazy-open</td>
+<td align="center">yes</td>
+<td align="left">Perform open in the backend only when a necessary FOP arrives (e.g writev on the FD, unlink of the file). When option is disabled, perform backend open right after unwinding open().</td>
+</tr>
+<tr>
+<td align="left">performance.read-after-open</td>
+<td align="center">no</td>
+<td align="left">read is sent only after actual open happens and real fd is obtained, instead of doing on anonymous fd (similar to write)</td>
+</tr>
+<tr>
+<td align="left">performance.read-ahead-page-count</td>
+<td align="center">4</td>
+<td align="left">Number of pages that will be pre-fetched</td>
+</tr>
+<tr>
+<td align="left">performance.md-cache-timeout</td>
+<td align="center">1</td>
+<td align="left">Time period after which cache has to be refreshed</td>
+</tr>
+<tr>
+<td align="left">performance.write-behind</td>
+<td align="center">on</td>
+<td align="left">enable/disable write-behind translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.read-ahead</td>
+<td align="center">on</td>
+<td align="left">enable/disable read-ahead translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.readdir-ahead</td>
+<td align="center">off</td>
+<td align="left">enable/disable readdir-ahead translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.io-cache</td>
+<td align="center">on</td>
+<td align="left">enable/disable io-cache translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.quick-read</td>
+<td align="center">on</td>
+<td align="left">enable/disable quick-read translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.open-behind</td>
+<td align="center">on</td>
+<td align="left">enable/disable open-behind translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.stat-prefetch</td>
+<td align="center">on</td>
+<td align="left">enable/disable meta-data caching translator in the volume.</td>
+</tr>
+<tr>
+<td align="left">performance.client-io-threads</td>
+<td align="center">off</td>
+<td align="left">enable/disable io-threads translator in the client graph of volume.</td>
+</tr>
+<tr>
+<td align="left">performance.nfs.write-behind</td>
+<td align="center">on</td>
+<td align="left">enable/disable write-behind translator in the volume</td>
+</tr>
+<tr>
+<td align="left">performance.force-readdirp</td>
+<td align="center">true</td>
+<td align="left">Convert all readdir requests to readdirplus to collect stat info on each entry.</td>
+</tr>
+<tr>
+<td align="left">features.encryption</td>
+<td align="center">off</td>
+<td align="left">enable/disable client-side encryption for the volume.</td>
+</tr>
+<tr>
+<td align="left">encryption.master-key</td>
+<td align="center">null</td>
+<td align="left">Pathname of regular file which contains master volume key</td>
+</tr>
+<tr>
+<td align="left">encryption.data-key-size</td>
+<td align="center">256</td>
+<td align="left">Data key size (bits)</td>
+</tr>
+<tr>
+<td align="left">encryption.block-size</td>
+<td align="center">4096</td>
+<td align="left">Atom size (bits)</td>
+</tr>
+<tr>
+<td align="left">nfs.enable-ino32</td>
+<td align="center">no</td>
+<td align="left">For nfs clients or apps that do not support 64-bit inode numbers, use this option to make NFS return 32-bit inode numbers instead. Disabled by default, so NFS returns 64-bit inode numbers.</td>
+</tr>
+<tr>
+<td align="left">nfs.mem-factor</td>
+<td align="center">15</td>
+<td align="left">Use this option to make NFS be faster on systems by using more memory. This option specifies a multiple that determines the total amount of memory used. Default value is 15. Increase to use more memory in order to improve performance for certain use cases.Please consult gluster-users list before using this option.</td>
+</tr>
+<tr>
+<td align="left">nfs.export-dirs</td>
+<td align="center">on</td>
+<td align="left">By default, all subvolumes of nfs are exported as individual exports. There are cases where a subdirectory or subdirectories in the volume need to be exported separately. Enabling this option allows any directory on a volumes to be exported separately.Directory exports are enabled by default.</td>
+</tr>
+<tr>
+<td align="left">nfs.export-volumes</td>
+<td align="center">on</td>
+<td align="left">Enable or disable exporting whole volumes, instead if used in conjunction with nfs3.export-dir, can allow setting up only subdirectories as exports. On by default.</td>
+</tr>
+<tr>
+<td align="left">nfs.addr-namelookup</td>
+<td align="center">off</td>
+<td align="left">Users have the option of turning on name lookup for incoming client connections using this option. Use this option to turn on name lookups during address-based authentication. Turning this on will enable you to use hostnames in nfs.rpc-auth-* filters. In some setups, the name server can take too long to reply to DNS queries resulting in timeouts of mount requests. By default, name lookup is off</td>
+</tr>
+<tr>
+<td align="left">nfs.dynamic-volumes</td>
+<td align="center">off</td>
+<td align="left">Internal option set to tell gnfs to use a different scheme for encoding file handles when DVM is being used.</td>
+</tr>
+<tr>
+<td align="left">nfs.register-with-portmap</td>
+<td align="center">on</td>
+<td align="left">For systems that need to run multiple nfs servers, only one registration is possible with portmap service. Use this option to turn off portmap registration for Gluster NFS. On by default</td>
+</tr>
+<tr>
+<td align="left">nfs.outstanding-rpc-limit</td>
+<td align="center">16</td>
+<td align="left">Parameter to throttle the number of incoming RPC requests from a client. 0 means no limit (can potentially run out of memory)</td>
+</tr>
+<tr>
+<td align="left">nfs.port</td>
+<td align="center">2049</td>
+<td align="left">Use this option on systems that need Gluster NFS to be associated with a non-default port number.</td>
+</tr>
+<tr>
+<td align="left">nfs.rpc-auth-unix</td>
+<td align="center">on</td>
+<td align="left">Disable or enable the AUTH_UNIX authentication type for a particular exported volume overriding defaults and general setting for AUTH_UNIX scheme. Must always be enabled for better interoperability. However, can be disabled if needed. Enabled by default.</td>
+</tr>
+<tr>
+<td align="left">nfs.rpc-auth-null</td>
+<td align="center">on</td>
+<td align="left">Disable or enable the AUTH_NULL authentication type for a particular exported volume overriding defaults and general setting for AUTH_NULL. Must always be enabled. This option is here only to avoid unrecognized option warnings.</td>
+</tr>
+<tr>
+<td align="left">nfs.rpc-auth-allow</td>
+<td align="center">all</td>
+<td align="left">Allow a comma separated list of addresses and/or hostnames to connect to the server. By default, all connections are allowed. This allows users to define a rule for a specific exported volume.</td>
+</tr>
+<tr>
+<td align="left">nfs.rpc-auth-reject</td>
+<td align="center">none</td>
+<td align="left">Reject a comma separated list of addresses and/or hostnames from connecting to the server. By default, all connections are allowed. This allows users to define a rule for a specific exported volume.</td>
+</tr>
+<tr>
+<td align="left">nfs.ports-insecure</td>
+<td align="center">off</td>
+<td align="left">Allow client connections from unprivileged ports. By default only privileged ports are allowed. Use this option to enable or disable insecure ports for a specific subvolume and to override the global setting set by the previous option.</td>
+</tr>
+<tr>
+<td align="left">nfs.transport-type</td>
+<td align="center">(null)</td>
+<td align="left">Specifies the nfs transport type. Valid transport types are ‘tcp’ and ‘rdma’.</td>
+</tr>
+<tr>
+<td align="left">nfs.trusted-sync</td>
+<td align="center">off</td>
+<td align="left">All writes and COMMIT requests are treated as async. This implies that no write requests are guaranteed to be on server disks when the write reply is received at the NFS client. Trusted sync includes trusted-write behaviour. Off by default.</td>
+</tr>
+<tr>
+<td align="left">nfs.trusted-write</td>
+<td align="center">off</td>
+<td align="left">On an UNSTABLE write from client, return STABLE flag to force client to not send a COMMIT request. In some environments, combined with a replicated GlusterFS setup, this option can improve write performance. This flag allows user to trust Gluster replication logic to sync data to the disks and recover when required. COMMIT requests if received will be handled in a default manner by fsyncing. STABLE writes are still handled in a sync manner. Off by default.</td>
+</tr>
+<tr>
+<td align="left">nfs.volume-access</td>
+<td align="center">read-write</td>
+<td align="left">Type of access desired for this subvolume: read-only, read-write(default)</td>
+</tr>
+<tr>
+<td align="left">nfs.export-dir</td>
+<td align="center"></td>
+<td align="left">By default, all subvolumes of nfs are exported as individual exports. There are cases where a subdirectory or subdirectories in the volume need to be exported separately. This option can also be used in conjunction with nfs3.export-volumes option to restrict exports only to the subdirectories specified through this option. Must be an absolute path. Along with path allowed list of IPs/hostname can be associated with each subdirectory. If provided connection will allowed only from these IPs. By default connections from all IPs are allowed. Format:[(hostspec[|hostspec|…])][,…]. Where hostspec can be an IP address, hostname or an IP range in CIDR notation. e.g. /foo(192.168.1.0/24|host1|10.1.1.8),/host2. NOTE: Care must be taken while configuring this option as invalid entries and/or unreachable DNS servers can introduce unwanted delay in all the mount calls.</td>
+</tr>
+<tr>
+<td align="left">nfs.disable</td>
+<td align="center">false</td>
+<td align="left">This option is used to start or stop the NFS server for individual volumes.</td>
+</tr>
+<tr>
+<td align="left">nfs.nlm</td>
+<td align="center">on</td>
+<td align="left">This option, if set to ‘off’, disables NLM server by not registering the service with the portmapper. Set it to ‘on’ to re-enable it. Default value: ‘on’</td>
+</tr>
+<tr>
+<td align="left">nfs.acl</td>
+<td align="center">on</td>
+<td align="left">This option is used to control ACL support for NFS.</td>
+</tr>
+<tr>
+<td align="left">nfs.mount-udp</td>
+<td align="center">off</td>
+<td align="left">set the option to ‘on’ to enable mountd on UDP. Required for some Solaris and AIX NFS clients. The need for enabling this option often depends on the usage of NLM.</td>
+</tr>
+<tr>
+<td align="left">nfs.mount-rmtab</td>
+<td align="center">/var/lib/glusterd/nfs/rmtab</td>
+<td align="left">Set the location of the cache file that is used to list all the NFS-clients that have connected through the MOUNT protocol. If this is on shared storage, all GlusterFS servers will update and output (with ‘showmount’) the same list. Set to “/-“ to disable.</td>
+</tr>
+<tr>
+<td align="left">nfs.drc</td>
+<td align="center">off</td>
+<td align="left">Enable Duplicate Request Cache in gNFS server to improve correctness of non-idempotent operations like write, delete, link, et al</td>
+</tr>
+<tr>
+<td align="left">nfs.drc-size</td>
+<td align="center">0x20000</td>
+<td align="left">Sets the number of non-idempotent requests to cache in drc</td>
+</tr>
+<tr>
+<td align="left">nfs.read-size</td>
+<td align="center">(1 * 1048576ULL)</td>
+<td align="left">Size in which the client should issue read requests to the Gluster NFSv3 server. Must be a multiple of 4KB (4096). Min and Max supported values are 4KB (4096) and 1MB (1048576) respectively. If the specified value is within the supported range but not a multiple of 4096, it is rounded up to the nearest multiple of 4096.</td>
+</tr>
+<tr>
+<td align="left">nfs.write-size</td>
+<td align="center">(1 * 1048576ULL)</td>
+<td align="left">Size in which the client should issue write requests to the Gluster NFSv3 server. Must be a multiple of 1KB (1024). Min and Max supported values are 4KB (4096) and 1MB(1048576) respectively. If the specified value is within the supported range but not a multiple of 4096, it is rounded up to the nearest multiple of 4096.</td>
+</tr>
+<tr>
+<td align="left">nfs.readdir-size</td>
+<td align="center">(1 * 1048576ULL)</td>
+<td align="left">Size in which the client should issue directory reading requests to the Gluster NFSv3 server. Must be a multiple of 1KB (1024). Min and Max supported values are 4KB (4096) and 1MB (1048576) respectively.If the specified value is within the supported range but not a multiple of 4096, it is rounded up to the nearest multiple of 4096.</td>
+</tr>
+<tr>
+<td align="left">nfs.exports-auth-enable</td>
+<td align="center">(null)</td>
+<td align="left">Set the option to ‘on’ to enable exports/netgroup authentication in the NFS server and mount daemon.</td>
+</tr>
+<tr>
+<td align="left">nfs.auth-refresh-interval-sec</td>
+<td align="center">(null)</td>
+<td align="left">Frequency in seconds that the daemon should check for changes in the exports/netgroups file.</td>
+</tr>
+<tr>
+<td align="left">nfs.auth-cache-ttl-sec</td>
+<td align="center">(null)</td>
+<td align="left">Sets the TTL of an entry in the auth cache. Value is in seconds.</td>
+</tr>
+<tr>
+<td align="left">ganesha.enable</td>
+<td align="center">off</td>
+<td align="left">export volume via NFS-Ganesha</td>
+</tr>
+<tr>
+<td align="left">network.frame-timeout</td>
+<td align="center">1800</td>
+<td align="left">Time frame after which the (file) operation would be declared as dead, if the server does not respond for a particular (file) operation.</td>
+</tr>
+<tr>
+<td align="left">network.ping-timeout</td>
+<td align="center">42</td>
+<td align="left">Time duration for which the client waits to check if the server is responsive.</td>
+</tr>
+<tr>
+<td align="left">network.tcp-window-size</td>
+<td align="center">null</td>
+<td align="left">Specifies the window size for tcp socket.</td>
+</tr>
+<tr>
+<td align="left">network.remote-dio</td>
+<td align="center">disable</td>
+<td align="left">If enabled, in open() and creat() calls, O_DIRECT flag will be filtered at the client protocol level so server will still continue to cache the file. This works similar to NFS’s behavior of O_DIRECT</td>
+</tr>
+<tr>
+<td align="left">network.inode-lru-limit</td>
+<td align="center">16384</td>
+<td align="left">Specifies the maximum megabytes of memory to be used in the inode cache.</td>
+</tr>
+<tr>
+<td align="left">network.compression</td>
+<td align="center">off</td>
+<td align="left">enable/disable network compression translator</td>
+</tr>
+<tr>
+<td align="left">network.compression.window-size</td>
+<td align="center">-15</td>
+<td align="left">Size of the zlib history buffer.</td>
+</tr>
+<tr>
+<td align="left">network.compression.mem-level</td>
+<td align="center">8</td>
+<td align="left">Memory allocated for internal compression state. 1 uses minimum memory but is slow and reduces compression ratio; memLevel=9 uses maximum memory for optimal speed. The default value is 8.</td>
+</tr>
+<tr>
+<td align="left">network.compression.min-size</td>
+<td align="center">0</td>
+<td align="left">Data is compressed only when its size exceeds this.</td>
+</tr>
+<tr>
+<td align="left">network.compression.compression-level</td>
+<td align="center">-1</td>
+<td align="left">Compression levels 0 : no compression, 1 : best speed, 9 : best compression, -1 : default compression</td>
+</tr>
+<tr>
+<td align="left">features.lock-heal</td>
+<td align="center">off</td>
+<td align="left">When the connection to client is lost, server cleans up all the locks held by the client. After the connection is restored, the client reacquires (heals) the fcntl locks released by the server.</td>
+</tr>
+<tr>
+<td align="left">features.grace-timeout</td>
+<td align="center">10</td>
+<td align="left">Specifies the duration for the lock state to be maintained on the client after a network disconnection. Range 10-1800 seconds.</td>
+</tr>
+<tr>
+<td align="left">features.file-snapshot</td>
+<td align="center">off</td>
+<td align="left">enable/disable file-snapshot feature in the volume.</td>
+</tr>
+<tr>
+<td align="left">features.uss</td>
+<td align="center">off</td>
+<td align="left">enable/disable User Serviceable Snapshots on the volume.</td>
+</tr>
+<tr>
+<td align="left">features.snapshot-directory</td>
+<td align="center">.snaps</td>
+<td align="left">Entry point directory for entering snapshot world</td>
+</tr>
+<tr>
+<td align="left">features.show-snapshot-directory</td>
+<td align="center">off</td>
+<td align="left">show entry point in readdir output of snapdir-entry-path which is set by samba</td>
+</tr>
+<tr>
+<td align="left">features.quota-deem-statfs</td>
+<td align="center">off</td>
+<td align="left">If set to on, it takes quota limits intoconsideration while estimating fs size. (df command) (Default is off).</td>
+</tr>
+<tr>
+<td align="left">features.read-only</td>
+<td align="center">off</td>
+<td align="left">When “on”, makes a volume read-only. It is turned “off” by default.</td>
+</tr>
+<tr>
+<td align="left">features.worm</td>
+<td align="center">off</td>
+<td align="left">When “on”, makes a volume get write once read many feature. It is turned “off” by default.</td>
+</tr>
+<tr>
+<td align="left">features.barrier-timeout</td>
+<td align="center">120</td>
+<td align="left">After ‘timeout’ seconds since the time ‘barrier’ option was set to “on”, acknowledgements to file operations are no longer blocked and previously blocked acknowledgements are sent to the application</td>
+</tr>
+<tr>
+<td align="left">features.trash</td>
+<td align="center">off</td>
+<td align="left">Enable/disable trash translator</td>
+</tr>
+<tr>
+<td align="left">features.trash-dir</td>
+<td align="center">.trashcan</td>
+<td align="left">Directory for trash files</td>
+</tr>
+<tr>
+<td align="left">features.trash-eliminate-path</td>
+<td align="center">(null)</td>
+<td align="left">Eliminate paths to be excluded from trashing</td>
+</tr>
+<tr>
+<td align="left">features.trash-max-filesize</td>
+<td align="center">5MB</td>
+<td align="left">Maximum size of file that can be moved to trash</td>
+</tr>
+<tr>
+<td align="left">features.trash-internal-op</td>
+<td align="center">off</td>
+<td align="left">Enable/disable trash translator for internal operations</td>
+</tr>
+<tr>
+<td align="left">features.ctr-enabled</td>
+<td align="center">off</td>
+<td align="left">Enable CTR xlator</td>
+</tr>
+<tr>
+<td align="left">features.record-counters</td>
+<td align="center">off</td>
+<td align="left">Its a Change Time Recorder Xlator option to enable recording write and read heat counters. The default is disabled. If enabled, “cluster.write-freq-threshold” and “cluster.read-freq-threshold” defined the number of writes (or reads) to a given file are needed before triggering migration.</td>
+</tr>
+<tr>
+<td align="left">features.ctr-sql-db-cachesize</td>
+<td align="center">1000</td>
+<td align="left">Defines the cache size of the sqlite database of changetimerecorder xlator.The input to this option is in pages.Each page is 4096 bytes. Default value is 1000 pages i.e ~ 4 MB. The max value is 262144 pages i.e 1 GB and the min value is 1000 pages i.e ~ 4 MB.</td>
+</tr>
+<tr>
+<td align="left">features.ctr-sql-db-wal-autocheckpoint</td>
+<td align="center">1000</td>
+<td align="left">Defines the autocheckpoint of the sqlite database of changetimerecorder. The input to this option is in pages. Each page is 4096 bytes. Default value is 1000 pages i.e ~ 4 MB.The max value is 262144 pages i.e 1 GB and the min value is 1000 pages i.e ~4 MB.</td>
+</tr>
+<tr>
+<td align="left">features.shard-block-size</td>
+<td align="center">4MB</td>
+<td align="left">The size unit used to break a file into multiple chunks</td>
+</tr>
+<tr>
+<td align="left">features.cache-invalidation</td>
+<td align="center">off</td>
+<td align="left">When “on”, sends cache-invalidation notifications.</td>
+</tr>
+<tr>
+<td align="left">features.cache-invalidation-timeout</td>
+<td align="center">60</td>
+<td align="left">After ‘timeout’ seconds since the time client accessed any file, cache-invalidation notifications are no longer sent to that client.</td>
+</tr>
+<tr>
+<td align="left">client.event-threads</td>
+<td align="center">2</td>
+<td align="left">Specifies the number of event threads to execute in parallel. Larger values would help process responses faster, depending on available processing power. Range 1-32 threads.</td>
+</tr>
+<tr>
+<td align="left">auth.allow</td>
+<td align="center">null</td>
+<td align="left">Allow a comma separated list of addresses and/or hostnames to connect to the server. Option auth.reject overrides this option. By default, all connections are allowed.</td>
+</tr>
+<tr>
+<td align="left">auth.reject</td>
+<td align="center">null</td>
+<td align="left">Reject a comma separated list of addresses and/or hostnames to connect to the server. This option overrides the auth.allow option. By default, all connections are allowed.</td>
+</tr>
+<tr>
+<td align="left">server.root-squash</td>
+<td align="center">off</td>
+<td align="left">Map requests from uid/gid 0 to the anonymous uid/gid. Note that this does not apply to any other uids or gids that might be equally sensitive, such as user bin or group staff.</td>
+</tr>
+<tr>
+<td align="left">server.anonuid</td>
+<td align="center">65534</td>
+<td align="left">value of the uid used for the anonymous user/nfsnobody when root-squash is enabled.</td>
+</tr>
+<tr>
+<td align="left">server.anongid</td>
+<td align="center">65534</td>
+<td align="left">value of the gid used for the anonymous user/nfsnobody when root-squash is enabled.</td>
+</tr>
+<tr>
+<td align="left">server.statedump-path</td>
+<td align="center">/var/run/gluster</td>
+<td align="left">Specifies directory in which gluster should save its statedumps.</td>
+</tr>
+<tr>
+<td align="left">server.outstanding-rpc-limit</td>
+<td align="center">64</td>
+<td align="left">Parameter to throttle the number of incoming RPC requests from a client. 0 means no limit (can potentially run out of memory)</td>
+</tr>
+<tr>
+<td align="left">server.manage-gids</td>
+<td align="center">off</td>
+<td align="left">Resolve groups on the server-side.</td>
+</tr>
+<tr>
+<td align="left">server.dynamic-auth</td>
+<td align="center">on</td>
+<td align="left">When ‘on’ perform dynamic authentication of volume options in order to allow/terminate client transport connection immediately in response to *.allow | *.reject volume set options.</td>
+</tr>
+<tr>
+<td align="left">server.gid-timeout</td>
+<td align="center">300</td>
+<td align="left">Timeout in seconds for the cached groups to expire.</td>
+</tr>
+<tr>
+<td align="left">server.event-threads</td>
+<td align="center">2</td>
+<td align="left">Specifies the number of event threads to execute in parallel. Larger values would help process responses faster, depending on available processing power. Range 1-32 threads.</td>
+</tr>
+<tr>
+<td align="left">ssl.own-cert</td>
+<td align="center">null</td>
+<td align="left">SSL certificate. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.private-key</td>
+<td align="center">null</td>
+<td align="left">SSL private key. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.ca-list</td>
+<td align="center">null</td>
+<td align="left">SSL CA list. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.crl-path</td>
+<td align="center">null</td>
+<td align="left">Path to directory containing CRL. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.certificate-depth</td>
+<td align="center">null</td>
+<td align="left">Maximum certificate-chain depth. If zero, the peer’s certificate itself must be in the local certificate list. Otherwise, there may be up to N signing certificates between the peer’s and the local list. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.cipher-list</td>
+<td align="center">null</td>
+<td align="left">Allowed SSL ciphers. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.dh-param</td>
+<td align="center">null</td>
+<td align="left">DH parameters file. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">ssl.ec-curve</td>
+<td align="center">null</td>
+<td align="left">ECDH curve name. Ignored if SSL is not enabled.</td>
+</tr>
+<tr>
+<td align="left">storage.linux-aio</td>
+<td align="center">off</td>
+<td align="left">Support for native Linux AIO</td>
+</tr>
+<tr>
+<td align="left">storage.batch-fsync-mode</td>
+<td align="center">reverse-fsync</td>
+<td align="left">Possible values: syncfs: Perform one syncfs() on behalf oa batchof fsyncs. syncfs-single-fsync: Perform one syncfs() on behalf of a batch of fsyncs and one fsync() per batch. syncfs-reverse-fsync: Preform one syncfs() on behalf of a batch of fsyncs and fsync() each file in the batch in reverse order. reverse-fsync: Perform fsync() of each file in the batch in reverse order.</td>
+</tr>
+<tr>
+<td align="left">storage.batch-fsync-delay-usec</td>
+<td align="center">0</td>
+<td align="left">Num of usecs to wait for aggregating fsync requests</td>
+</tr>
+<tr>
+<td align="left">storage.owner-uid</td>
+<td align="center">-1</td>
+<td align="left">Support for setting uid of brick’s owner</td>
+</tr>
+<tr>
+<td align="left">storage.owner-gid</td>
+<td align="center">-1</td>
+<td align="left">Support for setting gid of brick’s owner</td>
+</tr>
+<tr>
+<td align="left">storage.node-uuid-pathinfo</td>
+<td align="center">off</td>
+<td align="left">return glusterd’s node-uuid in pathinfo xattr string instead of hostname</td>
+</tr>
+<tr>
+<td align="left">storage.health-check-interval</td>
+<td align="center">30</td>
+<td align="left">Interval in seconds for a filesystem health check, set to 0 to disable</td>
+</tr>
+<tr>
+<td align="left">storage.build-pgfid</td>
+<td align="center">off</td>
+<td align="left">Enable placeholders for gfid to path conversion</td>
+</tr>
+<tr>
+<td align="left">storage.bd-aio</td>
+<td align="center">off</td>
+<td align="left">Support for native Linux AIO</td>
+</tr>
+</tbody></table>
+<h2 id="基本GlusterFS的优化样例"><a href="#基本GlusterFS的优化样例" class="headerlink" title="基本GlusterFS的优化样例"></a>基本GlusterFS的优化样例</h2><table>
+<thead>
+<tr>
+<th align="left">选项</th>
+<th align="center">配置</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">cluster.server-quorum-type</td>
+<td align="center">server</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">cluster.quorum-type</td>
+<td align="center">auto</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">network.remote-dio</td>
+<td align="center">enable</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">cluster.eager-lock</td>
+<td align="center">enable</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">performance.stat-prefetch</td>
+<td align="center">off</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">performance.io-cache</td>
+<td align="center">off</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">performance.read-ahead</td>
+<td align="center">off</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">performance.quick-read</td>
+<td align="center">off</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">performance.readdir-ahead</td>
+<td align="center"></td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/Redis%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -782,371 +2092,6 @@ trusted.afr.vol-client-1=0x000000000000000000000001 --&gt;changelog for itself (
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/glusterfs-dht%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/glusterfs-dht%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/" class="post-title-link" itemprop="url">How GlusterFs Distribution Works</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 16:24:54 / Modified: 16:29:05" itemprop="dateCreated datePublished" datetime="2020-04-15T16:24:54+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="How-GlusterFS-Distribution-Works"><a href="#How-GlusterFS-Distribution-Works" class="headerlink" title="How GlusterFS Distribution Works"></a>How GlusterFS Distribution Works</h1><p>The defining feature of any scale-out system is its ability to distribute work<br>or data among many servers.  Accordingly, people in the distributed-system<br>community have developed many powerful techniques to perform such distribution,<br>but those techniques often remain little known or understood even among other<br>members of the file system and database communities that benefit.  This<br>confusion is represented even in the name of the GlusterFS component that<br>performs distribution - DHT, which stands for Distributed Hash Table but is not<br>actually a DHT as that term is most commonly used or defined.  The way<br>GlusterFS’s DHT works is based on a few basic principles:</p>
-<ul>
-<li><p>All operations are driven by clients, which are all equal.  There are no<br>special nodes with special knowledge of where files are or should be.</p>
-</li>
-<li><p>Directories exist on all subvolumes (bricks or lower-level aggregations of<br>bricks); files exist on only one.</p>
-</li>
-<li><p>Files are assigned to subvolumes based on <em>consistent hashing</em>, and even<br>more specifically a form of consistent hashing exemplified by Amazon’s<br><a href="http://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf" target="_blank" rel="noopener">Dynamo</a>.</p>
-</li>
-</ul>
-<p>The result of all this is that users are presented with a set of files that is<br>the union of the files present on all subvolumes.  The following sections<br>describe how this “uniting” process actually works.</p>
-<h2 id="Layouts"><a href="#Layouts" class="headerlink" title="Layouts"></a>Layouts</h2><p>The conceptual basis of Dynamo-style consistent hashing is of numbers around a<br>circle, like a clock.  First, the circle is divided into segments and those<br>segments are assigned to bricks.  (For the sake of simplicity we’ll use<br>“bricks” hereafter even though they might actually be replicated/striped<br>subvolumes.)  Several factors guide this assignment.</p>
-<ul>
-<li><p>Assignments are done separately for each directory.</p>
-</li>
-<li><p>Historically, segments have all been the same size.  However, this can lead<br>to smaller bricks becoming full while plenty of space remains on larger<br>ones.  If the <em>cluster.weighted-rebalance</em> option is set, segments sizes<br>will be proportional to brick sizes.</p>
-</li>
-<li><p>Assignments need not include all bricks in the volume.  If the<br><em>cluster.subvols-per-directory</em> option is set, only that many bricks will<br>receive assignments for that directory.</p>
-</li>
-</ul>
-<p>However these assignments are done, they collectively become what we call a<br><em>layout</em> for a directory.  This layout is then stored using extended<br>attributes, with each brick’s copy of that extended attribute on that directory<br>consisting of four 32-bit fields.</p>
-<ul>
-<li><p>A version, which might be DHT_HASH_TYPE_DM to represent an assignment as<br>described above, or DHT_HASH_TYPE_DM_USER to represent an assignment made<br>manually by the user (or external script).</p>
-</li>
-<li><p>A “commit hash” which will be described later.</p>
-</li>
-<li><p>The first number in the assigned range (segment).</p>
-</li>
-<li><p>The last number in the assigned range.</p>
-</li>
-</ul>
-<p>For example, the extended attributes representing a weighted assignment between<br>three bricks, one twice as big as the others, might look like this.</p>
-<ul>
-<li><p>Brick A (the large one): DHT_HASH_TYPE_DM 1234 0 0x7ffffff</p>
-</li>
-<li><p>Brick B: DHT_HASH_TYPE_DM 1234 0x80000000 0xbfffffff</p>
-</li>
-<li><p>Brick C: DHT_HASH_TYPE_DM 1234 0xc0000000 0xffffffff</p>
-</li>
-</ul>
-<h2 id="Placing-Files"><a href="#Placing-Files" class="headerlink" title="Placing Files"></a>Placing Files</h2><p>To place a file in a directory, we first need a layout for that directory - as<br>described above.  Next, we calculate a hash for the file.  To minimize<br>collisions either between files in the same directory with different names or<br>between files in different directories with the same name, this hash is<br>generated using both the (containing) directory’s unique GFID and the file’s<br>name.  This hash is then matched to one of the layout assignments, to yield<br>what we call a <em>hashed location</em>.  For example, consider the layout shown<br>above.  The hash 0xabad1dea is between 0x80000000 and 0xbfffffff, so the<br>corresponding file’s hashed location would be on Brick B.  A second file with a<br>hash of 0xfaceb00c would be assigned to Brick C by the same reasoning.</p>
-<h2 id="Looking-Up-Files"><a href="#Looking-Up-Files" class="headerlink" title="Looking Up Files"></a>Looking Up Files</h2><p>Because layout assignments might change, especially as bricks are added or<br>removed, finding a file involves more than calculating its hashed location and<br>looking there.  That is in fact the first step, and works most of the time -<br>i.e. the file is found where we expected it to be - but there are a few more<br>steps when that’s not the case.  Historically, the next step has been to look<br>for the file <strong>everywhere</strong> - i.e. to broadcast our lookup request to all<br>subvolumes.  If the file isn’t found that way, it doesn’t exist.  At this<br>point, an open that requires the file’s presence will fail, or a create/mkdir<br>that requires its absence will be allowed to continue.</p>
-<p>Regardless of whether a file is found at its hashed location or elsewhere, we<br>now know its <em>cached location</em>.  As the name implies, this is stored within DHT<br>to satisfy future lookups.  If it’s not the same as the hashed location, we<br>also take an extra step.  This step is the creation of a <em>linkfile</em>, which is a<br>special stub left at the <strong>hashed</strong> location pointing to the <strong>cached</strong><br>location.  Therefore, if a client naively looks for a file at its hashed<br>location and finds a linkfile instead, it can use that linkfile to look up the<br>file where it really is instead of needing to inquire everywhere.</p>
-<h2 id="Rebalancing"><a href="#Rebalancing" class="headerlink" title="Rebalancing"></a>Rebalancing</h2><p>As bricks are added or removed, or files are renamed, many files can end up<br>somewhere other than at their hashed locations.  When this happens, the volumes<br>need to be rebalanced.  This process consists of two parts.</p>
-<ol>
-<li><p>Calculate new layouts, according to the current set of bricks (and possibly<br>their characteristics).  We call this the “fix-layout” phase.</p>
-</li>
-<li><p>Migrate any “misplaced” files to their correct (hashed) locations, and<br>clean up any linkfiles which are no longer necessary.  We call this the<br>“migrate-data” phase.</p>
-</li>
-</ol>
-<p>Usually, these two phases are done together.  (In fact, the code for them is<br>somewhat intermingled.)  However, the migrate-data phase can involve a lot of<br>I/O and be very disruptive, so users can do just the fix-layout phase and defer<br>migrate-data until a more convenient time.  This allows new files to be placed<br>on new bricks, even though old files might still be in the “wrong” place.</p>
-<p>When calculating a new layout to replace an old one, DHT specifically tries to<br>maximize overlap of the assigned ranges, thus minimizing data movement.  This<br>difference can be very large.  For example, consider the case where our example<br>layout from earlier is updated to add a new double-sided brick.  Here’s a very<br>inefficient way to do that.</p>
-<ul>
-<li><p>Brick A (the large one): 0x00000000 to 0x55555555</p>
-</li>
-<li><p>Brick B: 0x55555556 to 0x7fffffff</p>
-</li>
-<li><p>Brick C: 0x80000000 to 0xaaaaaaaa</p>
-</li>
-<li><p>Brick D (the new one): 0xaaaaaaab to 0xffffffff</p>
-</li>
-</ul>
-<p>This would cause files in the following ranges to be migrated:</p>
-<ul>
-<li><p>0x55555556 to 0x7fffffff (from A to B)</p>
-</li>
-<li><p>0x80000000 to 0xaaaaaaaa (from B to C)</p>
-</li>
-<li><p>0xaaaaaaab to 0xbfffffff (from B to D)</p>
-</li>
-<li><p>0xc0000000 to 0xffffffff (from C to D)</p>
-</li>
-</ul>
-<p>As an historical note, this is exactly what we used to do, and in this case it<br>would have meant moving 7/12 of all files in the volume.  Now let’s consider a<br>new layout that’s optimized to maximize overlap with the old one. </p>
-<ul>
-<li><p>Brick A: 0x00000000 to 0x55555555</p>
-</li>
-<li><p>Brick D: 0x55555556 to 0xaaaaaaaa  &lt;- optimized insertion point</p>
-</li>
-<li><p>Brick B: 0xaaaaaaab to 0xd5555554</p>
-</li>
-<li><p>Brick C: 0xd5555555 to 0xffffffff</p>
-</li>
-</ul>
-<p>In this case we only need to move 5/12 of all files.  In a volume with millions<br>or even billions of files, reducing data movement by 1/6 of all files is a<br>pretty big improvement.  In the future, DHT might use “virtual node IDs” or<br>multiple hash rings to make rebalancing even more efficient.</p>
-<h2 id="Rename-Optimizations"><a href="#Rename-Optimizations" class="headerlink" title="Rename Optimizations"></a>Rename Optimizations</h2><p>With the file-lookup mechanisms we already have in place, it’s not necessary to<br>move a file from one brick to another when it’s renamed - even across<br>directories.  It will still be found, albeit a little less efficiently.  The<br>first client to look for it after the rename will add a linkfile, which every<br>other client will follow from then on.  Also, every client that has found the<br>file once will continue to find it based on its cached location, without any<br>network traffic at all.  Because the extra lookup cost is small, and the<br>movement cost might be very large, DHT renames the file “in place” on its<br>current brick instead (taking advantage of the fact that directories exist<br>everywhere).</p>
-<p>This optimization is further extended to handle cases where renames are very<br>common.  For example, rsync and similar tools often use a “write new then<br>rename” idiom in which a file “xxx” is actually written as “.xxx.1234” and then<br>moved into place only after its contents have been fully written.  To make this<br>process more efficient, DHT uses a regular expression to separate the permanent<br>part of a file’s name (in this case “xxx”) from what is likely to be a<br>temporary part (the leading “.” and trailing “.1234”).  That way, after the<br>file is renamed it will be in its correct hashed location - which it wouldn’t<br>be otherwise if “xxx” and “.xxx.1234” hash differently - and no linkfiles or<br>broadcast lookups will be necessary.</p>
-<p>In fact, there are two regular expressions available for this purpose -<br><em>cluster.rsync-hash-regex</em> and <em>cluster.extra-hash-regex</em>.  As its name<br>implies, <em>rsync-hash-regex</em> defaults to the pattern that regex uses, while<br><em>extra-hash-regex</em> can be set by the user to support a second tool using the<br>same temporary-file idiom.</p>
-<h2 id="Commit-Hashes"><a href="#Commit-Hashes" class="headerlink" title="Commit Hashes"></a>Commit Hashes</h2><p>A very recent addition to DHT’s algorithmic arsenal is intended to reduce the<br>number of “broadcast” lookups the it issues.  If a volume is completely in<br>balance, then no file could exist anywhere but at its hashed location.<br>Therefore, if we’ve already looked there and not found it, then looking<br>elsewhere would be pointless (and wasteful).  The <em>commit hash</em> mechanism is<br>used to detect this case.  A commit hash is assigned to a volume, and<br>separately to each directory, and then updated according to the following<br>rules.</p>
-<ul>
-<li><p>The volume commit hash is changed whenever actions are taken that might<br>cause layout assignments across all directories to become invalid - i.e.<br>bricks being added, removed, or replaced.</p>
-</li>
-<li><p>The directory commit hash is changed whenever actions are taken that might<br>cause files to be “misplaced” - e.g. when they’re renamed.</p>
-</li>
-<li><p>The directory commit hash is set to the volume commit hash when the<br>directory is created, and whenever the directory is fully rebalanced so that<br>all files are at their hashed locations.</p>
-</li>
-</ul>
-<p>In other words, whenever either the volume or directory commit hash is changed<br>that creates a mismatch.  In that case we revert to the “pessimistic”<br>broadcast-lookup method described earlier.  However, if the two hashes match<br>then we can with skip the broadcast lookup and return a result immediately.<br>This has been observed to cause a 3x performance improvement in workloads that<br>involve creating many small files across many bricks.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/" class="post-title-link" itemprop="url">glusterfs global-threading挂载选项</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 16:13:48 / Modified: 16:15:32" itemprop="dateCreated datePublished" datetime="2020-04-15T16:13:48+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">core: implement a global thread pool</span><br><span class="line"></span><br><span class="line">This patch implements a thread pool that is wait-free for adding jobs to</span><br><span class="line">the queue and uses a very small locked region to get jobs. This makes it</span><br><span class="line">possible to decrease contention drastically. It&#39;s based on wfcqueue</span><br><span class="line">structure provided by urcu library.</span><br><span class="line"></span><br><span class="line">It automatically enables more threads when load demands it, and stops</span><br><span class="line">them when not needed. There&#39;s a maximum number of threads that can be</span><br><span class="line">used. This value can be configured.</span><br><span class="line"></span><br><span class="line">Depending on the workload, the maximum number of threads plays an</span><br><span class="line">important role. So it needs to be configured for optimal performance.</span><br><span class="line">Currently the thread pool doesn&#39;t self adjust the maximum for the</span><br><span class="line">workload, so this configuration needs to be changed manually.</span><br><span class="line"></span><br><span class="line">For this reason, the global thread pool has been made optional, so that</span><br><span class="line">volumes can still use the thread pool provided by io-threads.</span><br><span class="line"></span><br><span class="line">To enable it for bricks, the following option needs to be set:</span><br><span class="line"></span><br><span class="line">config.global-threading &#x3D; on</span><br><span class="line"></span><br><span class="line">This option has no effect if bricks are already running. A restart is</span><br><span class="line">required to activate it. It&#39;s recommended to also enable the following</span><br><span class="line">option when running bricks with the global thread pool:</span><br><span class="line"></span><br><span class="line">performance.iot-pass-through &#x3D; on</span><br><span class="line"></span><br><span class="line">To enable it for a FUSE mount point, the option &#39;--global-threading&#39;</span><br><span class="line">must be added to the mount command. To change it, an umount and remount</span><br><span class="line">is needed. It&#39;s recommended to disable the following option when using</span><br><span class="line">global threading on a mount point:</span><br><span class="line"></span><br><span class="line">performance.client-io-threads &#x3D; off</span><br><span class="line"></span><br><span class="line">Currently it can only be enabled for bricks and FUSE mounts.</span><br><span class="line"></span><br><span class="line">The maximum number of threads for clients and bricks can be configured</span><br><span class="line">using the following options:</span><br><span class="line"></span><br><span class="line">config.client-threads</span><br><span class="line">config.brick-threads</span><br><span class="line"></span><br><span class="line">These options can be applied online and its effect is immediate most of</span><br><span class="line">the times. If one of them is set to 0, the maximum number of threads</span><br><span class="line">will be calcutated as #cores * 2.</span><br><span class="line"></span><br><span class="line">Some distributions use a very old userspace-rcu library (version 0.7)</span><br><span class="line">for this reason, some header files from version 0.10 have been copied</span><br><span class="line">into contrib&#x2F;userspace-rcu and are used if the detected version is 0.7</span><br><span class="line">or older.</span><br><span class="line"></span><br><span class="line">If you also want to enable global-threading for fuse clients, you also need to set this option:</span><br><span class="line"></span><br><span class="line"># gluster volume set &lt;volname&gt; performance.client-io-threads off</span><br><span class="line">And remount the volume using --global-threading mount option.</span><br><span class="line"></span><br><span class="line">gluster volume set dht_vol performance.client-io-threads off</span><br><span class="line">mount -t glusterfs -o acl,global-threading 127.0.0.1:&#x2F;dht_vol &#x2F;mnt&#x2F;data</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/" class="post-title-link" itemprop="url">go pipeline样例</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 14:44:56 / Modified: 14:46:29" itemprop="dateCreated datePublished" datetime="2020-04-15T14:44:56+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="workflow-for-pipeline"><a href="#workflow-for-pipeline" class="headerlink" title="workflow for pipeline"></a>workflow for pipeline</h3><p><img src="https://upload-images.jianshu.io/upload_images/2582954-e811c2065a9f1b09.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="pipeline-v1.jpg"></p>
-<h3 id="runing-result"><a href="#runing-result" class="headerlink" title="runing result"></a>runing result</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">enter contrl+c  to stop pipeline program</span><br></pre></td></tr></table></figure>
-<p><img src="https://upload-images.jianshu.io/upload_images/2582954-1c05168284572a19.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="result.png"></p>
-<h3 id="code-example"><a href="#code-example" class="headerlink" title="code example"></a>code example</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">        &quot;log&quot;</span><br><span class="line">        &quot;math&#x2F;rand&quot;</span><br><span class="line">        &quot;os&quot;</span><br><span class="line">        &quot;os&#x2F;signal&quot;</span><br><span class="line">        &quot;syscall&quot;</span><br><span class="line">        &quot;time&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">classic pipeline demo write by perrynzhou@gmail.com</span><br><span class="line">*&#x2F;</span><br><span class="line">const (</span><br><span class="line">        batchSize &#x3D; 8</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">note:</span><br><span class="line">        for range 在chan上有如下特性</span><br><span class="line">                1.如果chan上有数据，则for 继续往下执行，如果chan没有数据则for 会阻塞</span><br><span class="line">                2.如果chan被close了，则chan为nil,for range会退出循环。</span><br><span class="line">*&#x2F;</span><br><span class="line">type PipeFeature struct &#123;</span><br><span class="line">        input1 chan int64</span><br><span class="line">        input2 chan int64</span><br><span class="line">        input3 chan int64</span><br><span class="line">        done   chan struct&#123;&#125;</span><br><span class="line">        stop   chan struct&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func NewPipeFeature() *PipeFeature &#123;</span><br><span class="line">        return &amp;PipeFeature&#123;</span><br><span class="line">                input1: make(chan int64, batchSize),</span><br><span class="line">                input2: make(chan int64, batchSize),</span><br><span class="line">                input3: make(chan int64, batchSize),</span><br><span class="line">                done:   make(chan struct&#123;&#125;),</span><br><span class="line">                stop:   make(chan struct&#123;&#125;),</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) init() &#123;</span><br><span class="line">        log.Println(&quot;...init running...&quot;)</span><br><span class="line">        defer close(p.input1)</span><br><span class="line">        for &#123;</span><br><span class="line">                select &#123;</span><br><span class="line">                case &lt;-p.done:</span><br><span class="line">                        log.Println(&quot;...init stop...&quot;)</span><br><span class="line">                        return</span><br><span class="line">                default:</span><br><span class="line">                        time.Sleep(5 * time.Millisecond)</span><br><span class="line">                        p.input1 &lt;- rand.Int63n(65535)</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) stage1() &#123;</span><br><span class="line">        log.Println(&quot;...stage1 running...&quot;)</span><br><span class="line">        defer close(p.input2)</span><br><span class="line">        for v :&#x3D; range p.input1 &#123; &#x2F;&#x2F;will block util input1 close</span><br><span class="line">                v &#x3D; v - rand.Int63n(1024)</span><br><span class="line">                p.input2 &lt;- v</span><br><span class="line">        &#125;</span><br><span class="line">        log.Println(&quot;stage1 done...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) stage2() &#123;</span><br><span class="line">        log.Println(&quot;...stage2 running...&quot;)</span><br><span class="line">        defer close(p.input3)</span><br><span class="line">        for v :&#x3D; range p.input2 &#123;</span><br><span class="line">                v &#x3D; v + 1</span><br><span class="line">                p.input3 &lt;- v</span><br><span class="line">        &#125;</span><br><span class="line">        log.Println(&quot;stage2 done...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) stage3() &#123;</span><br><span class="line">        log.Println(&quot;...stage3 running...&quot;)</span><br><span class="line">        for v3 :&#x3D; range p.input3 &#123; &#x2F;&#x2F;will block</span><br><span class="line">                v3 &#x3D; v3 + rand.Int63n(100)</span><br><span class="line">        &#125;</span><br><span class="line">        log.Println(&quot;stage3 done...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) Run() &#123;</span><br><span class="line">        log.Println(&quot;start pipeline...&quot;)</span><br><span class="line">        go p.init() &#x2F;&#x2F;order2- recv data from done and closed input1, return this function</span><br><span class="line">        go p.stage1() order 3-if input1 is closed,break for loop, and close input2 before return </span><br><span class="line">        go p.stage2() &#x2F;&#x2F;order 4-if input2 is closed ,break for range input2 and close input3 before return </span><br><span class="line">       &#x2F;&#x2F; order 5- if input3 is closed,stage3 return</span><br><span class="line">        p.stage3() &#x2F;&#x2F;  will block util input3 closed after call stage2</span><br><span class="line">        p.stop &lt;- struct&#123;&#125;&#123;&#125; &#x2F;&#x2F; order 6-send stop flag to stop chan before end Run function</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) Stop() &#123;</span><br><span class="line">        p.done &lt;- struct&#123;&#125;&#123;&#125;  &#x2F;&#x2F; order 1-let init function to stop</span><br><span class="line">      &#x2F;&#x2F;order 7 - already recv data from stop chan</span><br><span class="line">        &lt;-p.stop &#x2F;&#x2F;wait for recv stop chan</span><br><span class="line">        log.Println(&quot;stop pipeline...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func main() &#123;</span><br><span class="line">        pipe :&#x3D; NewPipeFeature()</span><br><span class="line">        defer pipe.Stop()</span><br><span class="line">        sigs :&#x3D; make(chan os.Signal, 1)</span><br><span class="line">        signal.Notify(sigs, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)</span><br><span class="line">        go pipe.Run()</span><br><span class="line">        for &#123;</span><br><span class="line">                select &#123;</span><br><span class="line">                case &lt;-sigs:</span><br><span class="line">                        log.Println(&quot;recieve stop signal&quot;)</span><br><span class="line">                        return</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/System-IO%E5%92%8CStandard-IO%E8%AF%A6%E8%A7%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/System-IO%E5%92%8CStandard-IO%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">System IO和Standard IO详解</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 14:34:12 / Modified: 14:43:24" itemprop="dateCreated datePublished" datetime="2020-04-15T14:34:12+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="System-IO"><a href="#System-IO" class="headerlink" title="System IO"></a>System IO</h2><ul>
-<li>System IO指的是使用open/close/read/write/lseek系统调用使用io的方式，这样的方式是实打实的从user space-&gt;kernel space中函数调用,这样的方式是实时性高。<h2 id="Standard-IO"><a href="#Standard-IO" class="headerlink" title="Standard IO"></a>Standard IO</h2></li>
-<li>Standard IO 是是指使用stdio中的FILE中的fopen/fclose/fread/fwrite/fseek等方式进行IO的操作.使用stdio中的函数实现是依赖底层system io的系统函数。stdio中的函数是带有cache的机制，说简单点就是merge system io函数的调用，已达到在kernel层面减少系统调用的，这样的IO方式可以提高吞吐量。</li>
-</ul>
-<h2 id="文件描述符本质"><a href="#文件描述符本质" class="headerlink" title="文件描述符本质"></a>文件描述符本质</h2><p><img src="https://upload-images.jianshu.io/upload_images/2582954-b0b70b4672c56758.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
-<ul>
-<li><p>每个文件open/fopen以后会产生一个inode-struct.一个inode-struct包含了文件操作的基本属性以及position，position是这个文件读写的位置。每个inode-struct会保存在每个进程中的文件描述符的数组中，open返回的fd就是这个数组的下边。</p>
-</li>
-<li><p>每个进程在默认情况下最多打开1024个文件描述符，0/1/2默认是是输入、输出、错误输出。</p>
-</li>
-<li><p>进程中文件描述符数组使用方式按照最小下标方式。</p>
-</li>
-<li><p>FILE 结构中的position和inode-struct中的postition基本不是一样的，这个为什么？比如执行三次fput(FILE,’a’)，这样的操作在FILE结构中postion会++3次。这个position中是揍batch然后在kernel层面统一执行一次系统调用。</p>
-</li>
-<li><p>System IO 和 Standard IO 不能混用。</p>
-<h2 id="验证推断"><a href="#验证推断" class="headerlink" title="验证推断"></a>验证推断</h2></li>
-<li><p>实例代码验证standard io缓冲以及system io 实打实的调用</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: test.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Sat May  4 21:58:45 2019</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line"></span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line"></span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line">    exit(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>执行结果如下</p>
-</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/2582954-77a03ea892dfc791.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Snipaste_2019-05-04_22-11-44.png"></p>
-<ul>
-<li><p>trace下test执行路径<br><img src="https://upload-images.jianshu.io/upload_images/2582954-f654d46749be9fcb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Snipaste_2019-05-04_22-16-58.png"></p>
-</li>
-<li><p>分析<br>strace后的执行路径，可以看出，putchar执行三次最后是一次write(1,”aaa”,3)写入。其他的关于b的写入，每一次write都会写一次。</p>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1216,7 +2161,7 @@ trusted.afr.vol-client-1=0x000000000000000000000001 --&gt;changelog for itself (
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-count">25</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
