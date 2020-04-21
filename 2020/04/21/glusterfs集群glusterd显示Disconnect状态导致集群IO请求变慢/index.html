@@ -20,26 +20,23 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="1.文件系统的系统调用 例如：read、write  2.虚拟文件系统(vfs virtual filesystem switch) 超级块对象  简介  1.代表已安装文件系统 2.每个文件系统都会对应一个超级块对象 3.描述整个文件系统信息(组织结构和管理信息),不涉及文件系统的内容 4.具体文件系统在安装时候建立，并在这些文件系统卸载时自动删除 5.vfs的超级超级块存在于内存，每个分区所">
+  <meta name="description" content="glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢172.25.78.16节点的集群状态1234567[root@szdpl1491 ~]# gluster pool listUUID                                    Hostname        Statebde7b9e2-af2a-419e-8242-6a8f8e18b">
 <meta property="og:type" content="article">
-<meta property="og:title" content="linux文件系统">
-<meta property="og:url" content="http://yoursite.com/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:title" content="glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢">
+<meta property="og:url" content="http://yoursite.com/2020/04/21/glusterfs%E9%9B%86%E7%BE%A4glusterd%E6%98%BE%E7%A4%BADisconnect%E7%8A%B6%E6%80%81%E5%AF%BC%E8%87%B4%E9%9B%86%E7%BE%A4IO%E8%AF%B7%E6%B1%82%E5%8F%98%E6%85%A2/index.html">
 <meta property="og:site_name" content="perrynzhou">
-<meta property="og:description" content="1.文件系统的系统调用 例如：read、write  2.虚拟文件系统(vfs virtual filesystem switch) 超级块对象  简介  1.代表已安装文件系统 2.每个文件系统都会对应一个超级块对象 3.描述整个文件系统信息(组织结构和管理信息),不涉及文件系统的内容 4.具体文件系统在安装时候建立，并在这些文件系统卸载时自动删除 5.vfs的超级超级块存在于内存，每个分区所">
+<meta property="og:description" content="glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢172.25.78.16节点的集群状态1234567[root@szdpl1491 ~]# gluster pool listUUID                                    Hostname        Statebde7b9e2-af2a-419e-8242-6a8f8e18b">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2582954-a7eed89cf5b27e87.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2582954-b3fd9e17db5e44e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="article:published_time" content="2020-04-15T06:27:50.000Z">
-<meta property="article:modified_time" content="2020-04-15T06:29:17.207Z">
+<meta property="article:published_time" content="2020-04-21T03:43:12.000Z">
+<meta property="article:modified_time" content="2020-04-21T03:44:58.967Z">
 <meta property="article:author" content="perrynzhou">
 <meta property="article:tag" content="C">
 <meta property="article:tag" content=" Go">
 <meta property="article:tag" content=" 分布式存储">
 <meta property="article:tag" content=" 对象存储">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/2582954-a7eed89cf5b27e87.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
-<link rel="canonical" href="http://yoursite.com/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+<link rel="canonical" href="http://yoursite.com/2020/04/21/glusterfs%E9%9B%86%E7%BE%A4glusterd%E6%98%BE%E7%A4%BADisconnect%E7%8A%B6%E6%80%81%E5%AF%BC%E8%87%B4%E9%9B%86%E7%BE%A4IO%E8%AF%B7%E6%B1%82%E5%8F%98%E6%85%A2/">
 
 
 <script id="page-configurations">
@@ -52,7 +49,7 @@
   };
 </script>
 
-  <title>linux文件系统 | perrynzhou</title>
+  <title>glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢 | perrynzhou</title>
   
 
 
@@ -158,7 +155,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/21/glusterfs%E9%9B%86%E7%BE%A4glusterd%E6%98%BE%E7%A4%BADisconnect%E7%8A%B6%E6%80%81%E5%AF%BC%E8%87%B4%E9%9B%86%E7%BE%A4IO%E8%AF%B7%E6%B1%82%E5%8F%98%E6%85%A2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -171,7 +168,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          linux文件系统
+          glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢
         </h1>
 
         <div class="post-meta">
@@ -182,7 +179,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-04-15 14:27:50 / Modified: 14:29:17" itemprop="dateCreated datePublished" datetime="2020-04-15T14:27:50+08:00">2020-04-15</time>
+              <time title="Created: 2020-04-21 11:43:12 / Modified: 11:44:58" itemprop="dateCreated datePublished" datetime="2020-04-21T11:43:12+08:00">2020-04-21</time>
             </span>
 
           
@@ -196,109 +193,18 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><img src="https://upload-images.jianshu.io/upload_images/2582954-a7eed89cf5b27e87.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="文件系统（note by perrynzhou).png"></p>
-<h5 id="1-文件系统的系统调用"><a href="#1-文件系统的系统调用" class="headerlink" title="1.文件系统的系统调用"></a>1.文件系统的系统调用</h5><ul>
-<li>例如：read、write</li>
-</ul>
-<h5 id="2-虚拟文件系统-vfs-virtual-filesystem-switch"><a href="#2-虚拟文件系统-vfs-virtual-filesystem-switch" class="headerlink" title="2.虚拟文件系统(vfs virtual filesystem switch)"></a>2.虚拟文件系统(vfs virtual filesystem switch)</h5><ul>
-<li><p>超级块对象</p>
+        <h3 id="glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢"><a href="#glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢" class="headerlink" title="glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢"></a>glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢</h3><h4 id="172-25-78-16节点的集群状态"><a href="#172-25-78-16节点的集群状态" class="headerlink" title="172.25.78.16节点的集群状态"></a>172.25.78.16节点的集群状态</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">[root@szdpl1491 ~]# gluster pool list</span><br><span class="line">UUID                                    Hostname        State</span><br><span class="line">bde7b9e2-af2a-419e-8242-6a8f8e18bb8a    172.25.78.242   Disconnected </span><br><span class="line">54fa8ec0-3617-4c8e-968a-7402a80a9017    172.25.78.240   Connected </span><br><span class="line">588bb497-5d9f-4bcf-b0b1-c9d364afb084    172.25.78.241   Connected </span><br><span class="line">a8522deb-ee16-44a3-a800-9525cb8d64fa    localhost       Connected</span><br></pre></td></tr></table></figure>
 <ul>
-<li><p>简介</p>
+<li>172.25.78.242节点在172.25.78.16的状态明显不对，查看其它的节点242的认证信息</li>
+</ul>
+<h4 id="172-25-78-240节点的集群状态"><a href="#172-25-78-240节点的集群状态" class="headerlink" title="172.25.78.240节点的集群状态"></a>172.25.78.240节点的集群状态</h4>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[root@szdpl1543 ~]# gluster pool list</span><br><span class="line">UUID                                    Hostname        State</span><br><span class="line">588bb497-5d9f-4bcf-b0b1-c9d364afb084    172.25.78.241   Connected </span><br><span class="line">bde7b9e2-af2a-419e-8242-6a8f8e18bb8a    172.25.78.242   Connected </span><br><span class="line">a8522deb-ee16-44a3-a800-9525cb8d64fa    172.25.78.16    Connected </span><br><span class="line">54fa8ec0-3617-4c8e-968a-7402a80a9017    localhost       Connected </span><br><span class="line">[root@szdpl1543 ~]# cd &#x2F;var&#x2F;lib&#x2F;glusterd&#x2F;peers&#x2F;</span><br><span class="line">[root@szdpl1543 peers]# ls</span><br><span class="line">588bb497-5d9f-4bcf-b0b1-c9d364afb084  a8522deb-ee16-44a3-a800-9525cb8d64fa  bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">[root@szdpl1543 peers]# cat bde7b9e2-af2a-419e-8242-6a8f8e18bb8a </span><br><span class="line">uuid&#x3D;bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">state&#x3D;3</span><br><span class="line">hostname1&#x3D;172.25.78.242</span><br><span class="line">hostname2&#x3D;bogon</span><br><span class="line">[root@szdpl1543 peers]# vi bde7b9e2-af2a-419e-8242-6a8f8e18bb8a </span><br><span class="line">uuid&#x3D;bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">state&#x3D;3</span><br><span class="line">hostname1&#x3D;172.25.78.242</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="172-25-78-16节点的集群状态-1"><a href="#172-25-78-16节点的集群状态-1" class="headerlink" title="172.25.78.16节点的集群状态"></a>172.25.78.16节点的集群状态</h4>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@szdpl1491 ~]# gluster pool list</span><br><span class="line"> UUID                                    Hostname        State</span><br><span class="line">  bde7b9e2-af2a-419e-8242-6a8f8e18bb8a    172.25.78.242   Disconnected </span><br><span class="line">  54fa8ec0-3617-4c8e-968a-7402a80a9017    172.25.78.240   Connected </span><br><span class="line">  588bb497-5d9f-4bcf-b0b1-c9d364afb084    172.25.78.241   Connected </span><br><span class="line">  a8522deb-ee16-44a3-a800-9525cb8d64fa    localhost       Connected</span><br><span class="line">[root@szdpl1491 ~]# cd &#x2F;var&#x2F;lib&#x2F;glusterd&#x2F;peers&#x2F;</span><br><span class="line">[root@szdpl1491 peers]# ls</span><br><span class="line">54fa8ec0-3617-4c8e-968a-7402a80a9017  588bb497-5d9f-4bcf-b0b1-c9d364afb084  bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">[root@szdpl1491 peers]# cat bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">uuid&#x3D;bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">state&#x3D;3</span><br><span class="line">hostname1&#x3D;bogon</span><br><span class="line">hostname2&#x3D;172.25.78.242</span><br></pre></td></tr></table></figure>
 <ul>
-<li>1.代表已安装文件系统</li>
-<li>2.每个文件系统都会对应一个超级块对象</li>
-<li>3.描述整个文件系统信息(组织结构和管理信息),不涉及文件系统的内容</li>
-<li>4.具体文件系统在安装时候建立，并在这些文件系统卸载时自动删除</li>
-<li>5.vfs的超级超级块存在于内存，每个分区所挂在的文件系统都有一个属于该文件系统和分区的超级块存在于磁盘</li>
+<li>修改每个节点的var/lib/glusterd/peers/bde7b9e2-af2a-419e-8242-6a8f8e18bb8a 中的hostname1修改为真实的IP，然后重启每个节点的glusterd的服务(systemctl restart glusterd)</li>
 </ul>
-</li>
-<li><p>操作对象</p>
-<ul>
-<li><p>super_operations</p>
-<ul>
-<li>包括内核对特定文件系统所能调用的方法，比如read_inide/sync_fs等</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>索引节点对象</p>
-<ul>
-<li><p>简介</p>
-<ul>
-<li>1.代表一个文件，包括访问权限、属主、组、大小、生成时间和访问时间</li>
-<li>2.内核操作文件或者目录时需要的全部信息，一个文件对应一个inode(唯一)</li>
-<li>3.具体文件系统的inode持久化在磁盘，访问时调入内存,vfs的inode存在于内存</li>
-<li>4.vfs的inode是xfs inode的抽象，映射与扩充，而后者是前者的静态信息部分，也是对前者(vfs inode)的具体化、实例化和持久化</li>
-</ul>
-</li>
-<li><p>操作对象</p>
-<ul>
-<li><p>inode_operations</p>
-<ul>
-<li>包括内核针对文件所能调用的方法，比如create/link等</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>目录项对象（动态创建)</p>
-<ul>
-<li><p>简介</p>
-<ul>
-<li><p>1.代表一个目录项，是路径组成的一部分</p>
-</li>
-<li><p>2.用于方便查找目录，找到后缓存目录到dcache中</p>
-<ul>
-<li>例如/bin/vi,这个目录bin是目录文件，vi是普通文件</li>
-</ul>
-</li>
-<li><p>3.该目录对象存在于内存，磁盘并没有任何的持久化</p>
-</li>
-</ul>
-</li>
-<li><p>操作对象</p>
-<ul>
-<li><p>dentry_operations</p>
-<ul>
-<li>内核针对目录所能调用方法，比如d_cpmpare/d_delete等</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>文件对象</p>
-<ul>
-<li><p>简介</p>
-<ul>
-<li><p>1.代表进程打开的文件的内存表现形式</p>
-<ul>
-<li>调用open/close来创建和销毁文件对象</li>
-</ul>
-</li>
-<li><p>2.文件对象存在于内存，在磁盘并没有具体的存储</p>
-</li>
-</ul>
-</li>
-<li><p>操作对象</p>
-<ul>
-<li><p>file_operations</p>
-<ul>
-<li>内核针对进程已打开的文件所能调用方法比如read/write等</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h5 id="挂在到VFS的实际文件系统"><a href="#挂在到VFS的实际文件系统" class="headerlink" title="挂在到VFS的实际文件系统"></a>挂在到VFS的实际文件系统</h5><ul>
-<li>例如:ext3、ext4、xfs</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/2582954-b3fd9e17db5e44e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="虚拟文件系统.png"></p>
 
     </div>
 
@@ -314,13 +220,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/04/15/hexo%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/" rel="prev" title="hexo 使用手册">
-      <i class="fa fa-chevron-left"></i> hexo 使用手册
+    <a href="/2020/04/21/%E5%AE%89%E8%A3%85glusterfs%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC/" rel="prev" title="安装glusterfs指定版本">
+      <i class="fa fa-chevron-left"></i> 安装glusterfs指定版本
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/" rel="next" title="golang 1.4 mod 使用经验">
-      golang 1.4 mod 使用经验 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -379,7 +282,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-文件系统的系统调用"><span class="nav-number">1.</span> <span class="nav-text">1.文件系统的系统调用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-虚拟文件系统-vfs-virtual-filesystem-switch"><span class="nav-number">2.</span> <span class="nav-text">2.虚拟文件系统(vfs virtual filesystem switch)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#挂在到VFS的实际文件系统"><span class="nav-number">3.</span> <span class="nav-text">挂在到VFS的实际文件系统</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢"><span class="nav-number">1.</span> <span class="nav-text">glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#172-25-78-16节点的集群状态"><span class="nav-number">1.1.</span> <span class="nav-text">172.25.78.16节点的集群状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#172-25-78-240节点的集群状态"><span class="nav-number">1.2.</span> <span class="nav-text">172.25.78.240节点的集群状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#172-25-78-16节点的集群状态-1"><span class="nav-number">1.3.</span> <span class="nav-text">172.25.78.16节点的集群状态</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

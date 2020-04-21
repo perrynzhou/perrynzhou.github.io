@@ -152,6 +152,76 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/21/glusterfs%E9%9B%86%E7%BE%A4glusterd%E6%98%BE%E7%A4%BADisconnect%E7%8A%B6%E6%80%81%E5%AF%BC%E8%87%B4%E9%9B%86%E7%BE%A4IO%E8%AF%B7%E6%B1%82%E5%8F%98%E6%85%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/21/glusterfs%E9%9B%86%E7%BE%A4glusterd%E6%98%BE%E7%A4%BADisconnect%E7%8A%B6%E6%80%81%E5%AF%BC%E8%87%B4%E9%9B%86%E7%BE%A4IO%E8%AF%B7%E6%B1%82%E5%8F%98%E6%85%A2/" class="post-title-link" itemprop="url">glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-21 11:43:12 / Modified: 11:44:58" itemprop="dateCreated datePublished" datetime="2020-04-21T11:43:12+08:00">2020-04-21</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢"><a href="#glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢" class="headerlink" title="glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢"></a>glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢</h3><h4 id="172-25-78-16节点的集群状态"><a href="#172-25-78-16节点的集群状态" class="headerlink" title="172.25.78.16节点的集群状态"></a>172.25.78.16节点的集群状态</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">[root@szdpl1491 ~]# gluster pool list</span><br><span class="line">UUID                                    Hostname        State</span><br><span class="line">bde7b9e2-af2a-419e-8242-6a8f8e18bb8a    172.25.78.242   Disconnected </span><br><span class="line">54fa8ec0-3617-4c8e-968a-7402a80a9017    172.25.78.240   Connected </span><br><span class="line">588bb497-5d9f-4bcf-b0b1-c9d364afb084    172.25.78.241   Connected </span><br><span class="line">a8522deb-ee16-44a3-a800-9525cb8d64fa    localhost       Connected</span><br></pre></td></tr></table></figure>
+<ul>
+<li>172.25.78.242节点在172.25.78.16的状态明显不对，查看其它的节点242的认证信息</li>
+</ul>
+<h4 id="172-25-78-240节点的集群状态"><a href="#172-25-78-240节点的集群状态" class="headerlink" title="172.25.78.240节点的集群状态"></a>172.25.78.240节点的集群状态</h4>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[root@szdpl1543 ~]# gluster pool list</span><br><span class="line">UUID                                    Hostname        State</span><br><span class="line">588bb497-5d9f-4bcf-b0b1-c9d364afb084    172.25.78.241   Connected </span><br><span class="line">bde7b9e2-af2a-419e-8242-6a8f8e18bb8a    172.25.78.242   Connected </span><br><span class="line">a8522deb-ee16-44a3-a800-9525cb8d64fa    172.25.78.16    Connected </span><br><span class="line">54fa8ec0-3617-4c8e-968a-7402a80a9017    localhost       Connected </span><br><span class="line">[root@szdpl1543 ~]# cd &#x2F;var&#x2F;lib&#x2F;glusterd&#x2F;peers&#x2F;</span><br><span class="line">[root@szdpl1543 peers]# ls</span><br><span class="line">588bb497-5d9f-4bcf-b0b1-c9d364afb084  a8522deb-ee16-44a3-a800-9525cb8d64fa  bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">[root@szdpl1543 peers]# cat bde7b9e2-af2a-419e-8242-6a8f8e18bb8a </span><br><span class="line">uuid&#x3D;bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">state&#x3D;3</span><br><span class="line">hostname1&#x3D;172.25.78.242</span><br><span class="line">hostname2&#x3D;bogon</span><br><span class="line">[root@szdpl1543 peers]# vi bde7b9e2-af2a-419e-8242-6a8f8e18bb8a </span><br><span class="line">uuid&#x3D;bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">state&#x3D;3</span><br><span class="line">hostname1&#x3D;172.25.78.242</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="172-25-78-16节点的集群状态-1"><a href="#172-25-78-16节点的集群状态-1" class="headerlink" title="172.25.78.16节点的集群状态"></a>172.25.78.16节点的集群状态</h4>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@szdpl1491 ~]# gluster pool list</span><br><span class="line"> UUID                                    Hostname        State</span><br><span class="line">  bde7b9e2-af2a-419e-8242-6a8f8e18bb8a    172.25.78.242   Disconnected </span><br><span class="line">  54fa8ec0-3617-4c8e-968a-7402a80a9017    172.25.78.240   Connected </span><br><span class="line">  588bb497-5d9f-4bcf-b0b1-c9d364afb084    172.25.78.241   Connected </span><br><span class="line">  a8522deb-ee16-44a3-a800-9525cb8d64fa    localhost       Connected</span><br><span class="line">[root@szdpl1491 ~]# cd &#x2F;var&#x2F;lib&#x2F;glusterd&#x2F;peers&#x2F;</span><br><span class="line">[root@szdpl1491 peers]# ls</span><br><span class="line">54fa8ec0-3617-4c8e-968a-7402a80a9017  588bb497-5d9f-4bcf-b0b1-c9d364afb084  bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">[root@szdpl1491 peers]# cat bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">uuid&#x3D;bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">state&#x3D;3</span><br><span class="line">hostname1&#x3D;bogon</span><br><span class="line">hostname2&#x3D;172.25.78.242</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改每个节点的var/lib/glusterd/peers/bde7b9e2-af2a-419e-8242-6a8f8e18bb8a 中的hostname1修改为真实的IP，然后重启每个节点的glusterd的服务(systemctl restart glusterd)</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/21/%E5%AE%89%E8%A3%85glusterfs%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1842,74 +1912,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/global-threading%E5%90%8E%E5%AF%BC%E8%87%B4mount%E5%AE%A2%E6%88%B7%E7%AB%AFcrash/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/global-threading%E5%90%8E%E5%AF%BC%E8%87%B4mount%E5%AE%A2%E6%88%B7%E7%AB%AFcrash/" class="post-title-link" itemprop="url">global-threading后导致mount客户端crash</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 17:34:16 / Modified: 17:41:02" itemprop="dateCreated datePublished" datetime="2020-04-15T17:34:16+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">[2020-04-15 08:37:04.727619] I [rpc-clnt.c:1963:rpc_clnt_reconfig] 0-hot2_vol-client-2: changing port to 49153 (from 0)</span><br><span class="line">[2020-04-15 08:37:04.727653] I [socket.c:864:__socket_shutdown] 0-hot2_vol-client-2: intentional socket shutdown(12)</span><br><span class="line">[2020-04-15 08:37:04.730524] I [MSGID: 114057] [client-handshake.c:1376:select_server_supported_programs] 0-hot2_vol-client-1: Using Program GlusterFS 4.x v1, Num (1298437), Version (400) </span><br><span class="line">[2020-04-15 08:37:04.730986] I [MSGID: 114046] [client-handshake.c:1106:client_setvolume_cbk] 0-hot2_vol-client-1: Connected to hot2_vol-client-1, attached to remote volume &#39;&#x2F;glusterfs&#x2F;hotvol2&#x2F;brick1&#39;. </span><br><span class="line">[2020-04-15 08:37:04.733549] I [MSGID: 114057] [client-handshake.c:1376:select_server_supported_programs] 0-hot2_vol-client-2: Using Program GlusterFS 4.x v1, Num (1298437), Version (400) </span><br><span class="line">[2020-04-15 08:37:04.733979] I [MSGID: 114046] [client-handshake.c:1106:client_setvolume_cbk] 0-hot2_vol-client-2: Connected to hot2_vol-client-2, attached to remote volume &#39;&#x2F;glusterfs&#x2F;hotvol2&#x2F;brick1&#39;. </span><br><span class="line">[2020-04-15 08:37:04.735104] I [fuse-bridge.c:5166:fuse_init] 0-glusterfs-fuse: FUSE inited with protocol versions: glusterfs 7.24 kernel 7.22</span><br><span class="line">[2020-04-15 08:37:04.735112] I [fuse-bridge.c:5777:fuse_graph_sync] 0-fuse: switched to graph 0</span><br><span class="line">pending frames:</span><br><span class="line">frame : type(1) op(LOOKUP)</span><br><span class="line">frame : type(1) op(OPEN)</span><br><span class="line">patchset: git:&#x2F;&#x2F;git.gluster.org&#x2F;glusterfs.git</span><br><span class="line">signal received: 11</span><br><span class="line">time of crash: </span><br><span class="line">2020-04-15 08:50:04</span><br><span class="line">configuration details:</span><br><span class="line">argp 1</span><br><span class="line">backtrace 1</span><br><span class="line">dlfcn 1</span><br><span class="line">libpthread 1</span><br><span class="line">llistxattr 1</span><br><span class="line">setfsid 1</span><br><span class="line">spinlock 1</span><br><span class="line">epoll.h 1</span><br><span class="line">xattr.h 1</span><br><span class="line">st_atim.tv_nsec 1</span><br><span class="line">package-string: glusterfs 7.1</span><br><span class="line">&#x2F;lib64&#x2F;libglusterfs.so.0(+0x277ff)[0x2b4618afe7ff]</span><br><span class="line">&#x2F;lib64&#x2F;libglusterfs.so.0(gf_print_trace+0x334)[0x2b4618b09234]</span><br><span class="line">&#x2F;lib64&#x2F;libc.so.6(+0x36280)[0x2b461a424280]</span><br><span class="line">&#x2F;lib64&#x2F;libglusterfs.so.0(+0xaeeb5)[0x2b4618b85eb5]</span><br><span class="line">&#x2F;lib64&#x2F;libpthread.so.0(+0x7dd5)[0x2b4619d78dd5]</span><br><span class="line">&#x2F;lib64&#x2F;libc.so.6(clone+0x6d)[0x2b461a4ebead]</span><br><span class="line">---------</span><br></pre></td></tr></table></figure>
-
-<h2 id="系统版本信息"><a href="#系统版本信息" class="headerlink" title="系统版本信息"></a>系统版本信息</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">[root@szdpl1543 ~]# uname -a</span><br><span class="line">Linux szdpl1543 3.10.0-957.el7.x86_64 #1 SMP Thu Nov 8 23:39:32 UTC 2018 x86_64 x86_64 x86_64 GNU&#x2F;Linux</span><br><span class="line">[root@szdpl1543 ~]# gluster --version</span><br><span class="line">glusterfs 7.2</span><br><span class="line">Repository revision: git:&#x2F;&#x2F;git.gluster.org&#x2F;glusterfs.git</span><br><span class="line">Copyright (c) 2006-2016 Red Hat, Inc. &lt;https:&#x2F;&#x2F;www.gluster.org&#x2F;&gt;</span><br><span class="line">GlusterFS comes with ABSOLUTELY NO WARRANTY.</span><br><span class="line">It is licensed to you under your choice of the GNU Lesser</span><br><span class="line">General Public License, version 3 or any later version (LGPLv3</span><br><span class="line">or later), or the GNU General Public License, version 2 (GPLv2),</span><br><span class="line">in all cases as published by the Free Software Foundation.</span><br><span class="line">[root@szdpl1543 ~]# gluster volume info hot2_vol </span><br><span class="line"> </span><br><span class="line">Volume Name: hot2_vol</span><br><span class="line">Type: Distribute</span><br><span class="line">Volume ID: a04761f1-3380-4795-9054-cf152e55ea61</span><br><span class="line">Status: Started</span><br><span class="line">Snapshot Count: 0</span><br><span class="line">Number of Bricks: 3</span><br><span class="line">Transport-type: tcp</span><br><span class="line">Bricks:</span><br><span class="line">Brick1: 172.25.78.240:&#x2F;glusterfs&#x2F;hotvol2&#x2F;brick1</span><br><span class="line">Brick2: 172.25.78.241:&#x2F;glusterfs&#x2F;hotvol2&#x2F;brick1</span><br><span class="line">Brick3: 172.25.78.242:&#x2F;glusterfs&#x2F;hotvol2&#x2F;brick1</span><br><span class="line">Options Reconfigured:</span><br><span class="line">storage.health-check-interval: 0</span><br><span class="line">performance.write-behind: on</span><br><span class="line">performance.flush-behind: on</span><br><span class="line">performance.aggregate-size: 1mb</span><br><span class="line">performance.read-ahead-page-count: 16</span><br><span class="line">performance.client-io-threads: off</span><br><span class="line">performance.io-cache: on</span><br><span class="line">nfs.disable: on</span><br><span class="line">storage.fips-mode-rchecksum: on</span><br><span class="line">transport.address-family: inet</span><br><span class="line">server.outstanding-rpc-limit: 512</span><br><span class="line">network.tcp-window-size: 1048576</span><br><span class="line">cluster.min-free-disk: 20</span><br><span class="line">server.event-threads: 64</span><br><span class="line">client.event-threads: 32</span><br><span class="line">performance.io-thread-count: 32</span><br><span class="line">performance.readdir-ahead: on</span><br><span class="line">cluster.readdir-optimize: on</span><br><span class="line">performance.parallel-readdir: on</span><br><span class="line">performance.quick-read: on</span><br><span class="line">cluster.lookup-unhashed: off</span><br><span class="line">performance.rda-cache-limit: 16GB</span><br><span class="line">cluster.lookup-optimize: on</span><br><span class="line">performance.stat-prefetch: on</span><br><span class="line">features.cache-invalidation: on</span><br><span class="line">features.cache-invalidation-timeout: 600</span><br><span class="line">performance.cache-invalidation: on</span><br><span class="line">performance.md-cache-timeout: 600</span><br><span class="line">network.inode-lru-limit: 200000</span><br></pre></td></tr></table></figure>
-
-<h2 id="mount选项"><a href="#mount选项" class="headerlink" title="mount选项"></a>mount选项</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount -t glusterfs -o acl,global-threading 172.25.78.240:hot2_vol &#x2F;data&#x2F;glusterfs_train_hot2</span><br></pre></td></tr></table></figure>
-
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;每当接收到打开的调用时，它都会向应用程序发送成功通知，从而提高了应用程序从文件读取数据的能力</span><br><span class="line">Option: performance.open-behind</span><br><span class="line">Default Value: on</span><br><span class="line">Description: enable&#x2F;disable open-behind translator in the volume.</span><br></pre></td></tr></table></figure>
-<h2 id="相关的issue"><a href="#相关的issue" class="headerlink" title="相关的issue"></a>相关的issue</h2><ul>
-<li><a href="https://github.com/gluster/glusterfs/issues/784" target="_blank" rel="noopener">https://github.com/gluster/glusterfs/issues/784</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1979,7 +1981,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-count">27</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
