@@ -152,6 +152,116 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/" class="post-title-link" itemprop="url">理解简单汇编程序</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-15 14:31:00 / Modified: 14:31:57" itemprop="dateCreated datePublished" datetime="2020-04-15T14:31:00+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>寄存器以及中断号对应表</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>eax(系统调用号)</th>
+<th>系统调用</th>
+<th>ebx(系统调用参数1)</th>
+<th>ecx(系统调用参数2)</th>
+<th>ecx(系统调用参数3)</th>
+<th>edx(系统调用参数4 )</th>
+<th>esx(系统调用参数5)</th>
+<th>edi（系统调用参数6）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>sys_exit</td>
+<td>int</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>4</td>
+<td>sys_write</td>
+<td>unsigned int</td>
+<td>const char *</td>
+<td>size_t</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+</tr>
+</tbody></table>
+<ul>
+<li>hello.asm汇编代码解释<pre><code>//定义数据段
+SECTION .data;
+</code></pre></li>
+</ul>
+<p>//db 代表一个字节占8个字节，读完一个偏移量加1字节<br>//dw 是汇编中的一个字，就是占用2个字节，读完一个偏移量加2<br>//dd 是汇编中的一个双字节，占用4个字节，读完一个偏移量加4<br>MyMsg: db “hello,word”;<br>MyMsgLen: equ $-MyMsg;</p>
+<p>//定义bbs段<br>SECTION  .bbs;<br>//定义代码段<br>SECTION .text;</p>
+<p>global _start;</p>
+<p>_start:<br>            nop;<br>            mov eax,4;                         //把4号系统调用写入到eax,sys_write写入到eax寄存器<br>            mov ebx,1;                         //把1号文件描述符写入到ebx<br>            mov ecx,MyMsg;                     //把MyMsg的地址写入到ecx<br>            mov edx,MyMsgLen;                       //把MyMsgLen写入到edx<br>            int 80H;                           //调用系统sys_write，回去eax取出对应的中断号，同时从ebx,ecx,edx出去系统调用参数进行调用<br>            mov eax,1;                              //把1号系统调用写入到eax<br>            mov ebx ,0;                         //把0写入到ebx中<br>            int 80H;                         //调用系统exit</p>
+<pre><code>
+- linux系统中断对应表
+
+
+![image.png](https://upload-images.jianshu.io/upload_images/2582954-c5536607f4a7b75d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+</code></pre>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2100,7 +2210,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-count">30</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
