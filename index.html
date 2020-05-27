@@ -152,6 +152,159 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/27/glusterfs-client%E5%AE%A2%E6%88%B6%E7%AB%AF%E5%87%BA%E7%8E%B0RPC-CLNT-DISCONNECT%E9%97%AE%E9%A2%98%E5%92%8Ckernel%E5%87%BA%E7%8E%B0task-xxx-blocked-for-more-than-120-second/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/27/glusterfs-client%E5%AE%A2%E6%88%B6%E7%AB%AF%E5%87%BA%E7%8E%B0RPC-CLNT-DISCONNECT%E9%97%AE%E9%A2%98%E5%92%8Ckernel%E5%87%BA%E7%8E%B0task-xxx-blocked-for-more-than-120-second/" class="post-title-link" itemprop="url">glusterfs client客戶端出现RPC_CLNT_DISCONNECT问题和kernel出现task xxx blocked for more than 120 seconds</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-05-27 17:26:20 / Modified: 17:27:06" itemprop="dateCreated datePublished" datetime="2020-05-27T17:26:20+08:00">2020-05-27</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="故障现象"><a href="#故障现象" class="headerlink" title="故障现象"></a>故障现象</h4><ul>
+<li>glusterfs客户端无法连接某个节点的brick，一直出现rpc无法连接</li>
+<li>kernel 出现hung_task_timeout_secs超时问题<h4 id="故障分析"><a href="#故障分析" class="headerlink" title="故障分析"></a>故障分析</h4></li>
+</ul>
+<p><strong>kernel层面分析</strong><br>   kernel出现sync flood，原因是客户端断掉后不断重新尝试导致，后面CallTrace出现 hung_task_timeout_secs关键字，该关键字含义是，异步刷新IO到磁盘，如果在hung_task_timeout_secs时间内IO没有刷完，就会报出这个错误，解决方法需要调整vm.dirty_ratio和vm.dirty_backgroud_ratio参数，两个参数分别控制脏页刷磁盘的比例，如果后端磁盘非常慢，超过操作系统默认的timeout会出现这样的calltrace.建议设置vm.dirty_ratio=5和vm.dirty_backgroud_ratio=5</p>
+<p> <strong>客户端日志分析</strong><br>    日志中大量报出0-speech_vol_v2-client-55对应的brick无法建立rpc连接(通过网络telnet 主机和端口无异常),从日志来看可能是sync flood导致，客户端无法连接到这个glusterfsd</p>
+<p>  <strong>服务端日志</strong><br>    服务端的日志也很明显出现read/write出现告警</p>
+<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><ul>
+<li>调整kernel中 vm.dirty_ratio=5和 vm.dirty_backgroud_ratio=10（该问题仅仅关闭kernel报错)</li>
+<li>重启节点的glusterd的进程或者重启节点(sync flood的问题)</li>
+</ul>
+<h4 id="glusterfs-version"><a href="#glusterfs-version" class="headerlink" title="glusterfs version"></a>glusterfs version</h4><ul>
+<li>服务端版本</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@ai-storage-prd-141-165-65-141.v-bj-4.vivo.lan:&#x2F;root]</span><br><span class="line"># gluster --version</span><br><span class="line">glusterfs 7.2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>客户端版本</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@storage-center-prd-10-194-8-133.v-bj-4.vivo.lan:&#x2F;var&#x2F;log&#x2F;glusterfs]</span><br><span class="line"># rpm -qa|grep gluster</span><br><span class="line">glusterfs-7.2-1.el7.x86_64</span><br><span class="line">glusterfs-fuse-7.2-1.el7.x86_64</span><br><span class="line">glusterfs-libs-7.2-1.el7.x86_64</span><br></pre></td></tr></table></figure>
+
+<h4 id="cluster-volume"><a href="#cluster-volume" class="headerlink" title="cluster volume"></a>cluster volume</h4><ul>
+<li><p>volume info</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"># gluster volume info  speech_vol_v2     </span><br><span class="line"> </span><br><span class="line">Volume Name: speech_vol_v2</span><br><span class="line">Type: Distributed-Replicate</span><br><span class="line">Volume ID: e1b28e82-0d0b-4c87-bb6a-45306ec4a568</span><br><span class="line">Status: Started</span><br><span class="line">Snapshot Count: 0</span><br><span class="line">Number of Bricks: 24 x 3 &#x3D; 72</span><br><span class="line">Transport-type: tcp</span><br><span class="line">Bricks:</span><br><span class="line">Brick1: 141.165.65.141:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick2: 141.165.65.142:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick3: 141.165.65.144:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick4: 141.165.65.141:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick5: 141.165.65.142:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick6: 141.165.65.144:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick7: 141.165.65.141:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick8: 141.165.65.142:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick9: 141.165.65.144:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick10: 141.165.65.141:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick11: 141.165.65.142:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick12: 141.165.65.144:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick13: 141.165.65.141:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick14: 141.165.65.142:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick15: 141.165.65.144:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick16: 141.165.65.141:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick17: 141.165.65.142:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick18: 141.165.65.144:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick19: 141.165.65.141:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick20: 141.165.65.142:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick21: 141.165.65.144:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick22: 141.165.65.141:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick23: 141.165.65.142:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick24: 141.165.65.144:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick25: 141.165.65.141:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick26: 141.165.65.142:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick27: 141.165.65.144:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick28: 141.165.65.141:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick29: 141.165.65.142:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick30: 141.165.65.144:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick31: 141.165.65.141:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick32: 141.165.65.142:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick33: 141.165.65.144:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick34: 141.165.65.141:&#x2F;data12&#x2F;brick</span><br><span class="line">Brick35: 141.165.65.142:&#x2F;data12&#x2F;brick</span><br><span class="line">Brick36: 141.165.65.144:&#x2F;data12&#x2F;brick</span><br><span class="line">Brick37: 141.165.181.146:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick38: 141.165.181.147:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick39: 141.165.181.148:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick40: 141.165.181.146:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick41: 141.165.181.147:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick42: 141.165.181.148:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick43: 141.165.181.146:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick44: 141.165.181.147:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick45: 141.165.181.148:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick46: 141.165.181.146:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick47: 141.165.181.147:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick48: 141.165.181.148:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick49: 141.165.181.146:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick50: 141.165.181.147:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick51: 141.165.181.148:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick52: 141.165.181.146:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick53: 141.165.181.147:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick54: 141.165.181.148:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick55: 141.165.181.146:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick56: 141.165.181.147:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick57: 141.165.181.148:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick58: 141.165.181.146:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick59: 141.165.181.147:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick60: 141.165.181.148:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick61: 141.165.181.146:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick62: 141.165.181.147:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick63: 141.165.181.148:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick64: 141.165.181.146:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick65: 141.165.181.147:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick66: 141.165.181.148:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick67: 141.165.181.146:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick68: 141.165.181.147:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick69: 141.165.181.148:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick70: 141.165.181.146:&#x2F;data12&#x2F;brick</span><br><span class="line">Brick71: 141.165.181.147:&#x2F;data12&#x2F;brick</span><br><span class="line">Brick72: 141.165.181.148:&#x2F;data12&#x2F;brick</span><br><span class="line">Options Reconfigured:</span><br><span class="line">network.ping-timeout: 120</span><br><span class="line">cluster.read-hash-mode: 3</span><br><span class="line">storage.fips-mode-rchecksum: on</span><br><span class="line">nfs.disable: on</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>volume status</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"># gluster volume status   speech_vol_v2     </span><br><span class="line">Status of volume: speech_vol_v2</span><br><span class="line">Gluster process                             TCP Port  RDMA Port  Online  Pid</span><br><span class="line">------------------------------------------------------------------------------</span><br><span class="line">Brick 141.165.65.141:&#x2F;data1&#x2F;brick            49152     0          Y       16432</span><br><span class="line">Brick 141.165.65.142:&#x2F;data1&#x2F;brick            49152     0          Y       16355</span><br><span class="line">Brick 141.165.65.144:&#x2F;data1&#x2F;brick            49152     0          Y       32212</span><br><span class="line">Brick 141.165.65.141:&#x2F;data2&#x2F;brick            49153     0          Y       20613</span><br><span class="line">Brick 141.165.65.142:&#x2F;data2&#x2F;brick            49153     0          Y       16376</span><br><span class="line">Brick 141.165.65.144:&#x2F;data2&#x2F;brick            49153     0          Y       32232</span><br><span class="line">Brick 141.165.65.141:&#x2F;data3&#x2F;brick            49154     0          Y       20627</span><br><span class="line">Brick 141.165.65.142:&#x2F;data3&#x2F;brick            49154     0          Y       16402</span><br><span class="line">Brick 141.165.65.144:&#x2F;data3&#x2F;brick            49154     0          Y       32252</span><br><span class="line">Brick 141.165.65.141:&#x2F;data4&#x2F;brick            49155     0          Y       10020</span><br><span class="line">Brick 141.165.65.142:&#x2F;data4&#x2F;brick            49155     0          Y       16433</span><br><span class="line">Brick 141.165.65.144:&#x2F;data4&#x2F;brick            49155     0          Y       32272</span><br><span class="line">Brick 141.165.65.141:&#x2F;data5&#x2F;brick            49156     0          Y       10026</span><br><span class="line">Brick 141.165.65.142:&#x2F;data5&#x2F;brick            49156     0          Y       16457</span><br><span class="line">Brick 141.165.65.144:&#x2F;data5&#x2F;brick            49156     0          Y       32292</span><br><span class="line">Brick 141.165.65.141:&#x2F;data6&#x2F;brick            49157     0          Y       20620</span><br><span class="line">Brick 141.165.65.142:&#x2F;data6&#x2F;brick            49157     0          Y       16485</span><br><span class="line">Brick 141.165.65.144:&#x2F;data6&#x2F;brick            49157     0          Y       32312</span><br><span class="line">Brick 141.165.65.141:&#x2F;data7&#x2F;brick            49158     0          Y       10055</span><br><span class="line">Brick 141.165.65.142:&#x2F;data7&#x2F;brick            49158     0          Y       16505</span><br><span class="line">Brick 141.165.65.144:&#x2F;data7&#x2F;brick            49158     0          Y       32332</span><br><span class="line">Brick 141.165.65.141:&#x2F;data8&#x2F;brick            49159     0          Y       15551</span><br><span class="line">Brick 141.165.65.142:&#x2F;data8&#x2F;brick            49159     0          Y       16530</span><br><span class="line">Brick 141.165.65.144:&#x2F;data8&#x2F;brick            49159     0          Y       32352</span><br><span class="line">Brick 141.165.65.141:&#x2F;data9&#x2F;brick            49160     0          Y       10075</span><br><span class="line">Brick 141.165.65.142:&#x2F;data9&#x2F;brick            49160     0          Y       16552</span><br><span class="line">Brick 141.165.65.144:&#x2F;data9&#x2F;brick            49160     0          Y       32372</span><br><span class="line">Brick 141.165.65.141:&#x2F;data10&#x2F;brick           49161     0          Y       10086</span><br><span class="line">Brick 141.165.65.142:&#x2F;data10&#x2F;brick           49161     0          Y       16573</span><br><span class="line">Brick 141.165.65.144:&#x2F;data10&#x2F;brick           49161     0          Y       32394</span><br><span class="line">Brick 141.165.65.141:&#x2F;data11&#x2F;brick           49162     0          Y       10099</span><br><span class="line">Brick 141.165.65.142:&#x2F;data11&#x2F;brick           49162     0          Y       16595</span><br><span class="line">Brick 141.165.65.144:&#x2F;data11&#x2F;brick           49162     0          Y       32415</span><br><span class="line">Brick 141.165.65.141:&#x2F;data12&#x2F;brick           49163     0          Y       10106</span><br><span class="line">Brick 141.165.65.142:&#x2F;data12&#x2F;brick           49163     0          Y       16616</span><br><span class="line">Brick 141.165.65.144:&#x2F;data12&#x2F;brick           49163     0          Y       32435</span><br><span class="line">Brick 141.165.181.146:&#x2F;data1&#x2F;brick           49152     0          Y       177222</span><br><span class="line">Brick 141.165.181.147:&#x2F;data1&#x2F;brick           49164     0          Y       215532</span><br><span class="line">Brick 141.165.181.148:&#x2F;data1&#x2F;brick           49152     0          Y       182183</span><br><span class="line">Brick 141.165.181.146:&#x2F;data2&#x2F;brick           49153     0          Y       177242</span><br><span class="line">Brick 141.165.181.147:&#x2F;data2&#x2F;brick           49165     0          Y       215541</span><br><span class="line">Brick 141.165.181.148:&#x2F;data2&#x2F;brick           49153     0          Y       182203</span><br><span class="line">Brick 141.165.181.146:&#x2F;data3&#x2F;brick           49154     0          Y       177263</span><br><span class="line">Brick 141.165.181.147:&#x2F;data3&#x2F;brick           49166     0          Y       215552</span><br><span class="line">Brick 141.165.181.148:&#x2F;data3&#x2F;brick           49154     0          Y       182224</span><br><span class="line">Brick 141.165.181.146:&#x2F;data4&#x2F;brick           49155     0          Y       177283</span><br><span class="line">Brick 141.165.181.147:&#x2F;data4&#x2F;brick           49167     0          Y       215563</span><br><span class="line">Brick 141.165.181.148:&#x2F;data4&#x2F;brick           49155     0          Y       182244</span><br><span class="line">Brick 141.165.181.146:&#x2F;data5&#x2F;brick           49156     0          Y       177303</span><br><span class="line">Brick 141.165.181.147:&#x2F;data5&#x2F;brick           49168     0          Y       215574</span><br><span class="line">Brick 141.165.181.148:&#x2F;data5&#x2F;brick           49156     0          Y       182264</span><br><span class="line">Brick 141.165.181.146:&#x2F;data6&#x2F;brick           49157     0          Y       177323</span><br><span class="line">Brick 141.165.181.147:&#x2F;data6&#x2F;brick           49169     0          Y       215585</span><br><span class="line">Brick 141.165.181.148:&#x2F;data6&#x2F;brick           49157     0          Y       182284</span><br><span class="line">Brick 141.165.181.146:&#x2F;data7&#x2F;brick           49158     0          Y       177343</span><br><span class="line">Brick 141.165.181.147:&#x2F;data7&#x2F;brick           49158     0          Y       176773</span><br><span class="line">Brick 141.165.181.148:&#x2F;data7&#x2F;brick           49158     0          Y       182304</span><br><span class="line">Brick 141.165.181.146:&#x2F;data8&#x2F;brick           49159     0          Y       177363</span><br><span class="line">Brick 141.165.181.147:&#x2F;data8&#x2F;brick           49170     0          Y       215596</span><br><span class="line">Brick 141.165.181.148:&#x2F;data8&#x2F;brick           49159     0          Y       182324</span><br><span class="line">Brick 141.165.181.146:&#x2F;data9&#x2F;brick           49160     0          Y       177383</span><br><span class="line">Brick 141.165.181.147:&#x2F;data9&#x2F;brick           49171     0          Y       215607</span><br><span class="line">Brick 141.165.181.148:&#x2F;data9&#x2F;brick           49160     0          Y       182346</span><br><span class="line">Brick 141.165.181.146:&#x2F;data10&#x2F;brick          49161     0          Y       177403</span><br><span class="line">Brick 141.165.181.147:&#x2F;data10&#x2F;brick          49172     0          Y       215618</span><br><span class="line">Brick 141.165.181.148:&#x2F;data10&#x2F;brick          49161     0          Y       182366</span><br><span class="line">Brick 141.165.181.146:&#x2F;data11&#x2F;brick          49162     0          Y       177423</span><br><span class="line">Brick 141.165.181.147:&#x2F;data11&#x2F;brick          49173     0          Y       215629</span><br><span class="line">Brick 141.165.181.148:&#x2F;data11&#x2F;brick          49162     0          Y       182386</span><br><span class="line">Brick 141.165.181.146:&#x2F;data12&#x2F;brick          49163     0          Y       177443</span><br><span class="line">Brick 141.165.181.147:&#x2F;data12&#x2F;brick          49174     0          Y       215639</span><br><span class="line">Brick 141.165.181.148:&#x2F;data12&#x2F;brick          49163     0          Y       182406</span><br></pre></td></tr></table></figure>
+
+<h4 id="客户端无法连接的Brick的信息"><a href="#客户端无法连接的Brick的信息" class="headerlink" title="客户端无法连接的Brick的信息"></a>客户端无法连接的Brick的信息</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;这些信息存在于&#x2F;var&#x2F;log&#x2F;glusterfs&#x2F;mnt-&#123;挂载名称&#125;.log中的Final graph:</span><br><span class="line">volume speech_vol_v2-client-55</span><br><span class="line">    type protocol&#x2F;client</span><br><span class="line">    option ping-timeout 120</span><br><span class="line">    option remote-host 141.165.181.147</span><br><span class="line">    option remote-subvolume &#x2F;data7&#x2F;brick</span><br><span class="line">    option transport-type socket</span><br><span class="line">    option transport.socket.ssl-enabled off</span><br><span class="line">    option transport.tcp-user-timeout 0</span><br><span class="line">    option transport.socket.keepalive-time 20</span><br><span class="line">    option transport.socket.keepalive-interval 2</span><br><span class="line">    option transport.socket.keepalive-count 9</span><br><span class="line">    option send-gids true</span><br><span class="line">end-volume</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="客户端挂载Debug日志"><a href="#客户端挂载Debug日志" class="headerlink" title="客户端挂载Debug日志"></a>客户端挂载Debug日志</h4><h5 id="操作系统kernel日志-var-log-message"><a href="#操作系统kernel日志-var-log-message" class="headerlink" title="操作系统kernel日志(/var/log/message)"></a>操作系统kernel日志(/var/log/message)</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">May 26 12:20:18 storage-center-prd-141-165-181-147 kernel: [4036004.156726] TCP: request_sock_TCP: Possible SYN flooding on port 24007. Sending cookies.  Check SNMP counters.</span><br><span class="line">May 26 16:52:13 storage-center-prd-141-165-181-147 systemd[1]: Starting Cleanup of Temporary Directories...</span><br><span class="line">May 26 16:52:13 storage-center-prd-141-165-181-147 systemd[1]: Started Cleanup of Temporary Directories.</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.524551] INFO: task kswapd0:266 blocked for more than 120 seconds.</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.531180] &quot;echo 0 &gt; &#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;hung_task_timeout_secs&quot; disables this message.</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539187] kswapd0         D 0000000007496801     0   266      2 0x00000000</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539195]  ffff881ffcd3b8f0 0000000000000046 ffff881ffeab9fa0 ffff881ffcd3bfd8</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539198]  ffff881ffcd3bfd8 ffff881ffcd3bfd8 ffff881ffeab9fa0 ffff8804e82b4860</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539200]  7fffffffffffffff ffff8804e82b4858 ffff881ffeab9fa0 0000000007496801</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539202] Call Trace:</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539216]  [&lt;ffffffff816a94c9&gt;] schedule+0x29&#x2F;0x70</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539228]  [&lt;ffffffff816a6fd9&gt;] schedule_timeout+0x239&#x2F;0x2c0</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539235]  [&lt;ffffffff812fab24&gt;] ? blk_finish_plug+0x14&#x2F;0x40</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539271]  [&lt;ffffffffc01f9354&gt;] ? _xfs_buf_ioapply+0x334&#x2F;0x460 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539273]  [&lt;ffffffff816a987d&gt;] wait_for_completion+0xfd&#x2F;0x140</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539277]  [&lt;ffffffff810c4810&gt;] ? wake_up_state+0x20&#x2F;0x20</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539292]  [&lt;ffffffffc01fb434&gt;] ? xfs_bwrite+0x24&#x2F;0x60 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539305]  [&lt;ffffffffc01fb026&gt;] xfs_buf_submit_wait+0xe6&#x2F;0x1d0 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539316]  [&lt;ffffffffc01fb434&gt;] xfs_bwrite+0x24&#x2F;0x60 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539330]  [&lt;ffffffffc0203b71&gt;] xfs_reclaim_inode+0x331&#x2F;0x360 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539346]  [&lt;ffffffffc0203e07&gt;] xfs_reclaim_inodes_ag+0x267&#x2F;0x390 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539348]  [&lt;ffffffff810c4593&gt;] ? try_to_wake_up+0x183&#x2F;0x340</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539351]  [&lt;ffffffff8121d67a&gt;] ? evict+0x10a&#x2F;0x180</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539353]  [&lt;ffffffff810c4765&gt;] ? wake_up_process+0x15&#x2F;0x20</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539366]  [&lt;ffffffffc0204df3&gt;] xfs_reclaim_inodes_nr+0x33&#x2F;0x40 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539380]  [&lt;ffffffffc02146f5&gt;] xfs_fs_free_cached_objects+0x15&#x2F;0x20 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539383]  [&lt;ffffffff81203888&gt;] prune_super+0xe8&#x2F;0x170</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539387]  [&lt;ffffffff81195413&gt;] shrink_slab+0x163&#x2F;0x330</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539390]  [&lt;ffffffff811f7537&gt;] ? vmpressure+0x87&#x2F;0x90</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539392]  [&lt;ffffffff81199081&gt;] balance_pgdat+0x4b1&#x2F;0x5e0</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539394]  [&lt;ffffffff81199323&gt;] kswapd+0x173&#x2F;0x440</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539398]  [&lt;ffffffff810b1910&gt;] ? wake_up_atomic_t+0x30&#x2F;0x30</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539401]  [&lt;ffffffff811991b0&gt;] ? balance_pgdat+0x5e0&#x2F;0x5e0</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539402]  [&lt;ffffffff810b098f&gt;] kthread+0xcf&#x2F;0xe0</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539404]  [&lt;ffffffff810b08c0&gt;] ? insert_kthread_work+0x40&#x2F;0x40</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539408]  [&lt;ffffffff816b4f18&gt;] ret_from_fork+0x58&#x2F;0x90</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539409]  [&lt;ffffffff810b08c0&gt;] ? insert_kthread_work+0x40&#x2F;0x40</span><br><span class="line">May 27 00:32:14 storage-center-prd-141-165-181-147 kernel: [4079817.259262] INFO: task kswapd0:266 blocked for more than 120 seconds.</span><br></pre></td></tr></table></figure>
+
+<h5 id="客户端Mount-Debug日志详情"><a href="#客户端Mount-Debug日志详情" class="headerlink" title="客户端Mount Debug日志详情"></a>客户端Mount Debug日志详情</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">[2020-05-27 03:47:34.303569] D [logging.c:1718:__gf_log_inject_timer_event] 0-logging-infra: Starting timer now. Timeout &#x3D; 120, current buf size &#x3D; 5</span><br><span class="line">[2020-05-27 03:47:52.040397] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:7) (non-SSL)</span><br><span class="line">[2020-05-27 03:47:52.040442] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:47:52.040639] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_connection_cleanup+0x92)[0x7fb222fc5922] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0xf4e8)[0x7fb222fc64e8] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_transport_notify+0x23)[0x7fb222fc2a93] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:47:55.040804] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">[2020-05-27 03:47:55.043219] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:47:55.043244] D [socket.c:3384:socket_fix_ssl_opts] 0-speech_vol_v2-client-55: disabling SSL for portmapper connection</span><br><span class="line">[2020-05-27 03:47:55.043408] D [MSGID: 0] [client.c:2323:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_CONNECT </span><br><span class="line">[2020-05-27 03:47:55.043611] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x13691)[0x7fb222fca691] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_submit+0x3b4)[0x7fb222fc6914] (--&gt; &#x2F;usr&#x2F;lib64&#x2F;glusterfs&#x2F;7.2&#x2F;xlator&#x2F;protocol&#x2F;client.so(+0x135b2)[0x7fb2146675b2] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:47:55.043662] D [MSGID: 0] [client-handshake.c:1399:server_has_portmap] 0-speech_vol_v2-client-55: detected portmapper on server </span><br><span class="line">[2020-05-27 03:47:55.043783] D [rpc-clnt-ping.c:195:rpc_clnt_ping_cbk] 0-speech_vol_v2-client-55: Ping latency is 0ms</span><br><span class="line">[2020-05-27 03:47:55.043812] I [rpc-clnt.c:1963:rpc_clnt_reconfig] 0-speech_vol_v2-client-55: changing port to 49158 (from 0)</span><br><span class="line">[2020-05-27 03:47:55.043844] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:6) (non-SSL)</span><br><span class="line">[2020-05-27 03:47:55.043855] D [MSGID: 0] [client.c:2394:client_rpc_notify] 0-speech_vol_v2-client-55: disconnected (skipped notify) </span><br><span class="line">[2020-05-27 03:47:55.043876] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">[2020-05-27 03:49:34.303646] D [logging.c:1756:gf_log_flush_timeout_cbk] 0-logging-infra: Log timer timed out. About to flush outstanding messages if present</span><br><span class="line">[2020-05-27 03:47:55.043854] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:47:55.046202] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:49:34.303898] D [logging.c:1718:__gf_log_inject_timer_event] 0-logging-infra: Starting timer now. Timeout &#x3D; 120, current buf size &#x3D; 5</span><br><span class="line">[2020-05-27 03:50:02.344385] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:7) (non-SSL)</span><br><span class="line">[2020-05-27 03:50:02.344418] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:50:02.344582] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_connection_cleanup+0x92)[0x7fb222fc5922] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0xf4e8)[0x7fb222fc64e8] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_transport_notify+0x23)[0x7fb222fc2a93] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:50:05.344677] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">[2020-05-27 03:50:05.347099] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:50:05.347126] D [socket.c:3384:socket_fix_ssl_opts] 0-speech_vol_v2-client-55: disabling SSL for portmapper connection</span><br><span class="line">[2020-05-27 03:50:05.347336] D [MSGID: 0] [client.c:2323:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_CONNECT </span><br><span class="line">[2020-05-27 03:50:05.347542] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x13691)[0x7fb222fca691] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_submit+0x3b4)[0x7fb222fc6914] (--&gt; &#x2F;usr&#x2F;lib64&#x2F;glusterfs&#x2F;7.2&#x2F;xlator&#x2F;protocol&#x2F;client.so(+0x135b2)[0x7fb2146675b2] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:50:05.347591] D [MSGID: 0] [client-handshake.c:1399:server_has_portmap] 0-speech_vol_v2-client-55: detected portmapper on server </span><br><span class="line">[2020-05-27 03:50:05.347633] D [rpc-clnt-ping.c:195:rpc_clnt_ping_cbk] 0-speech_vol_v2-client-55: Ping latency is 0ms</span><br><span class="line">[2020-05-27 03:50:05.347701] I [rpc-clnt.c:1963:rpc_clnt_reconfig] 0-speech_vol_v2-client-55: changing port to 49158 (from 0)</span><br><span class="line">[2020-05-27 03:50:05.347735] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:6) (non-SSL)</span><br><span class="line">[2020-05-27 03:50:05.347749] D [MSGID: 0] [client.c:2394:client_rpc_notify] 0-speech_vol_v2-client-55: disconnected (skipped notify) </span><br><span class="line">[2020-05-27 03:50:05.347765] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">&#x2F;0-speech_vol_v2-client-55</span><br><span class="line">[2020-05-27 03:51:34.303977] D [logging.c:1756:gf_log_flush_timeout_cbk] 0-logging-infra: Log timer timed out. About to flush outstanding messages if present</span><br><span class="line">[2020-05-27 03:50:05.347748] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:50:05.350156] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:51:34.304035] D [logging.c:1718:__gf_log_inject_timer_event] 0-logging-infra: Starting timer now. Timeout &#x3D; 120, current buf size &#x3D; 5</span><br><span class="line">[2020-05-27 03:52:12.648388] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:7) (non-SSL)</span><br><span class="line">[2020-05-27 03:52:12.648424] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:52:12.648591] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_connection_cleanup+0x92)[0x7fb222fc5922] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0xf4e8)[0x7fb222fc64e8] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_transport_notify+0x23)[0x7fb222fc2a93] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:52:15.648683] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">[2020-05-27 03:52:15.651027] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:52:15.651052] D [socket.c:3384:socket_fix_ssl_opts] 0-speech_vol_v2-client-55: disabling SSL for portmapper connection</span><br><span class="line">[2020-05-27 03:52:15.651271] D [MSGID: 0] [client.c:2323:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_CONNECT </span><br><span class="line">[2020-05-27 03:52:15.651501] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x13691)[0x7fb222fca691] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_submit+0x3b4)[0x7fb222fc6914] (--&gt; &#x2F;usr&#x2F;lib64&#x2F;glusterfs&#x2F;7.2&#x2F;xlator&#x2F;protocol&#x2F;client.so(+0x135b2)[0x7fb2146675b2] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:52:15.651557] D [MSGID: 0] [client-handshake.c:1399:server_has_portmap] 0-speech_vol_v2-client-55: detected portmapper on server </span><br><span class="line">[2020-05-27 03:52:15.651693] D [rpc-clnt-ping.c:195:rpc_clnt_ping_cbk] 0-speech_vol_v2-client-55: Ping latency is 0ms</span><br><span class="line">[2020-05-27 03:52:15.651734] I [rpc-clnt.c:1963:rpc_clnt_reconfig] 0-speech_vol_v2-client-55: changing port to 49158 (from 0)</span><br><span class="line">[2020-05-27 03:52:15.651758] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:6) (non-SSL)</span><br><span class="line">[2020-05-27 03:52:15.651770] D [MSGID: 0] [client.c:2394:client_rpc_notify] 0-speech_vol_v2-client-55: disconnected (skipped notify) </span><br><span class="line">[2020-05-27 03:52:15.651785] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">[2020-05-27 03:53:34.304123] D [logging.c:1756:gf_log_flush_timeout_cbk] 0-logging-infra: Log timer timed out. About to flush outstanding messages if present</span><br><span class="line">[2020-05-27 03:52:15.651768] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:52:15.654154] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:53:34.304179] D [logging.c:1718:__gf_log_inject_timer_event] 0-logging-infra: Starting timer now. Timeout &#x3D; 120, current buf size &#x3D; 5</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="0-speech-vol-v2-client-55对应服务端节点-147下的-data7-brick-日志"><a href="#0-speech-vol-v2-client-55对应服务端节点-147下的-data7-brick-日志" class="headerlink" title="0-speech_vol_v2-client-55对应服务端节点(147下的/data7/brick)日志"></a>0-speech_vol_v2-client-55对应服务端节点(147下的/data7/brick)日志</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[2020-05-27 01:02:22.421765] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.32.25:47645 failed (No data available)</span><br><span class="line">[2020-05-27 01:02:22.421795] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:de438bc8-1b52-446c-817f-60d646af0ba6-GRAPH_ID:2-PID:84971-HOST:ai-vtraining-prd-141-165-32-25.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 01:02:26.918776] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.32.25:47562 failed (No data available)</span><br><span class="line">[2020-05-27 01:02:26.918807] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:36965041-2046-4413-88a4-08bc06fc1de4-GRAPH_ID:2-PID:87591-HOST:ai-vtraining-prd-141-165-32-25.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 01:03:13.270262] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.86.129:48212 failed (No data available)</span><br><span class="line">[2020-05-27 01:03:13.270295] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:2dafdf38-ff96-45cc-99c2-1238764b59ae-GRAPH_ID:0-PID:75668-HOST:ai-vtraining-prd-141-165-86-129.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 01:03:13.285400] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.86.129:48162 failed (No data available)</span><br><span class="line">[2020-05-27 01:03:13.285422] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:4251ffc2-e1c5-4357-a5d2-7c92e8221fad-GRAPH_ID:0-PID:75625-HOST:ai-vtraining-prd-141-165-86-129.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 01:36:05.410946] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 10.196.20.133:47621 failed (No data available)</span><br><span class="line">[2020-05-27 01:36:05.410974] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:57fbf79a-bae3-4bcd-8670-70d559956cac-GRAPH_ID:0-PID:15841-HOST:ai-vtraining-gpu-prd-10-196-20-133.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 01:36:06.056913] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 10.196.20.133:47331 failed (No data available)</span><br><span class="line">[2020-05-27 01:36:06.056941] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:b68c4c8e-e8d8-4d44-97a3-a503791d6177-GRAPH_ID:0-PID:16094-HOST:ai-vtraining-gpu-prd-10-196-20-133.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 02:10:34.719707] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.30.45:48603 failed (No data available)</span><br><span class="line">[2020-05-27 02:10:34.719738] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:0ed18a02-3363-4cba-9313-93f7b221ede4-GRAPH_ID:10-PID:6869-HOST:ai-vtraining-prd-141-165-30-45.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 02:13:50.989206] I [addr.c:54:compare_addr_and_update] 0-&#x2F;data7&#x2F;brick: allowed &#x3D; &quot;*&quot;, received addr &#x3D; &quot;141.165.30.45&quot;</span><br><span class="line">[2020-05-27 02:13:50.989234] I [MSGID: 115029] [server-handshake.c:549:server_setvolume] 0-speech_vol_v2-server: accepted client from CTX_ID:a327610d-0acf-4785-a912-17e87c126ba9-GRAPH_ID:0-PID:67045-HOST:ai-vtraining-prd-141-165-30-45.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 (version: 6.5) with subvol &#x2F;data7&#x2F;brick </span><br><span class="line">[2020-05-27 02:17:13.967294] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.30.45:48606 failed (No data available)</span><br><span class="line">[2020-05-27 02:39:55.104419] W [glusterfsd.c:1596:cleanup_and_exit] (--&gt;&#x2F;lib64&#x2F;libpthread.so.0(+0x7dd5) [0x7f9d087f1dd5] --&gt;&#x2F;usr&#x2F;sbin&#x2F;glusterfsd(glusterfs_sigwaiter+0xe5) [0x55f6769bb625] --&gt;&#x2F;usr&#x2F;sbin&#x2F;glusterfsd(cleanup_and_exit+0x6b) [0x55f6769bb48b] ) 0-: received signum (15), shutting down </span><br><span class="line">[2020-05-27 02:39:55.104502] W [socket.c:774:__socket_rwv] 0-glusterfs: writev on 141.165.181.147:24007 failed (Broken pipe)</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/27/glusterfs-client%E5%AE%A2%E6%88%B6%E7%AB%AF%E5%87%BA%E7%8E%B0RPC-CLNT-DISCONNECT%E9%97%AE%E9%A2%98%E5%92%8Ckernel%E5%87%BA%E7%8E%B0task-xxx-blocked-for-more-than-120-seconds/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/27/glusterfs-client%E5%AE%A2%E6%88%B6%E7%AB%AF%E5%87%BA%E7%8E%B0RPC-CLNT-DISCONNECT%E9%97%AE%E9%A2%98%E5%92%8Ckernel%E5%87%BA%E7%8E%B0task-xxx-blocked-for-more-than-120-seconds/" class="post-title-link" itemprop="url">glusterfs client客戶端出现RPC_CLNT_DISCONNECT问题和kernel出现task xxx blocked for more than 120 seconds</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-05-27 17:26:20 / Modified: 17:26:21" itemprop="dateCreated datePublished" datetime="2020-05-27T17:26:20+08:00">2020-05-27</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -833,1193 +986,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/glusterfs%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/16/glusterfs%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/" class="post-title-link" itemprop="url">glusterfs参数说明</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-16 17:58:49 / Modified: 18:10:39" itemprop="dateCreated datePublished" datetime="2020-04-16T17:58:49+08:00">2020-04-16</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="选项说明"><a href="#选项说明" class="headerlink" title="选项说明"></a>选项说明</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gluster volume set help</span><br></pre></td></tr></table></figure>
-
-<table>
-<thead>
-<tr>
-<th align="left">选项</th>
-<th align="center">默认值</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">changelog.changelog-barrier-timeout</td>
-<td align="center">120</td>
-<td align="left">After ‘timeout’ seconds since the time ‘barrier’ option was set to “on”, unlink/rmdir/rename operations are no longer blocked and previously blocked fops are allowed to go through</td>
-</tr>
-<tr>
-<td align="left">cluster.enable-shared-storage</td>
-<td align="center">disable</td>
-<td align="left">Create and mount the shared storage volume(gluster_shared_storage) at /var/run/gluster/shared_storage on enabling this option. Unmount and delete the shared storage volume on disabling this option.</td>
-</tr>
-<tr>
-<td align="left">cluster.write-freq-threshold</td>
-<td align="center">0</td>
-<td align="left">Defines the number of writes, in a promotion/demotion cycle, that would mark a file HOT for promotion. Any file that has write hits less than this value will be considered as COLD and will be demoted.</td>
-</tr>
-<tr>
-<td align="left">cluster.read-freq-threshold</td>
-<td align="center">0</td>
-<td align="left">Defines the number of reads, in a promotion/demotion cycle, that would mark a file HOT for promotion. Any file that has read hits less than this value will be considered as COLD and will be demoted.</td>
-</tr>
-<tr>
-<td align="left">cluster.tier-pause</td>
-<td align="center">off</td>
-<td align="left">(null)</td>
-</tr>
-<tr>
-<td align="left">cluster.tier-promote-frequency</td>
-<td align="center">120</td>
-<td align="left">Frequency to promote files to fast tier</td>
-</tr>
-<tr>
-<td align="left">cluster.tier-demote-frequency</td>
-<td align="center">120</td>
-<td align="left">Frequency to demote files to slow tier</td>
-</tr>
-<tr>
-<td align="left">cluster.watermark-hi</td>
-<td align="center">90</td>
-<td align="left">Upper % watermark for promotion. If hot tier fills above this percentage, no promotion will happen and demotion will happen with high probability.</td>
-</tr>
-<tr>
-<td align="left">cluster.watermark-low</td>
-<td align="center">75</td>
-<td align="left">Lower % watermark. If hot tier is less full than this, promotion will happen and demotion will not happen. If greater than this, promotion/demotion will happen at a probability relative to how full the hot tier is.</td>
-</tr>
-<tr>
-<td align="left">cluster.tier-mode</td>
-<td align="center">cache</td>
-<td align="left">Either ‘test’ or ‘cache’. Test mode periodically demotes or promotes files automatically based on access. Cache mode does so based on whether the cache is full or not, as specified with watermarks.</td>
-</tr>
-<tr>
-<td align="left">cluster.tier-max-mb</td>
-<td align="center">10000</td>
-<td align="left">The maximum number of MB that may be migrated in any direction in a given cycle by a single node.</td>
-</tr>
-<tr>
-<td align="left">cluster.tier-max-files</td>
-<td align="center">50000</td>
-<td align="left">The maximum number of files that may be migrated in any direction in a given cycle by a single node.</td>
-</tr>
-<tr>
-<td align="left">cluster.lookup-unhashed</td>
-<td align="center">on</td>
-<td align="left">This option if set to ON, does a lookup through all the sub-volumes, in case a lookup didn’t return any result from the hash subvolume. If set to OFF, it does not do a lookup on the remaining subvolumes.</td>
-</tr>
-<tr>
-<td align="left">cluster.lookup-optimize</td>
-<td align="center">off</td>
-<td align="left">This option if set to ON enables the optimization of -ve lookups, by not doing a lookup on non-hashed subvolumes for files, in case the hashed subvolume does not return any result. This option disregards the lookup-unhashed setting, when enabled.</td>
-</tr>
-<tr>
-<td align="left">cluster.min-free-disk</td>
-<td align="center">10%</td>
-<td align="left">Percentage/Size of disk space, after which the process starts balancing out the cluster, and logs will appear in log files</td>
-</tr>
-<tr>
-<td align="left">cluster.min-free-inodes</td>
-<td align="center">5%</td>
-<td align="left">after system has only N% of inodes, warnings starts to appear in log files</td>
-</tr>
-<tr>
-<td align="left">cluster.rebalance-stats</td>
-<td align="center">off</td>
-<td align="left">This option if set to ON displays and logs the time taken for migration of each file, during the rebalance process. If set to OFF, the rebalance logs will only display the time spent in each directory.</td>
-</tr>
-<tr>
-<td align="left">cluster.subvols-per-directory</td>
-<td align="center">null</td>
-<td align="left">Specifies the directory layout spread. Takes number of subvolumes as default value.</td>
-</tr>
-<tr>
-<td align="left">cluster.readdir-optimize</td>
-<td align="center">off</td>
-<td align="left">This option if set to ON enables the optimization that allows DHT to requests non-first subvolumes to filter out directory entries.</td>
-</tr>
-<tr>
-<td align="left">cluster.rebal-throttle</td>
-<td align="center">normal</td>
-<td align="left">Sets the maximum number of parallel file migrations allowed on a node during the rebalance operation. The default value is normal and allows a max of [($(processing units) - 4) / 2), 2] files to be migrated at a time. Lazy will allow only one file to be migrated at a time and aggressive will allow max of [($(processing units) - 4) / 2), 4]</td>
-</tr>
-<tr>
-<td align="left">cluster.weighted-rebalance</td>
-<td align="center">on</td>
-<td align="left">When enabled, files will be allocated to bricks with a probability proportional to their size. Otherwise, all bricks will have the same probability (legacy behavior).</td>
-</tr>
-<tr>
-<td align="left">cluster.entry-change-log</td>
-<td align="center">on</td>
-<td align="left">Entry fops like create/unlink will not perform pre/post fop changelog operations in afr transaction if this option is disabled</td>
-</tr>
-<tr>
-<td align="left">cluster.read-subvolume</td>
-<td align="center">null</td>
-<td align="left">inode-read fops happen only on one of the bricks in replicate. Afr will prefer the one specified using this option if it is not stale. Option value must be one of the xlator names of the children. Ex: -client-0 till -client-&lt;number-of-bricks - 1&gt;</td>
-</tr>
-<tr>
-<td align="left">cluster.read-subvolume-index</td>
-<td align="center">-1</td>
-<td align="left">inode-read fops happen only on one of the bricks in replicate. AFR will prefer the one specified using this option if it is not stale. allowed options include -1 till replica-count - 1</td>
-</tr>
-<tr>
-<td align="left">cluster.read-hash-mode</td>
-<td align="center">1</td>
-<td align="left">inode-read fops happen only on one of the bricks in replicate. AFR will prefer the one computed using the method specified using this option0 = first up server, 1 = hash by GFID of file (all clients use same subvolume), 2 = hash by GFID of file and client PID</td>
-</tr>
-<tr>
-<td align="left">cluster.background-self-heal-count</td>
-<td align="center">16</td>
-<td align="left">This specifies the number of self-heals that can be performed in background without blocking the fop</td>
-</tr>
-<tr>
-<td align="left">cluster.metadata-self-heal</td>
-<td align="center">on</td>
-<td align="left">Using this option we can enable/disable metadata i.e. Permissions, ownerships, xattrs self-heal on the file/directory.</td>
-</tr>
-<tr>
-<td align="left">cluster.data-self-heal</td>
-<td align="center">on</td>
-<td align="left">Using this option we can enable/disable data self-heal on the file. “open” means data self-heal action will only be triggered by file open operations.</td>
-</tr>
-<tr>
-<td align="left">cluster.entry-self-heal</td>
-<td align="center">on</td>
-<td align="left">Using this option we can enable/disable entry self-heal on the directory.</td>
-</tr>
-<tr>
-<td align="left">cluster.self-heal-daemon</td>
-<td align="center">on</td>
-<td align="left">This option applies to only self-heal-daemon. Index directory crawl and automatic healing of files will not be performed if this option is turned off.</td>
-</tr>
-<tr>
-<td align="left">cluster.heal-timeout</td>
-<td align="center">600</td>
-<td align="left">time interval for checking the need to self-heal in self-heal-daemon</td>
-</tr>
-<tr>
-<td align="left">cluster.self-heal-window-size</td>
-<td align="center">1</td>
-<td align="left">Maximum number blocks per file for which self-heal process would be applied simultaneously.</td>
-</tr>
-<tr>
-<td align="left">cluster.data-change-log</td>
-<td align="center">on</td>
-<td align="left">Data fops like write/truncate will not perform pre/post fop changelog operations in afr transaction if this option is disabled</td>
-</tr>
-<tr>
-<td align="left">cluster.metadata-change-log</td>
-<td align="center">on</td>
-<td align="left">Metadata fops like setattr/setxattr will not perform pre/post fop changelog operations in afr transaction if this option is disabled</td>
-</tr>
-<tr>
-<td align="left">cluster.data-self-heal-algorithm</td>
-<td align="center">null</td>
-<td align="left">Select between “full”, “diff”. The “full” algorithm copies the entire file from source to sink. The “diff” algorithm copies to sink only those blocks whose checksums don’t match with those of source. If no option is configured the option is chosen dynamically as follows: If the file does not exist on one of the sinks or empty file exists or if the source file size is about the same as page size the entire file will be read and written i.e “full” algo, otherwise “diff” algo is chosen.</td>
-</tr>
-<tr>
-<td align="left">cluster.eager-lock</td>
-<td align="center">on</td>
-<td align="left">Lock phase of a transaction has two sub-phases. First is an attempt to acquire locks in parallel by broadcasting non-blocking lock requests. If lock acquisition fails on any server, then the held locks are unlocked and revert to a blocking locked mode sequentially on one server after another. If this option is enabled the initial broadcasting lock request attempt to acquire lock on the entire file. If this fails, we revert back to the sequential “regional” blocking lock as before. In the case where such an “eager” lock is granted in the non-blocking phase, it gives rise to an opportunity for optimization. i.e, if the next write transaction on the same FD arrives before the unlock phase of the first transaction, it “takes over” the full file lock. Similarly if yet another data transaction arrives before the unlock phase of the “optimized” transaction, that in turn “takes over” the lock as well. The actual unlock now happens at the end of the last “optimized” transaction.</td>
-</tr>
-<tr>
-<td align="left">cluster.quorum-type</td>
-<td align="center">none</td>
-<td align="left">If value is “fixed” only allow writes if quorum-count bricks are present. If value is “auto” only allow writes if more than half of bricks, or exactly half including the first, are present.</td>
-</tr>
-<tr>
-<td align="left">cluster.quorum-count</td>
-<td align="center">null</td>
-<td align="left">If quorum-type is “fixed” only allow writes if this many bricks or present. Other quorum types will OVERWRITE this value.</td>
-</tr>
-<tr>
-<td align="left">cluster.choose-local</td>
-<td align="center">true</td>
-<td align="left">Choose a local subvolume (i.e. Brick) to read from if read-subvolume is not explicitly set.</td>
-</tr>
-<tr>
-<td align="left">cluster.self-heal-readdir-size</td>
-<td align="center">1KB</td>
-<td align="left">readdirp size for performing entry self-heal</td>
-</tr>
-<tr>
-<td align="left">cluster.ensure-durability</td>
-<td align="center">on</td>
-<td align="left">Afr performs fsyncs for transactions if this option is on to make sure the changelogs/data is written to the disk</td>
-</tr>
-<tr>
-<td align="left">cluster.consistent-metadata</td>
-<td align="center">no</td>
-<td align="left">If this option is enabled, readdirp will force lookups on those entries read whose read child is not the same as that of the parent. This will guarantee that all read operations on a file serve attributes from the same subvol as long as it holds a good copy of the file/dir.</td>
-</tr>
-<tr>
-<td align="left">cluster.stripe-block-size</td>
-<td align="center">128KB</td>
-<td align="left">Size of the stripe unit that would be read from or written to the striped servers.</td>
-</tr>
-<tr>
-<td align="left">cluster.stripe-coalesce</td>
-<td align="center">true</td>
-<td align="left">Enable/Disable coalesce mode to flatten striped files as stored on the server (i.e., eliminate holes caused by the traditional format).</td>
-</tr>
-<tr>
-<td align="left">cluster.server-quorum-type</td>
-<td align="center">(null)</td>
-<td align="left">This feature is on the server-side i.e. in glusterd. Whenever the glusterd on a machine observes that the quorum is not met, it brings down the bricks to prevent data split-brains. When the network connections are brought back up and the quorum is restored the bricks in the volume are brought back up.</td>
-</tr>
-<tr>
-<td align="left">cluster.server-quorum-ratio</td>
-<td align="center">(null)</td>
-<td align="left">Sets the quorum percentage for the trusted storage pool.</td>
-</tr>
-<tr>
-<td align="left">cluster.quorum-reads</td>
-<td align="center">no</td>
-<td align="left">If quorum-reads is “true” only allow reads if quorum is met when quorum is enabled.</td>
-</tr>
-<tr>
-<td align="left">diagnostics.latency-measurement</td>
-<td align="center">off</td>
-<td align="left">If on stats related to the latency of each operation would be tracked inside GlusterFS data-structures.</td>
-</tr>
-<tr>
-<td align="left">diagnostics.dump-fd-stats</td>
-<td align="center">off</td>
-<td align="left">If on stats related to file-operations would be tracked inside GlusterFS data-structures.</td>
-</tr>
-<tr>
-<td align="left">diagnostics.brick-log-level</td>
-<td align="center">INFO</td>
-<td align="left">Changes the log-level of the bricks</td>
-</tr>
-<tr>
-<td align="left">diagnostics.client-log-level</td>
-<td align="center">INFO</td>
-<td align="left">Changes the log-level of the clients</td>
-</tr>
-<tr>
-<td align="left">diagnostics.brick-sys-log-level</td>
-<td align="center">CRITICAL</td>
-<td align="left">Gluster’s syslog log-level</td>
-</tr>
-<tr>
-<td align="left">diagnostics.client-sys-log-level</td>
-<td align="center">CRITICAL</td>
-<td align="left">Gluster’s syslog log-level</td>
-</tr>
-<tr>
-<td align="left">diagnostics.brick-logger</td>
-<td align="center">null</td>
-<td align="left">null</td>
-</tr>
-<tr>
-<td align="left">diagnostics.client-logger</td>
-<td align="center">null</td>
-<td align="left">null</td>
-</tr>
-<tr>
-<td align="left">diagnostics.brick-log-format</td>
-<td align="center">null</td>
-<td align="left">null</td>
-</tr>
-<tr>
-<td align="left">diagnostics.client-log-format</td>
-<td align="center">null</td>
-<td align="left">null</td>
-</tr>
-<tr>
-<td align="left">diagnostics.brick-log-buf-size</td>
-<td align="center">5</td>
-<td align="left">null</td>
-</tr>
-<tr>
-<td align="left">diagnostics.client-log-buf-size</td>
-<td align="center">5</td>
-<td align="left">null</td>
-</tr>
-<tr>
-<td align="left">diagnostics.brick-log-flush-timeout</td>
-<td align="center">20</td>
-<td align="left">null</td>
-</tr>
-<tr>
-<td align="left">diagnostics.client-log-flush-timeout</td>
-<td align="center">20</td>
-<td align="left">null</td>
-</tr>
-<tr>
-<td align="left">disperse.background-heals</td>
-<td align="center">8</td>
-<td align="left">This option can be used to control number of parallel heals</td>
-</tr>
-<tr>
-<td align="left">disperse.heal-wait-qlength</td>
-<td align="center">128</td>
-<td align="left">This option can be used to control number of heals that can wait</td>
-</tr>
-<tr>
-<td align="left">disperse.read-policy</td>
-<td align="center">round-robin</td>
-<td align="left">inode-read fops happen only on ‘k’ number of bricks in n=k+m disperse subvolume. ‘round-robin’ selects the read subvolume using round-robin algo. ‘gfid-hash’ selects read subvolume based on hash of the gfid of that file/directory.</td>
-</tr>
-<tr>
-<td align="left">dht.force-readdirp</td>
-<td align="center">on</td>
-<td align="left">This option if set to ON, forces the use of readdirp, and hence also displays the stats of the files.</td>
-</tr>
-<tr>
-<td align="left">performance.cache-max-file-size</td>
-<td align="center">0</td>
-<td align="left">Maximum file size which would be cached by the io-cache translator.</td>
-</tr>
-<tr>
-<td align="left">performance.cache-min-file-size</td>
-<td align="center">0</td>
-<td align="left">Minimum file size which would be cached by the io-cache translator.</td>
-</tr>
-<tr>
-<td align="left">performance.cache-refresh-timeout</td>
-<td align="center">1</td>
-<td align="left">The cached data for a file will be retained till ‘cache-refresh-timeout’ seconds, after which data re-validation is performed.</td>
-</tr>
-<tr>
-<td align="left">performance.cache-priority</td>
-<td align="center"></td>
-<td align="left">Assigns priority to filenames with specific patterns so that when a page needs to be ejected out of the cache, the page of a file whose priority is the lowest will be ejected earlier</td>
-</tr>
-<tr>
-<td align="left">performance.cache-size</td>
-<td align="center">32MB</td>
-<td align="left">Size of the read cache.</td>
-</tr>
-<tr>
-<td align="left">performance.io-thread-count</td>
-<td align="center">16</td>
-<td align="left">Number of threads in IO threads translator which perform concurrent IO operations</td>
-</tr>
-<tr>
-<td align="left">performance.high-prio-threads</td>
-<td align="center">16</td>
-<td align="left">Max number of threads in IO threads translator which perform high priority IO operations at a given time</td>
-</tr>
-<tr>
-<td align="left">performance.normal-prio-threads</td>
-<td align="center">16</td>
-<td align="left">Max number of threads in IO threads translator which perform normal priority IO operations at a given time</td>
-</tr>
-<tr>
-<td align="left">performance.low-prio-threads</td>
-<td align="center">16</td>
-<td align="left">Max number of threads in IO threads translator which perform low priority IO operations at a given time</td>
-</tr>
-<tr>
-<td align="left">performance.least-prio-threads</td>
-<td align="center">1</td>
-<td align="left">Max number of threads in IO threads translator which perform least priority IO operations at a given time</td>
-</tr>
-<tr>
-<td align="left">performance.enable-least-priority</td>
-<td align="center">on</td>
-<td align="left">Enable/Disable least priority</td>
-</tr>
-<tr>
-<td align="left">performance.least-rate-limit</td>
-<td align="center">0</td>
-<td align="left">Max number of least priority operations to handle per-second</td>
-</tr>
-<tr>
-<td align="left">performance.flush-behind</td>
-<td align="center">on</td>
-<td align="left">If this option is set ON, instructs write-behind translator to perform flush in background, by returning success (or any errors, if any of previous writes were failed) to application even before flush FOP is sent to backend filesystem.</td>
-</tr>
-<tr>
-<td align="left">performance.nfs.flush-behind</td>
-<td align="center">on</td>
-<td align="left">If this option is set ON, instructs write-behind translator to perform flush in background, by returning success (or any errors, if any of previous writes were failed) to application even before flush FOP is sent to backend filesystem.</td>
-</tr>
-<tr>
-<td align="left">performance.write-behind-window-size</td>
-<td align="center">1MB</td>
-<td align="left">Size of the write-behind buffer for a single file (inode).</td>
-</tr>
-<tr>
-<td align="left">performance.nfs.write-behind-window-size</td>
-<td align="center">1MB</td>
-<td align="left">Size of the write-behind buffer for a single file (inode).</td>
-</tr>
-<tr>
-<td align="left">performance.strict-o-direct</td>
-<td align="center">off</td>
-<td align="left">This option when set to off, ignores the O_DIRECT flag.</td>
-</tr>
-<tr>
-<td align="left">performance.nfs.strict-o-direct</td>
-<td align="center">off</td>
-<td align="left">This option when set to off, ignores the O_DIRECT flag.</td>
-</tr>
-<tr>
-<td align="left">performance.strict-write-ordering</td>
-<td align="center">off</td>
-<td align="left">Do not let later writes overtake earlier writes even if they do not overlap</td>
-</tr>
-<tr>
-<td align="left">performance.nfs.strict-write-ordering</td>
-<td align="center">off</td>
-<td align="left">Do not let later writes overtake earlier writes even if they do not overlap</td>
-</tr>
-<tr>
-<td align="left">performance.lazy-open</td>
-<td align="center">yes</td>
-<td align="left">Perform open in the backend only when a necessary FOP arrives (e.g writev on the FD, unlink of the file). When option is disabled, perform backend open right after unwinding open().</td>
-</tr>
-<tr>
-<td align="left">performance.read-after-open</td>
-<td align="center">no</td>
-<td align="left">read is sent only after actual open happens and real fd is obtained, instead of doing on anonymous fd (similar to write)</td>
-</tr>
-<tr>
-<td align="left">performance.read-ahead-page-count</td>
-<td align="center">4</td>
-<td align="left">Number of pages that will be pre-fetched</td>
-</tr>
-<tr>
-<td align="left">performance.md-cache-timeout</td>
-<td align="center">1</td>
-<td align="left">Time period after which cache has to be refreshed</td>
-</tr>
-<tr>
-<td align="left">performance.write-behind</td>
-<td align="center">on</td>
-<td align="left">enable/disable write-behind translator in the volume.</td>
-</tr>
-<tr>
-<td align="left">performance.read-ahead</td>
-<td align="center">on</td>
-<td align="left">enable/disable read-ahead translator in the volume.</td>
-</tr>
-<tr>
-<td align="left">performance.readdir-ahead</td>
-<td align="center">off</td>
-<td align="left">enable/disable readdir-ahead translator in the volume.</td>
-</tr>
-<tr>
-<td align="left">performance.io-cache</td>
-<td align="center">on</td>
-<td align="left">enable/disable io-cache translator in the volume.</td>
-</tr>
-<tr>
-<td align="left">performance.quick-read</td>
-<td align="center">on</td>
-<td align="left">enable/disable quick-read translator in the volume.</td>
-</tr>
-<tr>
-<td align="left">performance.open-behind</td>
-<td align="center">on</td>
-<td align="left">enable/disable open-behind translator in the volume.</td>
-</tr>
-<tr>
-<td align="left">performance.stat-prefetch</td>
-<td align="center">on</td>
-<td align="left">enable/disable meta-data caching translator in the volume.</td>
-</tr>
-<tr>
-<td align="left">performance.client-io-threads</td>
-<td align="center">off</td>
-<td align="left">enable/disable io-threads translator in the client graph of volume.</td>
-</tr>
-<tr>
-<td align="left">performance.nfs.write-behind</td>
-<td align="center">on</td>
-<td align="left">enable/disable write-behind translator in the volume</td>
-</tr>
-<tr>
-<td align="left">performance.force-readdirp</td>
-<td align="center">true</td>
-<td align="left">Convert all readdir requests to readdirplus to collect stat info on each entry.</td>
-</tr>
-<tr>
-<td align="left">features.encryption</td>
-<td align="center">off</td>
-<td align="left">enable/disable client-side encryption for the volume.</td>
-</tr>
-<tr>
-<td align="left">encryption.master-key</td>
-<td align="center">null</td>
-<td align="left">Pathname of regular file which contains master volume key</td>
-</tr>
-<tr>
-<td align="left">encryption.data-key-size</td>
-<td align="center">256</td>
-<td align="left">Data key size (bits)</td>
-</tr>
-<tr>
-<td align="left">encryption.block-size</td>
-<td align="center">4096</td>
-<td align="left">Atom size (bits)</td>
-</tr>
-<tr>
-<td align="left">nfs.enable-ino32</td>
-<td align="center">no</td>
-<td align="left">For nfs clients or apps that do not support 64-bit inode numbers, use this option to make NFS return 32-bit inode numbers instead. Disabled by default, so NFS returns 64-bit inode numbers.</td>
-</tr>
-<tr>
-<td align="left">nfs.mem-factor</td>
-<td align="center">15</td>
-<td align="left">Use this option to make NFS be faster on systems by using more memory. This option specifies a multiple that determines the total amount of memory used. Default value is 15. Increase to use more memory in order to improve performance for certain use cases.Please consult gluster-users list before using this option.</td>
-</tr>
-<tr>
-<td align="left">nfs.export-dirs</td>
-<td align="center">on</td>
-<td align="left">By default, all subvolumes of nfs are exported as individual exports. There are cases where a subdirectory or subdirectories in the volume need to be exported separately. Enabling this option allows any directory on a volumes to be exported separately.Directory exports are enabled by default.</td>
-</tr>
-<tr>
-<td align="left">nfs.export-volumes</td>
-<td align="center">on</td>
-<td align="left">Enable or disable exporting whole volumes, instead if used in conjunction with nfs3.export-dir, can allow setting up only subdirectories as exports. On by default.</td>
-</tr>
-<tr>
-<td align="left">nfs.addr-namelookup</td>
-<td align="center">off</td>
-<td align="left">Users have the option of turning on name lookup for incoming client connections using this option. Use this option to turn on name lookups during address-based authentication. Turning this on will enable you to use hostnames in nfs.rpc-auth-* filters. In some setups, the name server can take too long to reply to DNS queries resulting in timeouts of mount requests. By default, name lookup is off</td>
-</tr>
-<tr>
-<td align="left">nfs.dynamic-volumes</td>
-<td align="center">off</td>
-<td align="left">Internal option set to tell gnfs to use a different scheme for encoding file handles when DVM is being used.</td>
-</tr>
-<tr>
-<td align="left">nfs.register-with-portmap</td>
-<td align="center">on</td>
-<td align="left">For systems that need to run multiple nfs servers, only one registration is possible with portmap service. Use this option to turn off portmap registration for Gluster NFS. On by default</td>
-</tr>
-<tr>
-<td align="left">nfs.outstanding-rpc-limit</td>
-<td align="center">16</td>
-<td align="left">Parameter to throttle the number of incoming RPC requests from a client. 0 means no limit (can potentially run out of memory)</td>
-</tr>
-<tr>
-<td align="left">nfs.port</td>
-<td align="center">2049</td>
-<td align="left">Use this option on systems that need Gluster NFS to be associated with a non-default port number.</td>
-</tr>
-<tr>
-<td align="left">nfs.rpc-auth-unix</td>
-<td align="center">on</td>
-<td align="left">Disable or enable the AUTH_UNIX authentication type for a particular exported volume overriding defaults and general setting for AUTH_UNIX scheme. Must always be enabled for better interoperability. However, can be disabled if needed. Enabled by default.</td>
-</tr>
-<tr>
-<td align="left">nfs.rpc-auth-null</td>
-<td align="center">on</td>
-<td align="left">Disable or enable the AUTH_NULL authentication type for a particular exported volume overriding defaults and general setting for AUTH_NULL. Must always be enabled. This option is here only to avoid unrecognized option warnings.</td>
-</tr>
-<tr>
-<td align="left">nfs.rpc-auth-allow</td>
-<td align="center">all</td>
-<td align="left">Allow a comma separated list of addresses and/or hostnames to connect to the server. By default, all connections are allowed. This allows users to define a rule for a specific exported volume.</td>
-</tr>
-<tr>
-<td align="left">nfs.rpc-auth-reject</td>
-<td align="center">none</td>
-<td align="left">Reject a comma separated list of addresses and/or hostnames from connecting to the server. By default, all connections are allowed. This allows users to define a rule for a specific exported volume.</td>
-</tr>
-<tr>
-<td align="left">nfs.ports-insecure</td>
-<td align="center">off</td>
-<td align="left">Allow client connections from unprivileged ports. By default only privileged ports are allowed. Use this option to enable or disable insecure ports for a specific subvolume and to override the global setting set by the previous option.</td>
-</tr>
-<tr>
-<td align="left">nfs.transport-type</td>
-<td align="center">(null)</td>
-<td align="left">Specifies the nfs transport type. Valid transport types are ‘tcp’ and ‘rdma’.</td>
-</tr>
-<tr>
-<td align="left">nfs.trusted-sync</td>
-<td align="center">off</td>
-<td align="left">All writes and COMMIT requests are treated as async. This implies that no write requests are guaranteed to be on server disks when the write reply is received at the NFS client. Trusted sync includes trusted-write behaviour. Off by default.</td>
-</tr>
-<tr>
-<td align="left">nfs.trusted-write</td>
-<td align="center">off</td>
-<td align="left">On an UNSTABLE write from client, return STABLE flag to force client to not send a COMMIT request. In some environments, combined with a replicated GlusterFS setup, this option can improve write performance. This flag allows user to trust Gluster replication logic to sync data to the disks and recover when required. COMMIT requests if received will be handled in a default manner by fsyncing. STABLE writes are still handled in a sync manner. Off by default.</td>
-</tr>
-<tr>
-<td align="left">nfs.volume-access</td>
-<td align="center">read-write</td>
-<td align="left">Type of access desired for this subvolume: read-only, read-write(default)</td>
-</tr>
-<tr>
-<td align="left">nfs.export-dir</td>
-<td align="center"></td>
-<td align="left">By default, all subvolumes of nfs are exported as individual exports. There are cases where a subdirectory or subdirectories in the volume need to be exported separately. This option can also be used in conjunction with nfs3.export-volumes option to restrict exports only to the subdirectories specified through this option. Must be an absolute path. Along with path allowed list of IPs/hostname can be associated with each subdirectory. If provided connection will allowed only from these IPs. By default connections from all IPs are allowed. Format:[(hostspec[|hostspec|…])][,…]. Where hostspec can be an IP address, hostname or an IP range in CIDR notation. e.g. /foo(192.168.1.0/24|host1|10.1.1.8),/host2. NOTE: Care must be taken while configuring this option as invalid entries and/or unreachable DNS servers can introduce unwanted delay in all the mount calls.</td>
-</tr>
-<tr>
-<td align="left">nfs.disable</td>
-<td align="center">false</td>
-<td align="left">This option is used to start or stop the NFS server for individual volumes.</td>
-</tr>
-<tr>
-<td align="left">nfs.nlm</td>
-<td align="center">on</td>
-<td align="left">This option, if set to ‘off’, disables NLM server by not registering the service with the portmapper. Set it to ‘on’ to re-enable it. Default value: ‘on’</td>
-</tr>
-<tr>
-<td align="left">nfs.acl</td>
-<td align="center">on</td>
-<td align="left">This option is used to control ACL support for NFS.</td>
-</tr>
-<tr>
-<td align="left">nfs.mount-udp</td>
-<td align="center">off</td>
-<td align="left">set the option to ‘on’ to enable mountd on UDP. Required for some Solaris and AIX NFS clients. The need for enabling this option often depends on the usage of NLM.</td>
-</tr>
-<tr>
-<td align="left">nfs.mount-rmtab</td>
-<td align="center">/var/lib/glusterd/nfs/rmtab</td>
-<td align="left">Set the location of the cache file that is used to list all the NFS-clients that have connected through the MOUNT protocol. If this is on shared storage, all GlusterFS servers will update and output (with ‘showmount’) the same list. Set to “/-“ to disable.</td>
-</tr>
-<tr>
-<td align="left">nfs.drc</td>
-<td align="center">off</td>
-<td align="left">Enable Duplicate Request Cache in gNFS server to improve correctness of non-idempotent operations like write, delete, link, et al</td>
-</tr>
-<tr>
-<td align="left">nfs.drc-size</td>
-<td align="center">0x20000</td>
-<td align="left">Sets the number of non-idempotent requests to cache in drc</td>
-</tr>
-<tr>
-<td align="left">nfs.read-size</td>
-<td align="center">(1 * 1048576ULL)</td>
-<td align="left">Size in which the client should issue read requests to the Gluster NFSv3 server. Must be a multiple of 4KB (4096). Min and Max supported values are 4KB (4096) and 1MB (1048576) respectively. If the specified value is within the supported range but not a multiple of 4096, it is rounded up to the nearest multiple of 4096.</td>
-</tr>
-<tr>
-<td align="left">nfs.write-size</td>
-<td align="center">(1 * 1048576ULL)</td>
-<td align="left">Size in which the client should issue write requests to the Gluster NFSv3 server. Must be a multiple of 1KB (1024). Min and Max supported values are 4KB (4096) and 1MB(1048576) respectively. If the specified value is within the supported range but not a multiple of 4096, it is rounded up to the nearest multiple of 4096.</td>
-</tr>
-<tr>
-<td align="left">nfs.readdir-size</td>
-<td align="center">(1 * 1048576ULL)</td>
-<td align="left">Size in which the client should issue directory reading requests to the Gluster NFSv3 server. Must be a multiple of 1KB (1024). Min and Max supported values are 4KB (4096) and 1MB (1048576) respectively.If the specified value is within the supported range but not a multiple of 4096, it is rounded up to the nearest multiple of 4096.</td>
-</tr>
-<tr>
-<td align="left">nfs.exports-auth-enable</td>
-<td align="center">(null)</td>
-<td align="left">Set the option to ‘on’ to enable exports/netgroup authentication in the NFS server and mount daemon.</td>
-</tr>
-<tr>
-<td align="left">nfs.auth-refresh-interval-sec</td>
-<td align="center">(null)</td>
-<td align="left">Frequency in seconds that the daemon should check for changes in the exports/netgroups file.</td>
-</tr>
-<tr>
-<td align="left">nfs.auth-cache-ttl-sec</td>
-<td align="center">(null)</td>
-<td align="left">Sets the TTL of an entry in the auth cache. Value is in seconds.</td>
-</tr>
-<tr>
-<td align="left">ganesha.enable</td>
-<td align="center">off</td>
-<td align="left">export volume via NFS-Ganesha</td>
-</tr>
-<tr>
-<td align="left">network.frame-timeout</td>
-<td align="center">1800</td>
-<td align="left">Time frame after which the (file) operation would be declared as dead, if the server does not respond for a particular (file) operation.</td>
-</tr>
-<tr>
-<td align="left">network.ping-timeout</td>
-<td align="center">42</td>
-<td align="left">Time duration for which the client waits to check if the server is responsive.</td>
-</tr>
-<tr>
-<td align="left">network.tcp-window-size</td>
-<td align="center">null</td>
-<td align="left">Specifies the window size for tcp socket.</td>
-</tr>
-<tr>
-<td align="left">network.remote-dio</td>
-<td align="center">disable</td>
-<td align="left">If enabled, in open() and creat() calls, O_DIRECT flag will be filtered at the client protocol level so server will still continue to cache the file. This works similar to NFS’s behavior of O_DIRECT</td>
-</tr>
-<tr>
-<td align="left">network.inode-lru-limit</td>
-<td align="center">16384</td>
-<td align="left">Specifies the maximum megabytes of memory to be used in the inode cache.</td>
-</tr>
-<tr>
-<td align="left">network.compression</td>
-<td align="center">off</td>
-<td align="left">enable/disable network compression translator</td>
-</tr>
-<tr>
-<td align="left">network.compression.window-size</td>
-<td align="center">-15</td>
-<td align="left">Size of the zlib history buffer.</td>
-</tr>
-<tr>
-<td align="left">network.compression.mem-level</td>
-<td align="center">8</td>
-<td align="left">Memory allocated for internal compression state. 1 uses minimum memory but is slow and reduces compression ratio; memLevel=9 uses maximum memory for optimal speed. The default value is 8.</td>
-</tr>
-<tr>
-<td align="left">network.compression.min-size</td>
-<td align="center">0</td>
-<td align="left">Data is compressed only when its size exceeds this.</td>
-</tr>
-<tr>
-<td align="left">network.compression.compression-level</td>
-<td align="center">-1</td>
-<td align="left">Compression levels 0 : no compression, 1 : best speed, 9 : best compression, -1 : default compression</td>
-</tr>
-<tr>
-<td align="left">features.lock-heal</td>
-<td align="center">off</td>
-<td align="left">When the connection to client is lost, server cleans up all the locks held by the client. After the connection is restored, the client reacquires (heals) the fcntl locks released by the server.</td>
-</tr>
-<tr>
-<td align="left">features.grace-timeout</td>
-<td align="center">10</td>
-<td align="left">Specifies the duration for the lock state to be maintained on the client after a network disconnection. Range 10-1800 seconds.</td>
-</tr>
-<tr>
-<td align="left">features.file-snapshot</td>
-<td align="center">off</td>
-<td align="left">enable/disable file-snapshot feature in the volume.</td>
-</tr>
-<tr>
-<td align="left">features.uss</td>
-<td align="center">off</td>
-<td align="left">enable/disable User Serviceable Snapshots on the volume.</td>
-</tr>
-<tr>
-<td align="left">features.snapshot-directory</td>
-<td align="center">.snaps</td>
-<td align="left">Entry point directory for entering snapshot world</td>
-</tr>
-<tr>
-<td align="left">features.show-snapshot-directory</td>
-<td align="center">off</td>
-<td align="left">show entry point in readdir output of snapdir-entry-path which is set by samba</td>
-</tr>
-<tr>
-<td align="left">features.quota-deem-statfs</td>
-<td align="center">off</td>
-<td align="left">If set to on, it takes quota limits intoconsideration while estimating fs size. (df command) (Default is off).</td>
-</tr>
-<tr>
-<td align="left">features.read-only</td>
-<td align="center">off</td>
-<td align="left">When “on”, makes a volume read-only. It is turned “off” by default.</td>
-</tr>
-<tr>
-<td align="left">features.worm</td>
-<td align="center">off</td>
-<td align="left">When “on”, makes a volume get write once read many feature. It is turned “off” by default.</td>
-</tr>
-<tr>
-<td align="left">features.barrier-timeout</td>
-<td align="center">120</td>
-<td align="left">After ‘timeout’ seconds since the time ‘barrier’ option was set to “on”, acknowledgements to file operations are no longer blocked and previously blocked acknowledgements are sent to the application</td>
-</tr>
-<tr>
-<td align="left">features.trash</td>
-<td align="center">off</td>
-<td align="left">Enable/disable trash translator</td>
-</tr>
-<tr>
-<td align="left">features.trash-dir</td>
-<td align="center">.trashcan</td>
-<td align="left">Directory for trash files</td>
-</tr>
-<tr>
-<td align="left">features.trash-eliminate-path</td>
-<td align="center">(null)</td>
-<td align="left">Eliminate paths to be excluded from trashing</td>
-</tr>
-<tr>
-<td align="left">features.trash-max-filesize</td>
-<td align="center">5MB</td>
-<td align="left">Maximum size of file that can be moved to trash</td>
-</tr>
-<tr>
-<td align="left">features.trash-internal-op</td>
-<td align="center">off</td>
-<td align="left">Enable/disable trash translator for internal operations</td>
-</tr>
-<tr>
-<td align="left">features.ctr-enabled</td>
-<td align="center">off</td>
-<td align="left">Enable CTR xlator</td>
-</tr>
-<tr>
-<td align="left">features.record-counters</td>
-<td align="center">off</td>
-<td align="left">Its a Change Time Recorder Xlator option to enable recording write and read heat counters. The default is disabled. If enabled, “cluster.write-freq-threshold” and “cluster.read-freq-threshold” defined the number of writes (or reads) to a given file are needed before triggering migration.</td>
-</tr>
-<tr>
-<td align="left">features.ctr-sql-db-cachesize</td>
-<td align="center">1000</td>
-<td align="left">Defines the cache size of the sqlite database of changetimerecorder xlator.The input to this option is in pages.Each page is 4096 bytes. Default value is 1000 pages i.e ~ 4 MB. The max value is 262144 pages i.e 1 GB and the min value is 1000 pages i.e ~ 4 MB.</td>
-</tr>
-<tr>
-<td align="left">features.ctr-sql-db-wal-autocheckpoint</td>
-<td align="center">1000</td>
-<td align="left">Defines the autocheckpoint of the sqlite database of changetimerecorder. The input to this option is in pages. Each page is 4096 bytes. Default value is 1000 pages i.e ~ 4 MB.The max value is 262144 pages i.e 1 GB and the min value is 1000 pages i.e ~4 MB.</td>
-</tr>
-<tr>
-<td align="left">features.shard-block-size</td>
-<td align="center">4MB</td>
-<td align="left">The size unit used to break a file into multiple chunks</td>
-</tr>
-<tr>
-<td align="left">features.cache-invalidation</td>
-<td align="center">off</td>
-<td align="left">When “on”, sends cache-invalidation notifications.</td>
-</tr>
-<tr>
-<td align="left">features.cache-invalidation-timeout</td>
-<td align="center">60</td>
-<td align="left">After ‘timeout’ seconds since the time client accessed any file, cache-invalidation notifications are no longer sent to that client.</td>
-</tr>
-<tr>
-<td align="left">client.event-threads</td>
-<td align="center">2</td>
-<td align="left">Specifies the number of event threads to execute in parallel. Larger values would help process responses faster, depending on available processing power. Range 1-32 threads.</td>
-</tr>
-<tr>
-<td align="left">auth.allow</td>
-<td align="center">null</td>
-<td align="left">Allow a comma separated list of addresses and/or hostnames to connect to the server. Option auth.reject overrides this option. By default, all connections are allowed.</td>
-</tr>
-<tr>
-<td align="left">auth.reject</td>
-<td align="center">null</td>
-<td align="left">Reject a comma separated list of addresses and/or hostnames to connect to the server. This option overrides the auth.allow option. By default, all connections are allowed.</td>
-</tr>
-<tr>
-<td align="left">server.root-squash</td>
-<td align="center">off</td>
-<td align="left">Map requests from uid/gid 0 to the anonymous uid/gid. Note that this does not apply to any other uids or gids that might be equally sensitive, such as user bin or group staff.</td>
-</tr>
-<tr>
-<td align="left">server.anonuid</td>
-<td align="center">65534</td>
-<td align="left">value of the uid used for the anonymous user/nfsnobody when root-squash is enabled.</td>
-</tr>
-<tr>
-<td align="left">server.anongid</td>
-<td align="center">65534</td>
-<td align="left">value of the gid used for the anonymous user/nfsnobody when root-squash is enabled.</td>
-</tr>
-<tr>
-<td align="left">server.statedump-path</td>
-<td align="center">/var/run/gluster</td>
-<td align="left">Specifies directory in which gluster should save its statedumps.</td>
-</tr>
-<tr>
-<td align="left">server.outstanding-rpc-limit</td>
-<td align="center">64</td>
-<td align="left">Parameter to throttle the number of incoming RPC requests from a client. 0 means no limit (can potentially run out of memory)</td>
-</tr>
-<tr>
-<td align="left">server.manage-gids</td>
-<td align="center">off</td>
-<td align="left">Resolve groups on the server-side.</td>
-</tr>
-<tr>
-<td align="left">server.dynamic-auth</td>
-<td align="center">on</td>
-<td align="left">When ‘on’ perform dynamic authentication of volume options in order to allow/terminate client transport connection immediately in response to *.allow | *.reject volume set options.</td>
-</tr>
-<tr>
-<td align="left">server.gid-timeout</td>
-<td align="center">300</td>
-<td align="left">Timeout in seconds for the cached groups to expire.</td>
-</tr>
-<tr>
-<td align="left">server.event-threads</td>
-<td align="center">2</td>
-<td align="left">Specifies the number of event threads to execute in parallel. Larger values would help process responses faster, depending on available processing power. Range 1-32 threads.</td>
-</tr>
-<tr>
-<td align="left">ssl.own-cert</td>
-<td align="center">null</td>
-<td align="left">SSL certificate. Ignored if SSL is not enabled.</td>
-</tr>
-<tr>
-<td align="left">ssl.private-key</td>
-<td align="center">null</td>
-<td align="left">SSL private key. Ignored if SSL is not enabled.</td>
-</tr>
-<tr>
-<td align="left">ssl.ca-list</td>
-<td align="center">null</td>
-<td align="left">SSL CA list. Ignored if SSL is not enabled.</td>
-</tr>
-<tr>
-<td align="left">ssl.crl-path</td>
-<td align="center">null</td>
-<td align="left">Path to directory containing CRL. Ignored if SSL is not enabled.</td>
-</tr>
-<tr>
-<td align="left">ssl.certificate-depth</td>
-<td align="center">null</td>
-<td align="left">Maximum certificate-chain depth. If zero, the peer’s certificate itself must be in the local certificate list. Otherwise, there may be up to N signing certificates between the peer’s and the local list. Ignored if SSL is not enabled.</td>
-</tr>
-<tr>
-<td align="left">ssl.cipher-list</td>
-<td align="center">null</td>
-<td align="left">Allowed SSL ciphers. Ignored if SSL is not enabled.</td>
-</tr>
-<tr>
-<td align="left">ssl.dh-param</td>
-<td align="center">null</td>
-<td align="left">DH parameters file. Ignored if SSL is not enabled.</td>
-</tr>
-<tr>
-<td align="left">ssl.ec-curve</td>
-<td align="center">null</td>
-<td align="left">ECDH curve name. Ignored if SSL is not enabled.</td>
-</tr>
-<tr>
-<td align="left">storage.linux-aio</td>
-<td align="center">off</td>
-<td align="left">Support for native Linux AIO</td>
-</tr>
-<tr>
-<td align="left">storage.batch-fsync-mode</td>
-<td align="center">reverse-fsync</td>
-<td align="left">Possible values: syncfs: Perform one syncfs() on behalf oa batchof fsyncs. syncfs-single-fsync: Perform one syncfs() on behalf of a batch of fsyncs and one fsync() per batch. syncfs-reverse-fsync: Preform one syncfs() on behalf of a batch of fsyncs and fsync() each file in the batch in reverse order. reverse-fsync: Perform fsync() of each file in the batch in reverse order.</td>
-</tr>
-<tr>
-<td align="left">storage.batch-fsync-delay-usec</td>
-<td align="center">0</td>
-<td align="left">Num of usecs to wait for aggregating fsync requests</td>
-</tr>
-<tr>
-<td align="left">storage.owner-uid</td>
-<td align="center">-1</td>
-<td align="left">Support for setting uid of brick’s owner</td>
-</tr>
-<tr>
-<td align="left">storage.owner-gid</td>
-<td align="center">-1</td>
-<td align="left">Support for setting gid of brick’s owner</td>
-</tr>
-<tr>
-<td align="left">storage.node-uuid-pathinfo</td>
-<td align="center">off</td>
-<td align="left">return glusterd’s node-uuid in pathinfo xattr string instead of hostname</td>
-</tr>
-<tr>
-<td align="left">storage.health-check-interval</td>
-<td align="center">30</td>
-<td align="left">Interval in seconds for a filesystem health check, set to 0 to disable</td>
-</tr>
-<tr>
-<td align="left">storage.build-pgfid</td>
-<td align="center">off</td>
-<td align="left">Enable placeholders for gfid to path conversion</td>
-</tr>
-<tr>
-<td align="left">storage.bd-aio</td>
-<td align="center">off</td>
-<td align="left">Support for native Linux AIO</td>
-</tr>
-</tbody></table>
-<h2 id="基本GlusterFS的优化样例"><a href="#基本GlusterFS的优化样例" class="headerlink" title="基本GlusterFS的优化样例"></a>基本GlusterFS的优化样例</h2><table>
-<thead>
-<tr>
-<th align="left">选项</th>
-<th align="center">配置</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">cluster.server-quorum-type</td>
-<td align="center">server</td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">cluster.quorum-type</td>
-<td align="center">auto</td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">network.remote-dio</td>
-<td align="center">enable</td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">cluster.eager-lock</td>
-<td align="center">enable</td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">performance.stat-prefetch</td>
-<td align="center">off</td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">performance.io-cache</td>
-<td align="center">off</td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">performance.read-ahead</td>
-<td align="center">off</td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">performance.quick-read</td>
-<td align="center">off</td>
-<td align="left"></td>
-</tr>
-<tr>
-<td align="left">performance.readdir-ahead</td>
-<td align="center"></td>
-<td align="left"></td>
-</tr>
-</tbody></table>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/Redis%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/16/Redis%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B/" class="post-title-link" itemprop="url">Redis复制过程</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-16 17:51:11 / Modified: 17:56:29" itemprop="dateCreated datePublished" datetime="2020-04-16T17:51:11+08:00">2020-04-16</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="how-redis-do-replication"><a href="#how-redis-do-replication" class="headerlink" title="how redis do replication"></a>how redis do replication</h3><p><img src="/2020/04/16/Redis%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B/2582954-c87cc2da4707fecf.jpg" alt></p>
-<ul>
-<li>step 1:add callback for server cron job</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;location:server.c</span><br><span class="line">&#x2F;&#x2F;fucntion:setting callback for timeout</span><br><span class="line">if (aeCreateTimeEvent(server.el, 1, serverCron, NULL, NULL) &#x3D;&#x3D; AE_ERR) &#123;</span><br><span class="line">      serverPanic(&quot;Can&#39;t create event loop timers.&quot;);</span><br><span class="line">      exit(1);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>step 2:call replication for each 1000 seconds</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;location:server.c</span><br><span class="line">&#x2F;&#x2F;function:serverCron,crontab for redis-server</span><br><span class="line">run_with_period(1000) replicationCron();</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>step 3:core replication cron job</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;location:replication.c</span><br><span class="line">&#x2F;&#x2F;function: response for redis replication </span><br><span class="line">&#x2F;* Replication cron function, called 1 time per second. *&#x2F;</span><br><span class="line">void replicationCron(void) &#123;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">     &#x2F;* Check if we should connect to a MASTER *&#x2F;</span><br><span class="line">    if (server.repl_state &#x3D;&#x3D; REPL_STATE_CONNECT) &#123;</span><br><span class="line">        if (connectWithMaster() &#x3D;&#x3D; C_OK) &#123;</span><br><span class="line">            serverLog(LL_NOTICE,&quot;MASTER &lt;-&gt; REPLICA sync started&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;；</span><br><span class="line">  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int connectWithMaster(void) &#123;</span><br><span class="line">    int fd;</span><br><span class="line">    fd &#x3D; anetTcpNonBlockBestEffortBindConnect(NULL,</span><br><span class="line">        server.masterhost,server.masterport,NET_FIRST_BIND_ADDR);</span><br><span class="line">    &#x2F;&#x2F; fd of master socket </span><br><span class="line">    aeCreateFileEvent(server.el,fd,AE_READABLE|AE_WRITABLE,syncWithMaster,NULL)；</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void syncWithMaster(aeEventLoop *el, int fd, void *privdata, int mask) &#123;</span><br><span class="line"></span><br><span class="line">    &#x2F;* Send a PING to check the master is able to reply without errors. *&#x2F;</span><br><span class="line">    sendSynchronousCommand(SYNC_CMD_WRITE,fd,&quot;PING&quot;,NULL);</span><br><span class="line">    </span><br><span class="line">    &#x2F;* Receive the PONG command. *&#x2F;</span><br><span class="line">    sendSynchronousCommand(SYNC_CMD_READ,fd,NULL);</span><br><span class="line"></span><br><span class="line">    &#x2F;* AUTH with the master if required. *&#x2F;</span><br><span class="line">    sendSynchronousCommand(SYNC_CMD_WRITE,fd,&quot;AUTH&quot;,server.masterauth,NULL);</span><br><span class="line">          </span><br><span class="line"></span><br><span class="line">    &#x2F;* Receive AUTH reply. *&#x2F;</span><br><span class="line">    sendSynchronousCommand(SYNC_CMD_READ,fd,NULL);</span><br><span class="line">    </span><br><span class="line">    &#x2F;* Set the slave port, so that Master&#39;s INFO command can list the</span><br><span class="line">     * slave listening port correctly. *&#x2F;</span><br><span class="line">     sendSynchronousCommand(SYNC_CMD_WRITE,fd,&quot;REPLCONF&quot;,</span><br><span class="line">                &quot;listening-port&quot;,port, NULL);</span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">    &#x2F;* Receive REPLCONF listening-port reply. *&#x2F;</span><br><span class="line">    sendSynchronousCommand(SYNC_CMD_READ,fd,NULL);</span><br><span class="line"></span><br><span class="line">    &#x2F;* Set the slave ip, so that Master&#39;s INFO command can list the</span><br><span class="line">     * slave IP address port correctly in case of port forwarding or NAT. *&#x2F;</span><br><span class="line">     sendSynchronousCommand(SYNC_CMD_WRITE,fd,&quot;REPLCONF&quot;,</span><br><span class="line">                &quot;ip-address&quot;,server.slave_announce_ip, NULL);</span><br><span class="line"></span><br><span class="line">    &#x2F;* Receive REPLCONF ip-address reply. *&#x2F;</span><br><span class="line">    sendSynchronousCommand(SYNC_CMD_READ,fd,NULL);</span><br><span class="line">      </span><br><span class="line">    &#x2F;* Inform the master of our (slave) capabilities.</span><br><span class="line">     *</span><br><span class="line">     * EOF: supports EOF-style RDB transfer for diskless replication.</span><br><span class="line">     * PSYNC2: supports PSYNC v2, so understands +CONTINUE &lt;new repl ID&gt;.</span><br><span class="line">     *</span><br><span class="line">     * The master will ignore capabilities it does not understand. *&#x2F;</span><br><span class="line">     sendSynchronousCommand(SYNC_CMD_WRITE,fd,&quot;REPLCONF&quot;,</span><br><span class="line">                &quot;capa&quot;,&quot;eof&quot;,&quot;capa&quot;,&quot;psync2&quot;,NULL);</span><br><span class="line">     </span><br><span class="line">    </span><br><span class="line">     </span><br><span class="line">    &#x2F;* Receive CAPA reply. *&#x2F;</span><br><span class="line">    sendSynchronousCommand(SYNC_CMD_READ,fd,NULL)；</span><br><span class="line">      </span><br><span class="line"></span><br><span class="line">    &#x2F;* Try a partial resynchonization. If we don&#39;t have a cached master</span><br><span class="line">     * slaveTryPartialResynchronization() will at least try to use PSYNC</span><br><span class="line">     * to start a full resynchronization so that we get the master run id</span><br><span class="line">     * and the global offset, to try a partial resync at the next</span><br><span class="line">     * reconnection attempt. *&#x2F;</span><br><span class="line">    slaveTryPartialResynchronization(fd,0) &#123;</span><br><span class="line">     &#x2F;* If we reached this point, we are able to perform a partial resync:</span><br><span class="line">     </span><br><span class="line">          &#x2F;* Issue the PSYNC command *&#x2F;</span><br><span class="line">        reply &#x3D; sendSynchronousCommand(SYNC_CMD_WRITE,fd,&quot;PSYNC&quot;,psync_replid,psync_offset,NULL)</span><br><span class="line">        &#123;</span><br><span class="line">         &#x2F;* command of up,will call syncCommand of master node</span><br><span class="line">          &#x2F;* SYNC and PSYNC command implemenation. *&#x2F;</span><br><span class="line">          </span><br><span class="line">          &#x2F;&#x2F; PSYNC command will call syncCommand function</span><br><span class="line">          void syncCommand(client *c) &#123;</span><br><span class="line">            masterTryPartialResynchronization(c) &#123;</span><br><span class="line">                &#x2F;&#x2F; write master replid to slave</span><br><span class="line">                </span><br><span class="line">                if (c-&gt;slave_capa &amp; SLAVE_CAPA_PSYNC2) &#123;</span><br><span class="line">                    buflen &#x3D; snprintf(buf,sizeof(buf),&quot;+CONTINUE %s\r\n&quot;, server.replid);</span><br><span class="line">                 &#125; else &#123;</span><br><span class="line">                    buflen &#x3D; snprintf(buf,sizeof(buf),&quot;+CONTINUE\r\n&quot;);</span><br><span class="line">                &#125;</span><br><span class="line">                if (write(c-&gt;fd,buf,buflen) !&#x3D; buflen) &#123;</span><br><span class="line">                freeClientAsync(c);</span><br><span class="line">            &#125;</span><br><span class="line">          </span><br><span class="line">           * 1) Set client state to make it a slave.</span><br><span class="line">           * 2) Inform the client we can continue with +CONTINUE</span><br><span class="line">          * 3) Send the backlog data (from the offset to the end) to the slave. *&#x2F;</span><br><span class="line">          c-&gt;flags |&#x3D; CLIENT_SLAVE;</span><br><span class="line">          c-&gt;replstate &#x3D; SLAVE_STATE_ONLINE;</span><br><span class="line">          c-&gt;repl_ack_time &#x3D; server.unixtime;</span><br><span class="line">          c-&gt;repl_put_online_on_ack &#x3D; 0;</span><br><span class="line">          listAddNodeTail(server.slaves,c);</span><br><span class="line">          startBgsaveForReplication(c-&gt;slave_capa) &#123;</span><br><span class="line">               &#x2F;&#x2F; proto</span><br><span class="line">               &#x2F;&#x2F;int startBgsaveForReplication(int mincapa) </span><br><span class="line">                int retval;</span><br><span class="line">                </span><br><span class="line">                &#x2F;&#x2F;socket_target init according slave_capa_eof</span><br><span class="line">                int socket_target &#x3D; server.repl_diskless_sync &amp;&amp; (mincapa &amp; SLAVE_CAPA_EOF);</span><br><span class="line">                rdbSaveInfo rsi, *rsiptr;</span><br><span class="line">                rsiptr &#x3D; rdbPopulateSaveInfo(&amp;rsi);</span><br><span class="line">                </span><br><span class="line">                if (rsiptr) &#123;</span><br><span class="line">                  if (socket_target)</span><br><span class="line">                      &#x2F;&#x2F; mark rio with end flag,and send to slave</span><br><span class="line">                      rdbSaveToSlavesSockets(rsiptr)&#123;</span><br><span class="line">                         if(fork()&#x3D;&#x3D;0)&#123;</span><br><span class="line">                              CHILD_INFO_TYPE_RDB</span><br><span class="line">                         &#125;</span><br><span class="line">                      &#125;</span><br><span class="line">                  else</span><br><span class="line">                      &#x2F;&#x2F; 1. bgsave current rdb.dump with background</span><br><span class="line">                      rdbSaveBackground(server.rdb_filename,rsiptr)&#123;</span><br><span class="line">                         if((childpid&#x3D;fork())&#x3D;&#x3D;0)&#123;</span><br><span class="line">                            &#x2F;&#x2F; redis server main process will wait util save all database in disk for finish</span><br><span class="line">                            rdbSave(rdb_filename);</span><br><span class="line">                            &#x2F;&#x2F; write CHILD_INFO_TYPE_RDB to parent process by pipe</span><br><span class="line">                            sendChildInfo(CHILD_INFO_TYPE_RDB）</span><br><span class="line">                         &#125;else&#123;</span><br><span class="line">                            server.rdb_child_pid &#x3D; childpid;</span><br><span class="line">                            server.rdb_child_type &#x3D; RDB_CHILD_TYPE_DISK;</span><br><span class="line">                         &#125;</span><br><span class="line">                      &#125;</span><br><span class="line">                 &#125;</span><br><span class="line">                 copyClientOutputBuffer(c,slave);</span><br><span class="line">                 if(!socket_target) &#123;</span><br><span class="line">                     &#x2F;&#x2F; 2.write replid and offset to slave</span><br><span class="line">                     replicationSetupSlaveForFullResync(c,slave-&gt;psync_initial_offset)</span><br><span class="line">                 &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        reply &#x3D; sendSynchronousCommand(SYNC_CMD_READ,fd,NULL);</span><br><span class="line">         &#x2F;* We are going to full resync, discard the cached master structure. *&#x2F;</span><br><span class="line">        replicationDiscardCachedMaster();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    psync_result &#x3D; slaveTryPartialResynchronization(fd,1);</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    &#x2F;* PSYNC failed or is not supported: we want our slaves to resync with us</span><br><span class="line">     * as well, if we have any sub-slaves. The master may transfer us an</span><br><span class="line">     * entirely different data set and we have no way to incrementally feed</span><br><span class="line">     * our slaves after that. *&#x2F;</span><br><span class="line">    disconnectSlaves(); &#x2F;* Force our slaves to resync with us as well. *&#x2F;</span><br><span class="line">    freeReplicationBacklog(); &#x2F;* Don&#39;t allow our chained slaves to PSYNC. *&#x2F;</span><br><span class="line"></span><br><span class="line">    &#x2F;* Fall back to SYNC if needed. Otherwise psync_result &#x3D;&#x3D; PSYNC_FULLRESYNC</span><br><span class="line">     * and the server.master_replid and master_initial_offset are</span><br><span class="line">     * already populated.  sync state,waited*&#x2F;</span><br><span class="line">     syncWrite(fd,&quot;SYNC\r\n&quot;,6,server.repl_syncio_timeout*1000) &#x3D;&#x3D; -1);</span><br><span class="line"></span><br><span class="line">    &#x2F;* Prepare a suitable temp file for bulk transfer *&#x2F;</span><br><span class="line">    while(maxtries--) &#123;</span><br><span class="line">        snprintf(tmpfile,256,</span><br><span class="line">            &quot;temp-%d.%ld.rdb&quot;,(int)server.unixtime,(long int)getpid());</span><br><span class="line">        dfd &#x3D; open(tmpfile,O_CREAT|O_WRONLY|O_EXCL,0644);</span><br><span class="line">    &#125;</span><br><span class="line">   </span><br><span class="line"></span><br><span class="line">    &#x2F;* Setup the non blocking download of the bulk file. *&#x2F;</span><br><span class="line">    aeCreateFileEvent(server.el,fd, AE_READABLE,readSyncBulkPayload,NULL);</span><br><span class="line"></span><br><span class="line">    server.repl_state &#x3D; REPL_STATE_TRANSFER;</span><br><span class="line">    server.repl_transfer_size &#x3D; -1;</span><br><span class="line">    server.repl_transfer_read &#x3D; 0;</span><br><span class="line">    server.repl_transfer_last_fsync_off &#x3D; 0;</span><br><span class="line">    </span><br><span class="line">    &#x2F;&#x2F; current node as slave,open temp-rdb.dump file and get fd for this file</span><br><span class="line">    server.repl_transfer_fd &#x3D; dfd;</span><br><span class="line">    server.repl_transfer_lastio &#x3D; server.unixtime;</span><br><span class="line">    server.repl_transfer_tmpfile &#x3D; zstrdup(tmpfile);</span><br><span class="line">    return;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void readSyncBulkPayload(aeEventLoop *el, int fd, void *privdata, int mask) &#123;</span><br><span class="line">    char buf[4096];</span><br><span class="line">    ssize_t nread, readlen, nwritten;</span><br><span class="line"></span><br><span class="line">    &#x2F;* If repl_transfer_size &#x3D;&#x3D; -1 we still have to read the bulk length</span><br><span class="line">     * from the master reply. *&#x2F;</span><br><span class="line">      syncReadLine(fd,buf,1024,server.repl_syncio_timeout*1000) &#x3D;&#x3D; -1) &#123;</span><br><span class="line">   </span><br><span class="line"></span><br><span class="line">    &#x2F;* Read bulk data *&#x2F;</span><br><span class="line">    if (usemark) &#123;</span><br><span class="line">        readlen &#x3D; sizeof(buf);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        left &#x3D; server.repl_transfer_size - server.repl_transfer_read;</span><br><span class="line">        readlen &#x3D; (left &lt; (signed)sizeof(buf)) ? left : (signed)sizeof(buf);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   &#x2F;&#x2F; read  rdb.dump from master</span><br><span class="line">    nread &#x3D; read(fd,buf,readlen);</span><br><span class="line">    if (nread &lt;&#x3D; 0) &#123;</span><br><span class="line">        cancelReplicationHandshake();</span><br><span class="line">    &#125;</span><br><span class="line">   </span><br><span class="line">       &#x2F;&#x2F; write to current temp-rdb.dump file</span><br><span class="line">       nwritten &#x3D; write(server.repl_transfer_fd,buf,nread)) </span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">        rename(server.repl_transfer_tmpfile,server.rdb_filename) ;</span><br><span class="line">     </span><br><span class="line">        &#x2F;* We need to stop any AOFRW fork before flusing and parsing</span><br><span class="line">         * RDB, otherwise we&#39;ll create a copy-on-write disaster. *&#x2F;</span><br><span class="line">        if(aof_is_enabled) stopAppendOnly();</span><br><span class="line">        </span><br><span class="line">        &#x2F;&#x2F;mark client as dirty,that will be remove</span><br><span class="line">        signalFlushedDb(-1);</span><br><span class="line">        </span><br><span class="line">        &#x2F;&#x2F; clean all  data for current node</span><br><span class="line">        emptyDb(-1,server.repl_slave_lazy_flush ? EMPTYDB_ASYNC : EMPTYDB_NO_FLAGS,replicationEmptyDbCallback)</span><br><span class="line">        &#123;</span><br><span class="line">            &#x2F;&#x2F; proto long long emptyDb(int dbnum, int flags, void(callback)(void*)) </span><br><span class="line">            int async &#x3D; (flags &amp; EMPTYDB_ASYNC);</span><br><span class="line">            long long removed &#x3D; 0;</span><br><span class="line">            int startdb &#x3D; 0;</span><br><span class="line">            int enddb &#x3D; server.dbnum-1;</span><br><span class="line"></span><br><span class="line">           for (int j &#x3D; startdb; j &lt;&#x3D; enddb; j++) &#123;</span><br><span class="line">              removed +&#x3D; dictSize(server.db[j].dict);</span><br><span class="line">              &#x2F;&#x2F;async instand for as backgroup job to flush data in database</span><br><span class="line">              if (async) &#123;</span><br><span class="line">                &#x2F;&#x2F; that will create new dict after async,old dict mark to clean</span><br><span class="line">                emptyDbAsync(&amp;server.db[j]);</span><br><span class="line">              &#125; else &#123;</span><br><span class="line">                &#x2F;&#x2F;blocking for flush all data in database</span><br><span class="line">                dictEmpty(server.db[j].dict,callback);</span><br><span class="line">                dictEmpty(server.db[j].expires,callback);</span><br><span class="line">             &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">      </span><br><span class="line">        &#x2F;* Before loading the DB into memory we need to delete the readable</span><br><span class="line">         * handler, otherwise it will get called recursively since</span><br><span class="line">         * rdbLoad() will call the event loop to process events from time to</span><br><span class="line">         * time for non blocking loading. *&#x2F;</span><br><span class="line">        aeDeleteFileEvent(server.el,server.repl_transfer_s,AE_READABLE);</span><br><span class="line">        </span><br><span class="line">        &#x2F;&#x2F;init slave info</span><br><span class="line">        rdbSaveInfo rsi &#x3D; RDB_SAVE_INFO_INIT;</span><br><span class="line">        </span><br><span class="line">        &#x2F;&#x2F;load data from rdb_file </span><br><span class="line">        rdbLoad(server.rdb_filename,&amp;rsi);</span><br><span class="line">        </span><br><span class="line">     </span><br><span class="line">       &#x2F;&#x2F; create master client for slave,that will got master socket and other info</span><br><span class="line">       &#x2F;&#x2F;   incude replid of master,server.replid</span><br><span class="line">        replicationCreateMasterClient(server.repl_transfer_s,rsi.repl_stream_db);</span><br><span class="line">        server.repl_state &#x3D; REPL_STATE_CONNECTED;</span><br><span class="line">       </span><br><span class="line">       &#x2F;&#x2F; clean old replid,that included in server.replid2</span><br><span class="line">        clearReplicationId2();</span><br><span class="line">        </span><br><span class="line">        &#x2F;* Let&#39;s create the replication backlog if needed. Slaves need to</span><br><span class="line">         * accumulate the backlog regardless of the fact they have sub-slaves</span><br><span class="line">         * or not, in order to behave correctly if they are promoted to</span><br><span class="line">         * masters after a failover. *&#x2F;</span><br><span class="line">        if (server.repl_backlog &#x3D;&#x3D; NULL) createReplicationBacklog();</span><br><span class="line"></span><br><span class="line">     </span><br><span class="line">        &#x2F;* Restart the AOF subsystem now that we finished the sync. This</span><br><span class="line">         * will trigger an AOF rewrite, and when done will start appending</span><br><span class="line">         * to the new file. *&#x2F;</span><br><span class="line">        if (aof_is_enabled) restartAOF();</span><br><span class="line">    &#125;</span><br><span class="line">    return;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> * On success the fuction returns the number of keys removed from the</span><br><span class="line"> * database(s). Otherwise -1 is returned in the specific case the</span><br><span class="line"> * DB number is out of range, and errno is set to EINVAL. *&#x2F;</span><br><span class="line">long long emptyDb(int dbnum, int flags, void(callback)(void*)) &#123;</span><br><span class="line">    int async &#x3D; (flags &amp; EMPTYDB_ASYNC);</span><br><span class="line">    long long removed &#x3D; 0;</span><br><span class="line"></span><br><span class="line">    if (dbnum &lt; -1 || dbnum &gt;&#x3D; server.dbnum) &#123;</span><br><span class="line">        errno &#x3D; EINVAL;</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    int startdb, enddb;</span><br><span class="line">    if (dbnum &#x3D;&#x3D; -1) &#123;</span><br><span class="line">        startdb &#x3D; 0;</span><br><span class="line">        enddb &#x3D; server.dbnum-1;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        startdb &#x3D; enddb &#x3D; dbnum;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    for (int j &#x3D; startdb; j &lt;&#x3D; enddb; j++) &#123;</span><br><span class="line">        removed +&#x3D; dictSize(server.db[j].dict);</span><br><span class="line">        if (async) &#123;</span><br><span class="line">            emptyDbAsync(&amp;server.db[j]);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            dictEmpty(server.db[j].dict,callback);</span><br><span class="line">            dictEmpty(server.db[j].expires,callback);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (server.cluster_enabled) &#123;</span><br><span class="line">        if (async) &#123;</span><br><span class="line">            slotToKeyFlushAsync();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            slotToKeyFlush();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (dbnum &#x3D;&#x3D; -1) flushSlaveKeysWithExpireList();</span><br><span class="line">    return removed;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>step4 wait for child process</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;</span><br><span class="line">int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData) </span><br><span class="line">&#123;</span><br><span class="line">    int statloc</span><br><span class="line">  if ((pid &#x3D; wait3(&amp;statloc,WNOHANG,NULL)) !&#x3D; 0) &#123;</span><br><span class="line">            int exitcode &#x3D; WEXITSTATUS(statloc);</span><br><span class="line">            int bysignal &#x3D; 0;</span><br><span class="line"></span><br><span class="line">            if (WIFSIGNALED(statloc)) bysignal &#x3D; WTERMSIG(statloc);</span><br><span class="line"></span><br><span class="line">            if (pid &#x3D;&#x3D; -1) &#123;</span><br><span class="line">                &#x2F;&#x2F; error output</span><br><span class="line">            &#125; else if (pid &#x3D;&#x3D; server.rdb_child_pid) &#123;</span><br><span class="line">                &#x2F;&#x2F;each do bgsave ,server will store child pid </span><br><span class="line">                backgroundSaveDoneHandler(exitcode,bysignal)</span><br><span class="line">                &#123;</span><br><span class="line">                     switch(server.rdb_child_type) &#123;</span><br><span class="line">                        case RDB_CHILD_TYPE_DISK:</span><br><span class="line">                            backgroundSaveDoneHandlerDisk(exitcode,bysignal)</span><br><span class="line">                            &#123;</span><br><span class="line">                                updateSlavesWaitingBgsave((!bysignal &amp;&amp; exitcode &#x3D;&#x3D; 0) ? C_OK : C_ERR, RDB_CHILD_TYPE_DISK)&#123;</span><br><span class="line">                                   if (slave-&gt;replstate &#x3D;&#x3D; SLAVE_STATE_WAIT_BGSAVE_START) &#123;</span><br><span class="line">                                      &#x2F;&#x2F;</span><br><span class="line">                                   &#125; else if (slave-&gt;replstate &#x3D;&#x3D; SLAVE_STATE_WAIT_BGSAVE_END) &#123;</span><br><span class="line">                                      if (type &#x3D;&#x3D; RDB_CHILD_TYPE_SOCKET) &#123;</span><br><span class="line">                                      &#x2F;&#x2F; update slave info</span><br><span class="line">                                         slave-&gt;replstate &#x3D; SLAVE_STATE_ONLINE;</span><br><span class="line">                                          slave-&gt;repl_put_online_on_ack &#x3D; 1;</span><br><span class="line">                                          slave-&gt;repl_ack_time &#x3D; server.unixtime; &#x2F;* Timeout otherwise. *</span><br><span class="line">                                      &#125;else&#123;</span><br><span class="line">                                           listRewind(server.slaves,&amp;li);</span><br><span class="line">                                           while((ln &#x3D; listNext(&amp;li))) &#123;</span><br><span class="line">                                              client *slave &#x3D; ln-&gt;value;</span><br><span class="line">                                             &#x2F;&#x2F;sendBulkToSlave:send maser rdb.dump to every slave</span><br><span class="line">                                             aeCreateFileEvent(server.el, slave-&gt;fd, AE_WRITABLE, sendBulkToSlave, slave);</span><br><span class="line">                                      &#125;</span><br><span class="line">                                  &#125;</span><br><span class="line">                            break;</span><br><span class="line">                        case RDB_CHILD_TYPE_SOCKET:</span><br><span class="line">                            backgroundSaveDoneHandlerSocket(exitcode,bysignal)</span><br><span class="line">                            &#123;</span><br><span class="line">                               server.rdb_child_type &#x3D; RDB_CHILD_TYPE_NONE;</span><br><span class="line">                               updateSlavesWaitingBgsave((!bysignal &amp;&amp; exitcode &#x3D;&#x3D; 0) ? C_OK : C_ERR, RDB_CHILD_TYPE_SOCKET);</span><br><span class="line">                            &#125;</span><br><span class="line">                            break;</span><br><span class="line">                      &#125;</span><br><span class="line">                  &#125;</span><br><span class="line">                &#x2F;&#x2F;read child data from parent,and check data</span><br><span class="line">                if (!bysignal &amp;&amp; exitcode &#x3D;&#x3D; 0) receiveChildInfo();</span><br><span class="line">            &#125; else if (pid &#x3D;&#x3D; server.aof_child_pid) &#123;</span><br><span class="line">                backgroundRewriteDoneHandler(exitcode,bysignal);</span><br><span class="line">                </span><br><span class="line">                &#x2F;&#x2F;read child data from parent,and check data</span><br><span class="line">                if (!bysignal &amp;&amp; exitcode &#x3D;&#x3D; 0) receiveChildInfo();</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                if (!ldbRemoveChild(pid)) &#123;</span><br><span class="line">                    serverLog(LL_WARNING,</span><br><span class="line">                        &quot;Warning, detected child with unmatched pid: %ld&quot;,</span><br><span class="line">                        (long)pid);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -2085,7 +1055,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-count">32</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

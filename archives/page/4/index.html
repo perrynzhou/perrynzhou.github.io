@@ -20,15 +20,13 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="1.官方解释12345678[root@centos-linux ~]$ gluster volume set help|grep read-hash-mode -A7Option: cluster.read-hash-modeDefault Value: 1Description: inode-read fops happen only on one of the bricks in repli">
-<meta property="og:type" content="article">
-<meta property="og:title" content="glusterfs cluster.read-hash-mode的作用">
-<meta property="og:url" content="http://yoursite.com/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/index.html">
+  <meta name="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https:&#x2F;&#x2F;github.com&#x2F;perrynzhou。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="perrynzhou">
+<meta property="og:url" content="http://yoursite.com/archives/page/4/index.html">
 <meta property="og:site_name" content="perrynzhou">
-<meta property="og:description" content="1.官方解释12345678[root@centos-linux ~]$ gluster volume set help|grep read-hash-mode -A7Option: cluster.read-hash-modeDefault Value: 1Description: inode-read fops happen only on one of the bricks in repli">
+<meta property="og:description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https:&#x2F;&#x2F;github.com&#x2F;perrynzhou。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-04-14T10:39:02.000Z">
-<meta property="article:modified_time" content="2020-04-14T10:39:54.057Z">
 <meta property="article:author" content="perrynzhou">
 <meta property="article:tag" content="C">
 <meta property="article:tag" content=" Go">
@@ -36,7 +34,7 @@
 <meta property="article:tag" content=" 对象存储">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yoursite.com/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/">
+<link rel="canonical" href="http://yoursite.com/archives/page/4/">
 
 
 <script id="page-configurations">
@@ -44,12 +42,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : true,
+    isPost : false,
     lang   : 'en'
   };
 </script>
 
-  <title>glusterfs cluster.read-hash-mode的作用 | perrynzhou</title>
+  <title>Archive | perrynzhou</title>
   
 
 
@@ -148,81 +146,75 @@
         <div class="content-wrap">
           
 
-          <div class="content post posts-expand">
+          <div class="content archive">
             
 
-    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          glusterfs cluster.read-hash-mode的作用
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-14 18:39:02 / Modified: 18:39:54" itemprop="dateCreated datePublished" datetime="2020-04-14T18:39:02+08:00">2020-04-14</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+  
+  <div class="post-block">
+    <div class="posts-collapse">
+      <div class="collection-title">
+        
+        <span class="collection-header">OK! 32 posts in total. Keep on posting.</span>
+      </div>
 
       
-        <h3 id="1-官方解释"><a href="#1-官方解释" class="headerlink" title="1.官方解释"></a>1.官方解释</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@centos-linux ~]$ gluster volume set help|grep read-hash-mode -A7</span><br><span class="line">Option: cluster.read-hash-mode</span><br><span class="line">Default Value: 1</span><br><span class="line">Description: inode-read fops happen only on one of the bricks in replicate. AFR will prefer the one computed using the method specified using this option.</span><br><span class="line">0 &#x3D; first readable child of AFR, starting from 1st child.</span><br><span class="line">1 &#x3D; hash by GFID of file (all clients use same subvolume).</span><br><span class="line">2 &#x3D; hash by GFID of file and client PID.</span><br><span class="line">3 &#x3D; brick having the least outstanding read requests.</span><br></pre></td></tr></table></figure>
-
+    <div class="collection-year">
+      <span class="collection-header">2020</span>
     </div>
 
-    
-    
-    
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
 
-      <footer class="post-footer">
+      <div class="post-meta">
+        <time itemprop="dateCreated"
+              datetime="2020-04-14T18:35:55+08:00"
+              content="2020-04-14">
+          04-14
+        </time>
+      </div>
 
-        
+      <div class="post-title">
+          <a class="post-title-link" href="/2020/04/14/glusterfs-%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%9E%84%E5%BB%BA/" itemprop="url">
+            <span itemprop="name">glusterfs 调试环境构建</span>
+          </a>
+      </div>
 
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2020/04/14/glusterfs-%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%9E%84%E5%BB%BA/" rel="prev" title="glusterfs 调试环境构建">
-      <i class="fa fa-chevron-left"></i> glusterfs 调试环境构建
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/" rel="next" title="glusterfs and opencas issue列表">
-      glusterfs and opencas issue列表 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
+    </header>
   </article>
+
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <div class="post-meta">
+        <time itemprop="dateCreated"
+              datetime="2020-04-14T18:33:31+08:00"
+              content="2020-04-14">
+          04-14
+        </time>
+      </div>
+
+      <div class="post-title">
+          <a class="post-title-link" href="/2020/04/14/glusterfs-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/" itemprop="url">
+            <span itemprop="name">glusterfs 参数说明</span>
+          </a>
+      </div>
+
+    </header>
+  </article>
+
+
+    </div>
+  </div>
   
   
   
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/archives/page/3/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/archives/">1</a><span class="space">&hellip;</span><a class="page-number" href="/archives/page/3/">3</a><span class="page-number current">4</span>
+  </nav>
 
 
 
@@ -274,7 +266,6 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-官方解释"><span class="nav-number">1.</span> <span class="nav-text">1.官方解释</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
