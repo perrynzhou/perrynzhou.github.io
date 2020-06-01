@@ -183,7 +183,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-04-22 19:52:10" itemprop="dateModified" datetime="2020-04-22T19:52:10+08:00">2020-04-22</time>
+                <time title="Modified: 2020-06-01 21:20:39" itemprop="dateModified" datetime="2020-06-01T21:20:39+08:00">2020-06-01</time>
               </span>
 
           
@@ -209,7 +209,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># sudo apt-get install make automake autoconf libtool flex bison pkg-config libssl-dev libxml2-dev python-dev libaio-dev libibverbs-dev librdmacm-dev libreadline-dev liblvm2-dev libglib2.0-dev liburcu-dev libcmocka-dev libsqlite3-dev libacl1-dev uuid uuid-dev</span><br></pre></td></tr></table></figure>
 
 
-<h4 id="Build-With-Debug"><a href="#Build-With-Debug" class="headerlink" title="Build With Debug"></a>Build With Debug</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> glusterfs-6.5</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ./autogen.sh</span></span><br><span class="line"><span class="meta">#</span><span class="bash">CFLAGS=<span class="string">"-g -O0"</span>  ./configure  --<span class="built_in">enable</span>-debug --<span class="built_in">enable</span>-gnfs  --without-libtirpc </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make -j4</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make install</span></span><br></pre></td></tr></table></figure>
+<h4 id="Build-With-Debug"><a href="#Build-With-Debug" class="headerlink" title="Build With Debug"></a>Build With Debug</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">cd</span> glusterfs-6.5</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> ./autogen.sh</span></span><br><span class="line"><span class="meta">#</span><span class="bash">CFLAGS=<span class="string">"-g3 -gdwarf-2  -O0"</span>  ./configure  --<span class="built_in">enable</span>-debug --<span class="built_in">enable</span>-gnfs  --without-libtirpc </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make -j4</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> make install</span></span><br></pre></td></tr></table></figure>
 
 
 
