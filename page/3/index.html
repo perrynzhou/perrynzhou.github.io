@@ -152,6 +152,65 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/" class="post-title-link" itemprop="url">glusterfs global-threading挂载选项</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-15 16:13:48 / Modified: 16:15:32" itemprop="dateCreated datePublished" datetime="2020-04-15T16:13:48+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">core: implement a global thread pool</span><br><span class="line"></span><br><span class="line">This patch implements a thread pool that is wait-free for adding jobs to</span><br><span class="line">the queue and uses a very small locked region to get jobs. This makes it</span><br><span class="line">possible to decrease contention drastically. It&#39;s based on wfcqueue</span><br><span class="line">structure provided by urcu library.</span><br><span class="line"></span><br><span class="line">It automatically enables more threads when load demands it, and stops</span><br><span class="line">them when not needed. There&#39;s a maximum number of threads that can be</span><br><span class="line">used. This value can be configured.</span><br><span class="line"></span><br><span class="line">Depending on the workload, the maximum number of threads plays an</span><br><span class="line">important role. So it needs to be configured for optimal performance.</span><br><span class="line">Currently the thread pool doesn&#39;t self adjust the maximum for the</span><br><span class="line">workload, so this configuration needs to be changed manually.</span><br><span class="line"></span><br><span class="line">For this reason, the global thread pool has been made optional, so that</span><br><span class="line">volumes can still use the thread pool provided by io-threads.</span><br><span class="line"></span><br><span class="line">To enable it for bricks, the following option needs to be set:</span><br><span class="line"></span><br><span class="line">config.global-threading &#x3D; on</span><br><span class="line"></span><br><span class="line">This option has no effect if bricks are already running. A restart is</span><br><span class="line">required to activate it. It&#39;s recommended to also enable the following</span><br><span class="line">option when running bricks with the global thread pool:</span><br><span class="line"></span><br><span class="line">performance.iot-pass-through &#x3D; on</span><br><span class="line"></span><br><span class="line">To enable it for a FUSE mount point, the option &#39;--global-threading&#39;</span><br><span class="line">must be added to the mount command. To change it, an umount and remount</span><br><span class="line">is needed. It&#39;s recommended to disable the following option when using</span><br><span class="line">global threading on a mount point:</span><br><span class="line"></span><br><span class="line">performance.client-io-threads &#x3D; off</span><br><span class="line"></span><br><span class="line">Currently it can only be enabled for bricks and FUSE mounts.</span><br><span class="line"></span><br><span class="line">The maximum number of threads for clients and bricks can be configured</span><br><span class="line">using the following options:</span><br><span class="line"></span><br><span class="line">config.client-threads</span><br><span class="line">config.brick-threads</span><br><span class="line"></span><br><span class="line">These options can be applied online and its effect is immediate most of</span><br><span class="line">the times. If one of them is set to 0, the maximum number of threads</span><br><span class="line">will be calcutated as #cores * 2.</span><br><span class="line"></span><br><span class="line">Some distributions use a very old userspace-rcu library (version 0.7)</span><br><span class="line">for this reason, some header files from version 0.10 have been copied</span><br><span class="line">into contrib&#x2F;userspace-rcu and are used if the detected version is 0.7</span><br><span class="line">or older.</span><br><span class="line"></span><br><span class="line">If you also want to enable global-threading for fuse clients, you also need to set this option:</span><br><span class="line"></span><br><span class="line"># gluster volume set &lt;volname&gt; performance.client-io-threads off</span><br><span class="line">And remount the volume using --global-threading mount option.</span><br><span class="line"></span><br><span class="line">gluster volume set dht_vol performance.client-io-threads off</span><br><span class="line">mount -t glusterfs -o acl,global-threading 127.0.0.1:&#x2F;dht_vol &#x2F;mnt&#x2F;data</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1024,86 +1083,6 @@ SECTION .data;
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/" class="post-title-link" itemprop="url">glusterfs and opencas issue列表</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-04-14 18:42:25" itemprop="dateCreated datePublished" datetime="2020-04-14T18:42:25+08:00">2020-04-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-04-22 19:55:46" itemprop="dateModified" datetime="2020-04-22T19:55:46+08:00">2020-04-22</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="issue-列表"><a href="#issue-列表" class="headerlink" title="issue 列表"></a>issue 列表</h3><ul>
-<li>1.glusterfsd crash due to health-check failed, going down ,system call errorno not return<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;gluster&#x2F;glusterfs&#x2F;issues&#x2F;1168</span><br></pre></td></tr></table></figure></li>
-<li>2.glusterfsd memory leak killed by os #1166<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;gluster&#x2F;glusterfs&#x2F;issues&#x2F;1166</span><br></pre></td></tr></table></figure></li>
-<li>3.Major bug,glusterfsd consume to much cpu resource #1133<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;gluster&#x2F;glusterfs&#x2F;issues&#x2F;1133</span><br></pre></td></tr></table></figure></li>
-<li><ol start="4">
-<li>opencase case write page lost</li>
-</ol>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;Open-CAS&#x2F;open-cas-linux&#x2F;issues&#x2F;396</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>5.Fatal Bug:distribute replica 3,one brick of data is different from another replicate one brick #1184</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;gluster&#x2F;glusterfs&#x2F;issues&#x2F;1184</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1173,7 +1152,7 @@ SECTION .data;
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">34</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
