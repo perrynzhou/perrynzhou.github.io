@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="title: glusterfs 如何定位一个文件位置date: 2020-06-10 18:06:31tags:  glusterfs 如何定位一个文件位置 volume 信息  1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556# glu">
+  <meta name="description" content="glusterfs 如何定位一个文件位置 volume 信息  1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556# gluster volume info Volume Name: rep3_volType: Distributed-Repl">
 <meta property="og:type" content="article">
-<meta property="og:title" content="glusterfs-如何定位一个文件位置">
+<meta property="og:title" content="glusterfs 如何定位一个文件位置">
 <meta property="og:url" content="http://yoursite.com/2020/06/10/glusterfs-%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8D%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E4%BD%8D%E7%BD%AE/index.html">
 <meta property="og:site_name" content="perrynzhou">
-<meta property="og:description" content="title: glusterfs 如何定位一个文件位置date: 2020-06-10 18:06:31tags:  glusterfs 如何定位一个文件位置 volume 信息  1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556# glu">
+<meta property="og:description" content="glusterfs 如何定位一个文件位置 volume 信息  1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556# gluster volume info Volume Name: rep3_volType: Distributed-Repl">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-06-10T10:14:26.602Z">
-<meta property="article:modified_time" content="2020-06-10T10:13:50.000Z">
+<meta property="article:published_time" content="2020-06-10T10:06:31.000Z">
+<meta property="article:modified_time" content="2020-06-11T01:47:04.825Z">
 <meta property="article:author" content="perrynzhou">
 <meta property="article:tag" content="C">
 <meta property="article:tag" content=" Go">
@@ -49,7 +49,7 @@
   };
 </script>
 
-  <title>glusterfs-如何定位一个文件位置 | perrynzhou</title>
+  <title>glusterfs 如何定位一个文件位置 | perrynzhou</title>
   
 
 
@@ -168,7 +168,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          glusterfs-如何定位一个文件位置
+          glusterfs 如何定位一个文件位置
         </h1>
 
         <div class="post-meta">
@@ -177,10 +177,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2020-06-10 18:14:26 / Modified: 18:13:50" itemprop="dateCreated datePublished" datetime="2020-06-10T18:14:26+08:00">2020-06-10</time>
+              <time title="Created: 2020-06-10 18:06:31" itemprop="dateCreated datePublished" datetime="2020-06-10T18:06:31+08:00">2020-06-10</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-06-11 09:47:04" itemprop="dateModified" datetime="2020-06-11T09:47:04+08:00">2020-06-11</time>
+              </span>
 
           
 
@@ -193,10 +199,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <hr>
-<p>title: glusterfs 如何定位一个文件位置<br>date: 2020-06-10 18:06:31<br>tags:</p>
-<hr>
-<h3 id="glusterfs-如何定位一个文件位置"><a href="#glusterfs-如何定位一个文件位置" class="headerlink" title="glusterfs 如何定位一个文件位置"></a>glusterfs 如何定位一个文件位置</h3><ul>
+        <h3 id="glusterfs-如何定位一个文件位置"><a href="#glusterfs-如何定位一个文件位置" class="headerlink" title="glusterfs 如何定位一个文件位置"></a>glusterfs 如何定位一个文件位置</h3><ul>
 <li>volume 信息</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"># gluster volume info</span><br><span class="line"> </span><br><span class="line">Volume Name: rep3_vol</span><br><span class="line">Type: Distributed-Replicate</span><br><span class="line">Volume ID: 73360fc2-e105-4fd4-9b92-b5fa333ba75d</span><br><span class="line">Status: Started</span><br><span class="line">Snapshot Count: 0</span><br><span class="line">Number of Bricks: 12 x 3 &#x3D; 36</span><br><span class="line">Transport-type: tcp</span><br><span class="line">Bricks:</span><br><span class="line">Brick1: 10.193.189.153:&#x2F;debug&#x2F;glusterfs&#x2F;rep3_vol&#x2F;brick</span><br><span class="line">Brick2: 10.193.189.154:&#x2F;debug&#x2F;glusterfs&#x2F;rep3_vol&#x2F;brick</span><br><span class="line">Brick3: 10.193.189.155:&#x2F;debug&#x2F;glusterfs&#x2F;rep3_vol&#x2F;brick</span><br><span class="line">Brick4: 10.193.189.153:&#x2F;data2&#x2F;brick_rep3_vol</span><br><span class="line">Brick5: 10.193.189.154:&#x2F;data2&#x2F;brick_rep3_vol</span><br><span class="line">Brick6: 10.193.189.155:&#x2F;data2&#x2F;brick_rep3_vol</span><br><span class="line">Brick7: 10.193.189.153:&#x2F;data3&#x2F;brick_rep3_vol</span><br><span class="line">Brick8: 10.193.189.154:&#x2F;data3&#x2F;brick_rep3_vol</span><br><span class="line">Brick9: 10.193.189.155:&#x2F;data3&#x2F;brick_rep3_vol</span><br><span class="line">Brick10: 10.193.189.153:&#x2F;data4&#x2F;brick_rep3_vol</span><br><span class="line">Brick11: 10.193.189.154:&#x2F;data4&#x2F;brick_rep3_vol</span><br><span class="line">Brick12: 10.193.189.155:&#x2F;data4&#x2F;brick_rep3_vol</span><br><span class="line">Brick13: 10.193.189.153:&#x2F;data5&#x2F;brick_rep3_vol</span><br><span class="line">Brick14: 10.193.189.154:&#x2F;data5&#x2F;brick_rep3_vol</span><br><span class="line">Brick15: 10.193.189.155:&#x2F;data5&#x2F;brick_rep3_vol</span><br><span class="line">Brick16: 10.193.189.153:&#x2F;data6&#x2F;brick_rep3_vol</span><br><span class="line">Brick17: 10.193.189.154:&#x2F;data6&#x2F;brick_rep3_vol</span><br><span class="line">Brick18: 10.193.189.155:&#x2F;data6&#x2F;brick_rep3_vol</span><br><span class="line">Brick19: 10.193.189.153:&#x2F;data7&#x2F;brick_rep3_vol</span><br><span class="line">Brick20: 10.193.189.154:&#x2F;data7&#x2F;brick_rep3_vol</span><br><span class="line">Brick21: 10.193.189.155:&#x2F;data7&#x2F;brick_rep3_vol</span><br><span class="line">Brick22: 10.193.189.153:&#x2F;data8&#x2F;brick_rep3_vol</span><br><span class="line">Brick23: 10.193.189.154:&#x2F;data8&#x2F;brick_rep3_vol</span><br><span class="line">Brick24: 10.193.189.155:&#x2F;data8&#x2F;brick_rep3_vol</span><br><span class="line">Brick25: 10.193.189.153:&#x2F;data9&#x2F;brick_rep3_vol</span><br><span class="line">Brick26: 10.193.189.154:&#x2F;data9&#x2F;brick_rep3_vol</span><br><span class="line">Brick27: 10.193.189.155:&#x2F;data9&#x2F;brick_rep3_vol</span><br><span class="line">Brick28: 10.193.189.153:&#x2F;data10&#x2F;brick_rep3_vol</span><br><span class="line">Brick29: 10.193.189.154:&#x2F;data10&#x2F;brick_rep3_vol</span><br><span class="line">Brick30: 10.193.189.155:&#x2F;data10&#x2F;brick_rep3_vol</span><br><span class="line">Brick31: 10.193.189.153:&#x2F;data11&#x2F;brick_rep3_vol</span><br><span class="line">Brick32: 10.193.189.154:&#x2F;data11&#x2F;brick_rep3_vol</span><br><span class="line">Brick33: 10.193.189.155:&#x2F;data11&#x2F;brick_rep3_vol</span><br><span class="line">Brick34: 10.193.189.153:&#x2F;data12&#x2F;brick_rep3_vol</span><br><span class="line">Brick35: 10.193.189.154:&#x2F;data12&#x2F;brick_rep3_vol</span><br><span class="line">Brick36: 10.193.189.155:&#x2F;data12&#x2F;brick_rep3_vol</span><br><span class="line">Options Reconfigured:</span><br><span class="line">cluster.lookup-unhashed: off</span><br><span class="line">features.shard-block-size: 8GB</span><br><span class="line">features.shard: on</span><br><span class="line">diagnostics.brick-log-level: INFO</span><br><span class="line">performance.client-io-threads: off</span><br><span class="line">nfs.disable: on</span><br><span class="line">storage.fips-mode-rchecksum: on</span><br><span class="line">transport.address-family: inet</span><br><span class="line">diagnostics.client-log-level: DEBUG</span><br></pre></td></tr></table></figure>
