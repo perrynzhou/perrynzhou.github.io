@@ -152,6 +152,77 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/20/tcp-ip-%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/20/tcp-ip-%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B/" class="post-title-link" itemprop="url">tcp/ip 三次握手</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-06-20 16:29:28 / Modified: 16:30:27" itemprop="dateCreated datePublished" datetime="2020-06-20T16:29:28+08:00">2020-06-20</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="tcp-ip-三次握手"><a href="#tcp-ip-三次握手" class="headerlink" title="tcp/ip 三次握手"></a>tcp/ip 三次握手</h4><p><img src="/2020/06/20/tcp-ip-%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B/tcp-shandshark.png" alt="image-20200620161218149"></p>
+<ul>
+<li>tcp/ip和系统api有啥关系<ul>
+<li>tcp/ip基于ip层来提供稳定的有连接的服务。tcp/ip编程中的socket是有几个元素组成，分别是:（文件描述符:源端IP、源端端口、目标端IP、目标端端口、协议）组成</li>
+<li>tcp/ip中的发起第一次和服务端握手，体现在api中的connect是发起连接，第二次和第三次握手都是在网络协议栈中完成，其中服务端的api 中的accept完成了协议栈中从syn队列中取出握手信息到accept队列中。</li>
+</ul>
+</li>
+<li>read和recv区别？write和send区别?<ul>
+<li>linux系统调用read读取到fd,进入do_read函数，发现是网络socket套接字，最终执行的recv的函数；</li>
+<li>同理write函数和read函数也是这么做，read/write对应的是文件描述符；send/recv对应的是网络协议栈中的源端IP、源端端口、目标端IP、目标端端口、协议.一切接文件是linux的抽象</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/10/glusterfs-%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8D%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E4%BD%8D%E7%BD%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1037,74 +1108,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/Go%E8%AF%AD%E8%A8%80%E8%B0%83%E7%94%A8C%E5%87%BD%E6%95%B0%E4%BE%8B%E5%AD%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/16/Go%E8%AF%AD%E8%A8%80%E8%B0%83%E7%94%A8C%E5%87%BD%E6%95%B0%E4%BE%8B%E5%AD%90/" class="post-title-link" itemprop="url">Go语言调用C函数例子</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-16 18:05:07 / Modified: 18:07:17" itemprop="dateCreated datePublished" datetime="2020-04-16T18:05:07+08:00">2020-04-16</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>go access c struct</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">  &#x2F;&#x2F; go run cgo.go</span><br><span class="line">  package main</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;assert.h&gt;</span><br><span class="line">typedef struct student &#123;</span><br><span class="line">        int age;</span><br><span class="line">        char *name;</span><br><span class="line">&#125;student;</span><br><span class="line"></span><br><span class="line">void student_init(void **ptr,char *name,int age) &#123;</span><br><span class="line">        size_t len &#x3D; strlen(name);</span><br><span class="line">        student *st &#x3D; (student *)calloc(1,sizeof(student));</span><br><span class="line">        assert(st!&#x3D;NULL);</span><br><span class="line">        st-&gt;age &#x3D; age;</span><br><span class="line">        st-&gt;name &#x3D; (char *)calloc(1,len+1);</span><br><span class="line">        memcpy(st-&gt;name,name,len);</span><br><span class="line">        *ptr &#x3D; st;</span><br><span class="line">        fprintf(stdout,&quot;...call student_init...\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line">student *student_new(char *name,int age) &#123;</span><br><span class="line">        size_t len &#x3D; strlen(name);</span><br><span class="line">        student *st &#x3D; (student *)calloc(1,sizeof(student));</span><br><span class="line">        assert(st!&#x3D;NULL);</span><br><span class="line">        st-&gt;age &#x3D; age;</span><br><span class="line">        st-&gt;name &#x3D; (char *)calloc(1,len+1);</span><br><span class="line">        memcpy(st-&gt;name,name,len);</span><br><span class="line"></span><br><span class="line">        fprintf(stdout,&quot;...call student_new...\n&quot;);</span><br><span class="line">        return st;</span><br><span class="line">&#125;</span><br><span class="line">void student_destroy(void *ptr) &#123;</span><br><span class="line">        student *st &#x3D; (student *)ptr;</span><br><span class="line">        if(st !&#x3D;NULL)</span><br><span class="line">        &#123;</span><br><span class="line">                free(st-&gt;name);</span><br><span class="line">                free(st);</span><br><span class="line">                st&#x3D;NULL;</span><br><span class="line">                fprintf(stdout,&quot;...call student_destroy...\n&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">void student_print(void  *ptr) &#123;</span><br><span class="line">        student *st &#x3D; (student *)ptr;</span><br><span class="line">        fprintf(stdout,&quot;student addr&#x3D;%p,name&#x3D;%p,age&#x3D;%p\n&quot;,st,st-&gt;name,&amp;st-&gt;age);</span><br><span class="line">        fprintf(stdout,&quot; student &#123;name&#x3D;%s,age&#x3D;%d&#125;\n&quot;,st-&gt;name,st-&gt;age);</span><br><span class="line">&#125;</span><br><span class="line">*&#x2F;</span><br><span class="line">import &quot;C&quot;</span><br><span class="line">import (</span><br><span class="line">        &quot;fmt&quot;</span><br><span class="line">        &quot;unsafe&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">        var st1 unsafe.Pointer</span><br><span class="line">        name :&#x3D; C.CString(&quot;perrynzhou&quot;)</span><br><span class="line">        C.student_init(&amp;st1, name, 30)</span><br><span class="line">        C.student_print(st1)</span><br><span class="line">        C.student_destroy(st1)</span><br><span class="line">        C.free(unsafe.Pointer(name))</span><br><span class="line"></span><br><span class="line">        var st2 *C.student</span><br><span class="line">        name2 :&#x3D; C.CString(&quot;hello&quot;)</span><br><span class="line">        st2 &#x3D; C.student_new(name2, 100)</span><br><span class="line">        fmt.Printf(&quot;init student st2 &#123;age:%d,name:%s&#125;\n&quot;, st2.age, C.GoString(st2.name))</span><br><span class="line">        C.student_print(unsafe.Pointer(st2))</span><br><span class="line"></span><br><span class="line">        C.free(unsafe.Pointer(st2.name))</span><br><span class="line">        name3 :&#x3D; C.CString(&quot;join&quot;)</span><br><span class="line">        st2.name &#x3D; name3</span><br><span class="line">        st2.age &#x3D; 67</span><br><span class="line">        fmt.Printf(&quot;after change student st2 &#123;age:%d,name:%s&#125;\n&quot;, st2.age, C.GoString(st2.name))</span><br><span class="line">        C.student_print(unsafe.Pointer(st2))</span><br><span class="line">        C.student_destroy(unsafe.Pointer(st2))</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2020/04/16/Go%E8%AF%AD%E8%A8%80%E8%B0%83%E7%94%A8C%E5%87%BD%E6%95%B0%E4%BE%8B%E5%AD%90/2582954-7ff22e6700b629e6.png" alt></p>
-<ul>
-<li>go access c memory<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;    go build  -o cgo_test cgo.go </span><br><span class="line"></span><br><span class="line">package main</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line"></span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line"></span><br><span class="line">void *alloc() &#123;</span><br><span class="line">        static int count &#x3D; 0;</span><br><span class="line">        void *d &#x3D; malloc(sizeof(int));</span><br><span class="line">        *((int *)d) &#x3D; count++;</span><br><span class="line">        return d;</span><br><span class="line">&#125;</span><br><span class="line">*&#x2F;</span><br><span class="line">import &quot;C&quot;</span><br><span class="line">import (</span><br><span class="line">        &quot;fmt&quot;</span><br><span class="line">        &quot;runtime&quot;</span><br><span class="line">        &quot;sync&quot;</span><br><span class="line">        &quot;time&quot;</span><br><span class="line">        &quot;unsafe&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type CStruct struct &#123;</span><br><span class="line">        sync.Mutex</span><br><span class="line">        name     string</span><br><span class="line">        allocCnt int</span><br><span class="line">        memory   unsafe.Pointer</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (cs *CStruct) alloc(name string, id int) &#123;</span><br><span class="line">        cs.name &#x3D; fmt.Sprintf(&quot;CStruct-%s-%d&quot;, name, id)</span><br><span class="line">        cs.Lock()</span><br><span class="line">        defer cs.Unlock()</span><br><span class="line">        cs.allocCnt++</span><br><span class="line">        fmt.Printf(&quot;%s begin with alloc,count&#x3D;%d\n&quot;, cs.name, cs.allocCnt)</span><br><span class="line">        cs.memory &#x3D; C.alloc()</span><br><span class="line">        runtime.SetFinalizer(cs, free)</span><br><span class="line">&#125;</span><br><span class="line">func free(cs *CStruct) &#123;</span><br><span class="line">        C.free(unsafe.Pointer(cs.memory))</span><br><span class="line">        cs.Lock()</span><br><span class="line">        defer cs.Unlock()</span><br><span class="line">        cs.allocCnt--</span><br><span class="line">        fmt.Printf(&quot;%s end with free count&#x3D;%d\n&quot;, cs.name, cs.allocCnt)</span><br><span class="line">&#125;</span><br><span class="line">func CStructTest(i int) &#123;</span><br><span class="line">        var c1, c2 CStruct</span><br><span class="line">        c1.alloc(&quot;c1&quot;, i)</span><br><span class="line">        c2.alloc(&quot;c2&quot;, i)</span><br><span class="line">&#125;</span><br><span class="line">func main() &#123;</span><br><span class="line">        for i :&#x3D; 0; i &lt; 10; i++ &#123;</span><br><span class="line">                CStructTest(i)</span><br><span class="line">                time.Sleep(time.Second)</span><br><span class="line">        &#125;</span><br><span class="line">        runtime.GC()</span><br><span class="line">        time.Sleep(time.Second)</span><br><span class="line">        fmt.Println(&quot;done..&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<img src="/2020/04/16/Go%E8%AF%AD%E8%A8%80%E8%B0%83%E7%94%A8C%E5%87%BD%E6%95%B0%E4%BE%8B%E5%AD%90/2582954-4171fe1cc79448ad.png" alt></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1174,7 +1177,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">35</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
