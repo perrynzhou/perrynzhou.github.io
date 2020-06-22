@@ -152,6 +152,79 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/21/%E5%AE%89%E8%A3%85glusterfs%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/21/%E5%AE%89%E8%A3%85glusterfs%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC/" class="post-title-link" itemprop="url">安装glusterfs指定版本</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-21 09:48:29 / Modified: 09:52:34" itemprop="dateCreated datePublished" datetime="2020-04-21T09:48:29+08:00">2020-04-21</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="1-glusterfs7-repo源"><a href="#1-glusterfs7-repo源" class="headerlink" title="1.glusterfs7 repo源"></a>1.glusterfs7 repo源</h4><ul>
+<li>添加此源到/etc/yum.repo.d/glusterfs.repo中<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[centos-gluster7]</span><br><span class="line">gpgcheck &#x3D; 0</span><br><span class="line">mirrorlist &#x3D; http:&#x2F;&#x2F;mirrorlist.centos.org?arch&#x3D;$basearch&amp;release&#x3D;$releasever&amp;repo&#x3D;storage-gluster-7</span><br><span class="line">name &#x3D; CentOS-$releasever - Gluster 7</span><br><span class="line"></span><br><span class="line">[centos-gluster6]</span><br><span class="line">gpgcheck &#x3D; 0</span><br><span class="line">mirrorlist &#x3D; http:&#x2F;&#x2F;mirrorlist.centos.org?arch&#x3D;$basearch&amp;release&#x3D;$releasever&amp;repo&#x3D;storage-gluster-6</span><br><span class="line">name &#x3D; CentOS-$releasever - Gluster 6</span><br></pre></td></tr></table></figure>
+<h4 id="2-更新系统yum-源"><a href="#2-更新系统yum-源" class="headerlink" title="2.更新系统yum 源"></a>2.更新系统yum 源</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum check-update</span><br></pre></td></tr></table></figure>
+<h4 id="3-安装脚本-glusterfs-install-sh"><a href="#3-安装脚本-glusterfs-install-sh" class="headerlink" title="3.安装脚本(glusterfs_install.sh)"></a>3.安装脚本(glusterfs_install.sh)</h4></li>
+<li>脚本内容<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">#!&#x2F;bin&#x2F;bash</span><br><span class="line"></span><br><span class="line">version&#x3D;&quot;$1&quot;</span><br><span class="line">[[ &quot;$version&quot; &#x3D;&#x3D; &quot;&quot; ]] &amp;&amp; echo &quot;version not provided&quot; &amp;&amp; exit 1</span><br><span class="line"></span><br><span class="line">rpm_packages&#x3D;(</span><br><span class="line">glusterfs-server</span><br><span class="line">glusterfs-events</span><br><span class="line">glusterfs-extra-xlators</span><br><span class="line">glusterfs-geo-replication</span><br><span class="line">glusterfs-libs</span><br><span class="line">glusterfs-rdma</span><br><span class="line">glusterfs</span><br><span class="line">glusterfs-api</span><br><span class="line">glusterfs-api-devel</span><br><span class="line">glusterfs-cli</span><br><span class="line">glusterfs-client-xlators</span><br><span class="line">glusterfs-fuse</span><br><span class="line">python2-gluster</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">for index in $&#123;!rpm_packages[@]&#125;; do</span><br><span class="line">  rpm_version_packages[$index]&#x3D;$&#123;rpm_packages[$index]&#125;&quot;-&quot;$version</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">yum install -y $&#123;rpm_version_packages[*]&#125;</span><br></pre></td></tr></table></figure></li>
+<li>脚本执行<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 7.2是版本号</span><br><span class="line">.&#x2F;glusterfs_install.sh 7.2</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/Go%E8%AF%AD%E8%A8%80%E8%B0%83%E7%94%A8C%E5%87%BD%E6%95%B0%E4%BE%8B%E5%AD%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1837,261 +1910,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/Automatic-File-Replication-%E8%BD%AC%E8%BD%BD/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/Automatic-File-Replication-%E8%BD%AC%E8%BD%BD/" class="post-title-link" itemprop="url">Automatic File Replication-转载</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 16:41:25 / Modified: 16:48:43" itemprop="dateCreated datePublished" datetime="2020-04-15T16:41:25+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Automatic-File-Replication"><a href="#Automatic-File-Replication" class="headerlink" title="Automatic File Replication"></a>Automatic File Replication</h1><p>Afr xlator in glusterfs is responsible for replicating the data across the bricks.</p>
-<h3 id="Responsibilities-of-AFR"><a href="#Responsibilities-of-AFR" class="headerlink" title="Responsibilities of AFR"></a>Responsibilities of AFR</h3><p>Its responsibilities include the following:</p>
-<ol>
-<li><p>Maintain replication consistency (i.e. Data on both the bricks should be same, even in the cases where there are operations happening on same file/directory in parallel from multiple applications/mount points as long as all the bricks in replica set are up)</p>
-</li>
-<li><p>Provide a way of recovering data in case of failures as long as there is<br> at least one brick which has the correct data.</p>
-</li>
-<li><p>Serve fresh data for read/stat/readdir etc</p>
-</li>
-</ol>
-<h3 id="Transaction-framework"><a href="#Transaction-framework" class="headerlink" title="Transaction framework"></a>Transaction framework</h3><p>For 1, 2 above afr uses transaction framework which consists of the following 5<br>phases which happen on all the bricks in replica set(Bricks which are in replication):</p>
-<h4 id="1-Lock-Phase"><a href="#1-Lock-Phase" class="headerlink" title="1.Lock Phase"></a>1.Lock Phase</h4><h4 id="2-Pre-op-Phase"><a href="#2-Pre-op-Phase" class="headerlink" title="2. Pre-op Phase"></a>2. Pre-op Phase</h4><h4 id="3-Op-Phase"><a href="#3-Op-Phase" class="headerlink" title="3. Op Phase"></a>3. Op Phase</h4><h4 id="4-Post-op-Phase"><a href="#4-Post-op-Phase" class="headerlink" title="4. Post-op Phase"></a>4. Post-op Phase</h4><h4 id="5-Unlock-Phase"><a href="#5-Unlock-Phase" class="headerlink" title="5. Unlock Phase"></a>5. Unlock Phase</h4><p><em>Op Phase</em> is the actual operation sent by application (<code>write/create/unlink</code> etc). For every operation which afr receives that modifies data it sends that same operation in parallel to all the bricks in its replica set. This is how it achieves replication.</p>
-<p><em>Lock, Unlock Phases</em> take necessary locks so that <em>Op phase</em> can provide <strong>replication consistency</strong> in normal work flow.</p>
-<h5 id="For-example"><a href="#For-example" class="headerlink" title="For example:"></a>For example:</h5><p>If an application performs <code>touch a</code> and the other one does <code>mkdir a</code>, afr makes sure that either file with name <code>a</code> or directory with name <code>a</code> is created on both the bricks.</p>
-<p><em>Pre-op, Post-op Phases</em> provide changelogging which enables afr to figure out which copy is fresh.<br>Once afr knows how to figure out fresh copy in the replica set it can <strong>recover data</strong> from fresh copy to stale copy. Also it can <strong>serve fresh</strong> data for <code>read/stat/readdir</code> etc.</p>
-<h2 id="Internal-Operations"><a href="#Internal-Operations" class="headerlink" title="Internal Operations"></a>Internal Operations</h2><p>Brief introduction to internal operations in Glusterfs which make <em>Locking, Unlocking, Pre/Post ops</em> possible:</p>
-<h3 id="Internal-Locking-Operations"><a href="#Internal-Locking-Operations" class="headerlink" title="Internal Locking Operations"></a>Internal Locking Operations</h3><p>Glusterfs has <strong>locks</strong> translator which provides the following internal locking operations called <code>inodelk</code>, <code>entrylk</code> which are used by afr to achieve synchronization of operations on files or directories that conflict with each other.</p>
-<p><code>Inodelk</code> gives the facility for translators in Glusterfs to obtain range (denoted by tuple with <strong>offset</strong>, <strong>length</strong>) locks in a given domain for an inode.<br>Full file lock is denoted by the tuple (offset: <code>0</code>, length: <code>0</code>) i.e. length <code>0</code> is considered as infinity.</p>
-<p><code>Entrylk</code> enables translators of Glusterfs to obtain locks on <code>name</code> in a given domain for an inode, typically a directory.</p>
-<p><strong>Locks</strong> translator provides both <em>blocking</em> and <em>nonblocking</em> variants and of these operations.</p>
-<h3 id="Xattrop"><a href="#Xattrop" class="headerlink" title="Xattrop"></a>Xattrop</h3><p>For pre/post ops posix translator provides an operation called xattrop.<br>xattrop is a way of <em>incrementing</em>/<em>decrementing</em> a number present in the extended attribute of the inode <em>atomically</em>.</p>
-<h2 id="Transaction-Types"><a href="#Transaction-Types" class="headerlink" title="Transaction Types"></a>Transaction Types</h2><p>There are 3 types of transactions in AFR.</p>
-<ol>
-<li><p>Data transactions</p>
-<ul>
-<li>Operations that add/modify/truncate the file contents.</li>
-<li><code>Write</code>/<code>Truncate</code>/<code>Ftruncate</code> etc</li>
-</ul>
-</li>
-<li><p>Metadata transactions</p>
-<ul>
-<li>Operations that modify the data kept in inode.</li>
-<li><code>Chmod</code>/<code>Chown</code> etc</li>
-</ul>
-</li>
-</ol>
-<p>3) Entry transactions</p>
-<ul>
-<li>Operations that add/remove/rename entries in a directory</li>
-<li><code>Touch</code>/<code>Mkdir</code>/<code>Mknod</code> etc</li>
-</ul>
-<h3 id="Data-transactions"><a href="#Data-transactions" class="headerlink" title="Data transactions:"></a>Data transactions:</h3><p><em>write</em> (<code>offset</code>, <code>size</code>) - writes data from <code>offset</code> of <code>size</code></p>
-<p><em>ftruncate</em>/<em>truncate</em> (<code>offset</code>) - truncates data from <code>offset</code> till the end of file.</p>
-<p>Afr internal locking needs to make sure that two conflicting data operations happen in order, one after the other so that it does not result in replication inconsistency. Afr data operations take inodelks in same domain (lets call it <code>data</code> domain).</p>
-<p><em>Write</em> operation with offset <code>O</code> and size <code>S</code> takes an inode lock in data domain with range <code>(O, S)</code>.</p>
-<p><em>Ftruncate</em>/<em>Truncate</em> operations with offset <code>O</code> take inode locks in <code>data</code> domain with range <code>(O, 0)</code>. Please note that size <code>0</code> means size infinity.</p>
-<p>These ranges make sure that overlapping write/truncate/ftruncate operations are done one after the other.</p>
-<p>Now that we know the ranges the operations take locks on, we will see how locking happens in afr.</p>
-<h4 id="Lock"><a href="#Lock" class="headerlink" title="Lock:"></a>Lock:</h4><p>Afr initially attempts <strong>non-blocking</strong> locks on <strong>all</strong> the bricks of the replica set in <strong>parallel</strong>. If all the locks are successful then it goes on to perform pre-op. But in case <strong>non-blocking</strong> locks <strong>fail</strong> because there is <em>at least one conflicting operation</em> which already has a <strong>granted lock</strong> then it <strong>unlocks</strong> the <strong>non-blocking</strong> locks it already acquired in this previous step and proceeds to perform <strong>blocking</strong> locks <strong>one after the other</strong> on each of the subvolumes in the order of subvolumes specified in the volfile.</p>
-<p>Chances of <strong>conflicting operations</strong> is <strong>very low</strong> and time elapsed in <strong>non-blocking</strong> locks phase is <code>Max(latencies of the bricks for responding to inodelk)</code>, where as time elapsed in <strong>blocking locks</strong> phase is <code>Sum(latencies of the bricks for responding to inodelk)</code>. That is why afr always tries for non-blocking locks first and only then it moves to blocking locks.</p>
-<h4 id="Pre-op"><a href="#Pre-op" class="headerlink" title="Pre-op:"></a>Pre-op:</h4><p>Each file/dir in a brick maintains the changelog(roughly pending operation count) of itself and that of the files<br>present in all the other bricks in it’s replica set as seen by that brick.</p>
-<p>Lets consider an example replica volume with 2 bricks brick-a and brick-b.<br>all files in brick-a will have 2 entries<br>one for itself and the other for the file present in it’s replica set, i.e.brick-b:<br>One can inspect changelogs using getfattr command.</p>
-<pre><code># getfattr -d -e hex -m. brick-a/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for itself (brick-a)
-trusted.afr.vol-client-1=0x000000000000000000000000 --&gt;changelog for brick-b as seen by brick-a</code></pre><p>Likewise, all files in brick-b will have:</p>
-<pre><code># getfattr -d -e hex -m. brick-b/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for brick-a as seen by brick-b
-trusted.afr.vol-client-1=0x000000000000000000000000 --&gt;changelog for itself (brick-b)</code></pre><h5 id="Interpreting-Changelog-Value"><a href="#Interpreting-Changelog-Value" class="headerlink" title="Interpreting Changelog Value:"></a>Interpreting Changelog Value:</h5><p>Each extended attribute has a value which is <code>24</code> hexa decimal digits. i.e. <code>12</code> bytes<br>First <code>8</code> digits (<code>4</code> bytes) represent changelog of <code>data</code>. Second <code>8</code> digits represent changelog<br>of <code>metadata</code>. Last 8 digits represent Changelog of <code>directory entries</code>.</p>
-<p>Pictorially representing the same, we have:</p>
-<pre><code>0x 00000000 00000000 00000000
-      |        |        |
-      |        |        \_ changelog of directory entries
-      |        \_ changelog of metadata
-      \ _ changelog of data</code></pre><p>Before write operation is performed on the brick, afr marks the file saying there is a pending operation.</p>
-<p>As part of this pre-op afr sends xattrop operation with increment 1 for data operation to make the extended attributes the following:<br>    # getfattr -d -e hex -m. brick-a/file.txt<br>    trusted.afr.vol-client-0=0x000000010000000000000000 –&gt;changelog for itself (brick-a)<br>    trusted.afr.vol-client-1=0x000000010000000000000000 –&gt;changelog for brick-b as seen by brick-a</p>
-<p>Likewise, all files in brick-b will have:</p>
-<pre><code># getfattr -d -e hex -m. brick-b/file.txt
-trusted.afr.vol-client-0=0x000000010000000000000000 --&gt;changelog for brick-a as seen by brick-b
-trusted.afr.vol-client-1=0x000000010000000000000000 --&gt;changelog for itself (brick-b)</code></pre><p>As the operation is in progress on files on both the bricks all the extended attributes show the same value.</p>
-<h4 id="Op"><a href="#Op" class="headerlink" title="Op:"></a>Op:</h4><p>Now it sends the actual write operation to both the bricks. Afr remembers whether the operation is successful or not on all the subvolumes.</p>
-<h4 id="Post-Op"><a href="#Post-Op" class="headerlink" title="Post-Op:"></a>Post-Op:</h4><p>If the operation succeeds on all the bricks then there is no pending operations on any of the bricks so as part of POST-OP afr sends xattrop operation with increment -1 i.e. decrement by 1 for data operation to make the extended attributes back to all zeros again.</p>
-<p>In case there is a failure on brick-b then there is still a pending operation on brick-b where as no pending operations are there on brick-a. So xattrop operation for both of these extended attributes differs now. For extended attribute corresponding to brick-a i.e. trusted.afr.vol-client-0 decrement by 1 is sent where as for extended attribute corresponding to brick-b increment by ‘0’ is sent to retain the pending operation count.</p>
-<pre><code># getfattr -d -e hex -m. brick-a/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for itself (brick-a)
-trusted.afr.vol-client-1=0x000000010000000000000000 --&gt;changelog for brick-b as seen by brick-a
-
-# getfattr -d -e hex -m. brick-b/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for brick-a as seen by brick-b
-trusted.afr.vol-client-1=0x000000010000000000000000 --&gt;changelog for itself (brick-b)</code></pre><h4 id="Unlock"><a href="#Unlock" class="headerlink" title="Unlock:"></a>Unlock:</h4><p>Once the transaction is completed unlock is sent on all the bricks where lock is acquired.</p>
-<h3 id="Meta-Data-transactions"><a href="#Meta-Data-transactions" class="headerlink" title="Meta Data transactions:"></a>Meta Data transactions:</h3><p>setattr, setxattr, removexattr<br>All metadata operations take same inode lock with same range in metadata domain.</p>
-<h4 id="Lock-1"><a href="#Lock-1" class="headerlink" title="Lock:"></a>Lock:</h4><p>Metadata locking also starts initially with non-blocking locks then move on to blocking locks on any failures because of conflicting operations.</p>
-<h4 id="Pre-op-1"><a href="#Pre-op-1" class="headerlink" title="Pre-op:"></a>Pre-op:</h4><p>Before metadata operation is performed on the brick, afr marks the file saying there is a pending operation.<br>As part of this pre-op afr sends xattrop operation with increment 1 for metadata operation to make the extended attributes the following:<br>    # getfattr -d -e hex -m. brick-a/file.txt<br>    trusted.afr.vol-client-0=0x000000000000000100000000 –&gt;changelog for itself (brick-a)<br>    trusted.afr.vol-client-1=0x000000000000000100000000 –&gt;changelog for brick-b as seen by brick-a</p>
-<p>Likewise, all files in brick-b will have:<br>    # getfattr -d -e hex -m. brick-b/file.txt<br>    trusted.afr.vol-client-0=0x000000000000000100000000 –&gt;changelog for brick-a as seen by brick-b<br>    trusted.afr.vol-client-1=0x000000000000000100000000 –&gt;changelog for itself (brick-b)</p>
-<p>As the operation is in progress on files on both the bricks all the extended attributes show the same value.</p>
-<h4 id="Op-1"><a href="#Op-1" class="headerlink" title="Op:"></a>Op:</h4><p>Now it sends the actual metadata operation to both the bricks. Afr remembers whether the operation is successful or not on all the subvolumes.</p>
-<p>Post-Op:<br>If the operation succeeds on all the bricks then there is no pending operations on any of the bricks so as part of POST-OP afr sends xattrop operation with increment -1 i.e. decrement by 1 for metadata operation to make the extended attributes back to all zeros again.</p>
-<p>In case there is a failure on brick-b then there is still a pending operation on brick-b where as no pending operations are there on brick-a. So xattrop operation for both of these extended attributes differs now. For extended attribute corresponding to brick-a i.e. trusted.afr.vol-client-0 decrement by 1 is sent where as for extended attribute corresponding to brick-b increment by ‘0’ is sent to retain the pending operation count.</p>
-<pre><code># getfattr -d -e hex -m. brick-a/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for itself (brick-a)
-trusted.afr.vol-client-1=0x000000000000000100000000 --&gt;changelog for brick-b as seen by brick-a
-
-# getfattr -d -e hex -m. brick-b/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for brick-a as seen by brick-b
-trusted.afr.vol-client-1=0x000000000000000100000000 --&gt;changelog for itself (brick-b)</code></pre><h4 id="Unlock-1"><a href="#Unlock-1" class="headerlink" title="Unlock:"></a>Unlock:</h4><p>Once the transaction is completed unlock is sent on all the bricks where lock is acquired.</p>
-<h3 id="Entry-transactions"><a href="#Entry-transactions" class="headerlink" title="Entry transactions:"></a>Entry transactions:</h3><p>create, mknod, mkdir, link, symlink, rename, unlink, rmdir<br>Pre-op/Post-op (done using xattrop) always happens on the parent directory.</p>
-<p>Entry Locks taken by these entry operations:</p>
-<p><strong>Create</strong> (file <code>dir/a</code>): Lock on name <code>a</code> in inode of <code>dir</code></p>
-<p><strong>mknod</strong> (file <code>dir/a</code>): Lock on name <code>a</code> in inode of <code>dir</code></p>
-<p><strong>mkdir</strong> (dir <code>dir/a</code>): Lock on name <code>a</code> in inode of <code>dir</code></p>
-<p><strong>link</strong> (file <code>oldfile</code>, file <code>dir/newfile</code>): Lock on name <code>newfile</code> in inode of <code>dir</code></p>
-<p><strong>Symlink</strong> (file <code>oldfile</code>, file <code>dir</code>/<code>symlinkfile</code>): Lock on name <code>symlinkfile</code> in inode of <code>dir</code></p>
-<p><strong>rename</strong> of (file <code>dir1</code>/<code>file1</code>, file <code>dir2</code>/<code>file2</code>): Lock on name <code>file1</code> in inode of <code>dir1</code>, Lock on name <code>file2</code> in inode of <code>dir2</code></p>
-<p><strong>rename</strong> of (dir <code>dir1</code>/<code>dir2</code>, dir <code>dir3</code>/<code>dir4</code>): Lock on name <code>dir2</code> in inode of <code>dir1</code>, Lock on name <code>dir4</code> in inode of <code>dir3</code>, Lock on <code>NULL</code> in inode of <code>dir4</code></p>
-<p><strong>unlink</strong> (file <code>dir</code>/<code>a</code>): Lock on name <code>a</code> in inode of <code>dir</code></p>
-<p><strong>rmdir</strong> (dir dir/a): Lock on name <code>a</code> in inode of <code>dir</code>, Lock on <code>NULL</code> in inode of <code>a</code></p>
-<h4 id="Lock-2"><a href="#Lock-2" class="headerlink" title="Lock:"></a>Lock:</h4><p>Even entry locking starts initially with non-blocking locks then move on to blocking locks on any failures because of conflicting operations.</p>
-<h4 id="Pre-op-2"><a href="#Pre-op-2" class="headerlink" title="Pre-op:"></a>Pre-op:</h4><p>Before entry operation is performed on the brick, afr marks the directory saying there is a pending operation.</p>
-<p>As part of this pre-op afr sends xattrop operation with increment 1 for entry operation to make the extended attributes the following:</p>
-<pre><code># getfattr -d -e hex -m. brick-a/
-trusted.afr.vol-client-0=0x000000000000000000000001 --&gt;changelog for itself (brick-a)
-trusted.afr.vol-client-1=0x000000000000000000000001 --&gt;changelog for brick-b as seen by brick-a</code></pre><p>Likewise, all files in brick-b will have:<br>    # getfattr -d -e hex -m. brick-b/<br>    trusted.afr.vol-client-0=0x000000000000000000000001 –&gt;changelog for brick-a as seen by brick-b<br>    trusted.afr.vol-client-1=0x000000000000000000000001 –&gt;changelog for itself (brick-b)</p>
-<p>As the operation is in progress on files on both the bricks all the extended attributes show the same value.</p>
-<h4 id="Op-2"><a href="#Op-2" class="headerlink" title="Op:"></a>Op:</h4><p>Now it sends the actual entry operation to both the bricks. Afr remembers whether the operation is successful or not on all the subvolumes.</p>
-<h4 id="Post-Op-1"><a href="#Post-Op-1" class="headerlink" title="Post-Op:"></a>Post-Op:</h4><p>If the operation succeeds on all the bricks then there is no pending operations on any of the bricks so as part of POST-OP afr sends xattrop operation with increment -1 i.e. decrement by 1 for entry operation to make the extended attributes back to all zeros again.</p>
-<p>In case there is a failure on brick-b then there is still a pending operation on brick-b where as no pending operations are there on brick-a. So xattrop operation for both of these extended attributes differs now. For extended attribute corresponding to brick-a i.e. trusted.afr.vol-client-0 decrement by 1 is sent where as for extended attribute corresponding to brick-b increment by ‘0’ is sent to retain the pending operation count.</p>
-<pre><code># getfattr -d -e hex -m. brick-a/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for itself (brick-a)
-trusted.afr.vol-client-1=0x000000000000000000000001 --&gt;changelog for brick-b as seen by brick-a
-
-# getfattr -d -e hex -m. brick-b/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for brick-a as seen by brick-b
-trusted.afr.vol-client-1=0x000000000000000000000001 --&gt;changelog for itself (brick-b)</code></pre><h4 id="Unlock-2"><a href="#Unlock-2" class="headerlink" title="Unlock:"></a>Unlock:</h4><p>Once the transaction is completed unlock is sent on all the bricks where lock is acquired.</p>
-<p>The parts above cover how replication consistency is achieved in afr.</p>
-<p>Now let us look at how afr can figure out how to recover from failures given the changelog extended attributes</p>
-<h3 id="Recovering-from-failures-Self-heal"><a href="#Recovering-from-failures-Self-heal" class="headerlink" title="Recovering from failures (Self-heal)"></a>Recovering from failures (Self-heal)</h3><p>For recovering from failures afr tries to determine which copy is the fresh copy based on the extended attributes.</p>
-<p>There are 3 possibilities:</p>
-<ol>
-<li><p>All the extended attributes are zero on all the bricks. This means there are no pending operations on any of the bricks so there is nothing to recover.</p>
-</li>
-<li><p>According to the extended attributes there is a brick(brick-a) which noticed that there are operations pending on the other brick(brick-b).</p>
-<ul>
-<li><p>There are 4 possibilities for brick-b</p>
-<ul>
-<li><p>It did not even participate in transaction (all extended attributes on brick-b are zeros). Choose brick-a as source and perform recovery to brick-b.</p>
-</li>
-<li><p>It participated in the transaction but died even before post-op. (All extended attributes on brick-b have a pending-count). Choose brick-a as source and perform recovery to brick-b.</p>
-</li>
-<li><p>It participated in the transaction and after the post-op extended attributes on brick-b show that there are pending operations on itself. Choose brick-a as source and perform recovery to brick-b.</p>
-</li>
-<li><p>It participated in the transaction and after the post-op extended attributes on brick-b show that there are pending operations on brick-a. This situation is called Split-brain and there is no way to recover. This situation can happen in cases of network partition.</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>The only possibility now is where both brick-a, brick-b have pending operations. In this case changelogs extended attributes are all non-zeros on all the bricks. Basically what could have happened is the operations started on the file but either the whole replica set went down or the mount process itself dies before post-op is performed. In this case there is a possibility that data on the bricks is different. In this case afr chooses file with bigger size as source, if both files have same size then it choses the subvolume which has witnessed large number of pending operations on the other brick as source. If both have same number of pending operations then it chooses the file with newest ctime as source. If this is also same then it just picks one of the two bricks as source and syncs data on to the other to make sure that the files are replicas to each other.</p>
-</li>
-</ol>
-<h3 id="Self-healing"><a href="#Self-healing" class="headerlink" title="Self-healing:"></a>Self-healing:</h3><p>Afr does 3 types of self-heals for data recovery.</p>
-<ol>
-<li><p>Data self-heal</p>
-</li>
-<li><p>Metadata self-heal</p>
-</li>
-<li><p>Entry self-heal</p>
-</li>
-</ol>
-<p>As we have seen earlier, afr depends on changelog extended attributes to figure out which copy is source and which copy is sink. General algorithm for performing this recovery (self-heal) is same for all of these different self-heals.</p>
-<ol>
-<li><p>Take appropriate full locks on the file/directory to make sure no other transaction is in progress while inspecting changelog extended attributes.<br>In this step, for</p>
-<ul>
-<li>Data self-heal afr takes inode lock with <code>offset: 0</code> and <code>size: 0</code>(infinity) in data domain.</li>
-<li>Entry self-heal takes entry lock on directory with <code>NULL</code> name i.e. full directory lock.</li>
-<li>Metadata self-heal it takes pre-defined range in metadata domain on which all the metadata operations on that inode take locks on. To prevent duplicate data self-heal an inode lock is taken in self-heal domain as well.</li>
-</ul>
-</li>
-<li><p>Perform Sync from fresh copy to stale copy.<br>In this step,</p>
-<ul>
-<li><p>Metadata self-heal gets the inode attributes, extended attributes from source copy and sets them on the stale copy.</p>
-</li>
-<li><p>Entry self-heal reads entries on stale directories and see if they are present on source directory, if they are not present it deletes them. Then it reads entries on fresh directory and creates the missing entries on stale directories.</p>
-</li>
-<li><p>Data self-heal does things a bit differently to make sure no other writes on the file are blocked for the duration of self-heal because files sizes could be as big as 100G(VM files) and we don’t want to block all the transactions until the self-heal is over. Locks translator allows two overlapping locks to be granted if they are from same lock owner. Using this what data self-heal does is it takes a small 128k size range lock and unlock previous acquired lock, heals just that 128k chunk and takes next 128k chunk lock and unlock previous lock and moves to the next one. It always makes sure that at least one lock is present on the file by selfheal throughout the duration of self-heal so that two self-heals don’t happen in parallel.</p>
-</li>
-<li><p>Data self-heal has two algorithms, where the file can be copied only when there is data mismatch for that chunk called as ‘diff’ self-heal. The other one is blind copy of each chunk called ‘full’ self-heal</p>
-</li>
-</ul>
-</li>
-<li><p>Change extended attributes to mark new sources after the sync.</p>
-</li>
-<li><p>Unlock the locks acquired to perform self-heal.</p>
-</li>
-</ol>
-<h3 id="Transaction-Optimizations"><a href="#Transaction-Optimizations" class="headerlink" title="Transaction Optimizations:"></a>Transaction Optimizations:</h3><p>As we saw earlier afr transaction for all the operations that modify data happens in 5 phases, i.e. it sends 5 operations on the network for every operation. In the following sections we will see optimizations already implemented in afr which reduce the number of operations on the network to just 1 per transaction in best case.</p>
-<h4 id="Changelog-piggybacking"><a href="#Changelog-piggybacking" class="headerlink" title="Changelog-piggybacking"></a>Changelog-piggybacking</h4><p>This optimization comes into picture when on same file descriptor, before write1’s post op is complete write2’s pre-op starts and the operations are succeeding. When writes come in that manner we can piggyback on the pre-op of write1 for write2 and somehow tell write1 that write2 will do the post-op that was supposed to be done by write1. So write1’s post-op does not happen over network, write2’s pre-op does not happen over network. This optimization does not hold if there are any failures in write1’s phases.</p>
-<h4 id="Delayed-Post-op"><a href="#Delayed-Post-op" class="headerlink" title="Delayed Post-op"></a>Delayed Post-op</h4><p>This optimization just delays post-op of the write transaction(write1) by a pre-configured amount time to increase the probability of next write piggybacking on the pre-op done by write1.</p>
-<p>With the combination of these two optimizations for operations like full file copy which are write intensive operations, what will essentially happen is for the first write a pre-op will happen. Then for the last write on the file post-op happens. So for all the write transactions between first write and last write afr reduced network operations from 5 to 3.</p>
-<h4 id="Eager-locking"><a href="#Eager-locking" class="headerlink" title="Eager-locking:"></a>Eager-locking:</h4><p>This optimization comes into picture when only one file descriptor is open on the file and performing writes just like in the previous optimization. What this optimization does is it takes a full file lock on the file irrespective of the offset, size of the write, so that lock acquired by write1 can be piggybacked by write2 and write2 takes the responsibility of unlocking it. both write1, write2 will have same lock owner and afr takes the responsibility of serializing overlapping writes so that replication consistency is maintained.</p>
-<p>With the combination of these optimizations for operations like full file copy which are write intensive operations, what will essentially happen is for the first write a pre-op, full-file lock will happen. Then for the last write on the file post-op, unlock happens. So for all the write transactions between first write and last write afr reduced network operations from 5 to 1.</p>
-<h3 id="Quorum-in-afr"><a href="#Quorum-in-afr" class="headerlink" title="Quorum in afr:"></a>Quorum in afr:</h3><p>To avoid split-brains, afr employs the following quorum policies.</p>
-<ul>
-<li>In replica set with odd number of bricks, replica set is said to be in quorum if more than half of the bricks are up.</li>
-<li>In replica set with even number of bricks, if more than half of the bricks are up then it is said to be in quorum but if number of bricks that are up is equal to number of bricks that are down then, it is said to be in quorum if the first brick is also up in the set of bricks that are up.</li>
-</ul>
-<p>When quorum is not met in the replica set then modify operations on the mount are not allowed by afr.</p>
-<h3 id="Self-heal-daemon-and-Index-translator-usage-by-afr"><a href="#Self-heal-daemon-and-Index-translator-usage-by-afr" class="headerlink" title="Self-heal daemon and Index translator usage by afr:"></a>Self-heal daemon and Index translator usage by afr:</h3><h4 id="Index-xlator"><a href="#Index-xlator" class="headerlink" title="Index xlator"></a>Index xlator</h4><p>On each brick index xlator is loaded. This xlator keeps track of what is happening in afr’s pre-op and post-op. If there is an ongoing I/O or a pending self-heal, changelog xattrs would have non-zero values. Whenever xattrop/fxattrop fop (pre-op, post-ops are done using these fops) comes to index xlator a link (with gfid as name of the file on which the fop is performed) is added in <brick>/.glusterfs/indices/xattrop directory. If the value returned by the fop is zero the link is removed from the index otherwise it is kept until zero is returned in the subsequent xattrop/fxattrop fops.</brick></p>
-<h4 id="Self-heal-daemon"><a href="#Self-heal-daemon" class="headerlink" title="Self-heal-daemon:"></a>Self-heal-daemon:</h4><p>self-heal-daemon process keeps running on each machine of the trusted storage pool. This process has afr xlators of all the volumes which are started. Its job is to crawl indices on bricks that are local to that machine. If any of the files represented by the gfid of the link name need healing and automatically heal them. This operation is performed every 10 minutes for each replica set. Additionally when a brick comes online also this operation is performed.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2161,7 +1979,7 @@ trusted.afr.vol-client-1=0x000000000000000000000001 --&gt;changelog for itself (
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-count">36</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
