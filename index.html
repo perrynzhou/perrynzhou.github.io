@@ -152,6 +152,89 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/" class="post-title-link" itemprop="url">epoll中的惊群效应</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-06-23 18:03:13 / Modified: 18:04:56" itemprop="dateCreated datePublished" datetime="2020-06-23T18:03:13+08:00">2020-06-23</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="多进程-使用epoll-select-poll-监听同一个端口的惊群效应解决方案"><a href="#多进程-使用epoll-select-poll-监听同一个端口的惊群效应解决方案" class="headerlink" title="多进程(使用epoll/select/poll)监听同一个端口的惊群效应解决方案"></a>多进程(使用epoll/select/poll)监听同一个端口的惊群效应解决方案</h3><p><strong>1.什么是惊群效应?</strong></p>
+<p><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/1.png" alt></p>
+<ul>
+<li>多个进程(A、B、C、D的worker进程)使用epoll/poll/select等函数监听同一个端口时候，当有一个TCP请求连接到该端口时候，A、B、C、D进程会被同时唤醒，但是仅仅有一个进程会accept接受来自客户端的连接，其他的进程则会挂起。</li>
+</ul>
+<ul>
+<li>举个例子，假设你去银行柜台取钱，银行有4个窗口，每个窗口的营业员都在等待客户来取钱，叫到某个号码时候(就该手持某个号码的人去柜台取钱),这个人就去柜台，在这个时候4个窗口营业员同时叫那个人去自己窗口办理，但是仅仅只会有一个窗口的营业员提供服务给你，但是这4个窗口的营业员会去“招呼”你去她哪里办理业务。4个窗口的营业员同时叫你自己的号码时候，只有一个窗口提供服务，这个效应就是惊群</li>
+</ul>
+<p><strong>2.如何产生惊群效应</strong></p>
+<ul>
+<li>在早期的Linux版本中，内核对于阻塞在epoll_wait的进程，也是采用全部唤醒的机制，所以存在和accept相似的“惊群”问题。新版本的的解决方案也是只会唤醒等待队列上的第一个进程或线程，所以，新版本Linux 部分的解决了epoll的“惊群”问题。所谓部分的解决，意思就是：对于部分特殊场景，使用epoll机制，已经不存在“惊群”的问题了，但是对于大多数场景，epoll机制仍然存在“惊群”.</li>
+<li>多个进程同时监听同一个端口时候，当有请求连接到该端口时候，多个进程会被同时唤醒，但是仅仅有一个进程会accept的请求，其他的进程则会挂起</li>
+</ul>
+<p><strong>3.惊群效应影响</strong></p>
+<ul>
+<li>假设有10万tcp请求，后端有64个worker进程,这些进程的唤醒和挂起之间的切换开销非常大，会严重影响服务器的处理请求的吞吐量</li>
+</ul>
+<p><strong>4.如何解决惊群效应</strong></p>
+<ul>
+<li>多进程方式下，在共享内存设置一个变量，在多个进程accept请求之前针对该变量加锁，哪个进程获取到锁，哪个进程就accept请求。</li>
+</ul>
+<h4 id="5-解决惊群效应解决思路"><a href="#5-解决惊群效应解决思路" class="headerlink" title="5.解决惊群效应解决思路"></a>5.解决惊群效应解决思路</h4><p><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/2.png" alt></p>
+<ul>
+<li>在epoll_wait返回，获取锁，如果获得锁就继续accept新的request;否则继续epoll_wait</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/22/linux-%E9%94%81/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1037,76 +1120,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/21/glusterfs%E9%9B%86%E7%BE%A4glusterd%E6%98%BE%E7%A4%BADisconnect%E7%8A%B6%E6%80%81%E5%AF%BC%E8%87%B4%E9%9B%86%E7%BE%A4IO%E8%AF%B7%E6%B1%82%E5%8F%98%E6%85%A2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="涉猎的主要编程语言为 C、Go，分布式存储和对象存储.https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/21/glusterfs%E9%9B%86%E7%BE%A4glusterd%E6%98%BE%E7%A4%BADisconnect%E7%8A%B6%E6%80%81%E5%AF%BC%E8%87%B4%E9%9B%86%E7%BE%A4IO%E8%AF%B7%E6%B1%82%E5%8F%98%E6%85%A2/" class="post-title-link" itemprop="url">glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-21 11:43:12 / Modified: 11:44:58" itemprop="dateCreated datePublished" datetime="2020-04-21T11:43:12+08:00">2020-04-21</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢"><a href="#glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢" class="headerlink" title="glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢"></a>glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢</h3><h4 id="172-25-78-16节点的集群状态"><a href="#172-25-78-16节点的集群状态" class="headerlink" title="172.25.78.16节点的集群状态"></a>172.25.78.16节点的集群状态</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">[root@szdpl1491 ~]# gluster pool list</span><br><span class="line">UUID                                    Hostname        State</span><br><span class="line">bde7b9e2-af2a-419e-8242-6a8f8e18bb8a    172.25.78.242   Disconnected </span><br><span class="line">54fa8ec0-3617-4c8e-968a-7402a80a9017    172.25.78.240   Connected </span><br><span class="line">588bb497-5d9f-4bcf-b0b1-c9d364afb084    172.25.78.241   Connected </span><br><span class="line">a8522deb-ee16-44a3-a800-9525cb8d64fa    localhost       Connected</span><br></pre></td></tr></table></figure>
-<ul>
-<li>172.25.78.242节点在172.25.78.16的状态明显不对，查看其它的节点242的认证信息</li>
-</ul>
-<h4 id="172-25-78-240节点的集群状态"><a href="#172-25-78-240节点的集群状态" class="headerlink" title="172.25.78.240节点的集群状态"></a>172.25.78.240节点的集群状态</h4>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[root@szdpl1543 ~]# gluster pool list</span><br><span class="line">UUID                                    Hostname        State</span><br><span class="line">588bb497-5d9f-4bcf-b0b1-c9d364afb084    172.25.78.241   Connected </span><br><span class="line">bde7b9e2-af2a-419e-8242-6a8f8e18bb8a    172.25.78.242   Connected </span><br><span class="line">a8522deb-ee16-44a3-a800-9525cb8d64fa    172.25.78.16    Connected </span><br><span class="line">54fa8ec0-3617-4c8e-968a-7402a80a9017    localhost       Connected </span><br><span class="line">[root@szdpl1543 ~]# cd &#x2F;var&#x2F;lib&#x2F;glusterd&#x2F;peers&#x2F;</span><br><span class="line">[root@szdpl1543 peers]# ls</span><br><span class="line">588bb497-5d9f-4bcf-b0b1-c9d364afb084  a8522deb-ee16-44a3-a800-9525cb8d64fa  bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">[root@szdpl1543 peers]# cat bde7b9e2-af2a-419e-8242-6a8f8e18bb8a </span><br><span class="line">uuid&#x3D;bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">state&#x3D;3</span><br><span class="line">hostname1&#x3D;172.25.78.242</span><br><span class="line">hostname2&#x3D;bogon</span><br><span class="line">[root@szdpl1543 peers]# vi bde7b9e2-af2a-419e-8242-6a8f8e18bb8a </span><br><span class="line">uuid&#x3D;bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">state&#x3D;3</span><br><span class="line">hostname1&#x3D;172.25.78.242</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="172-25-78-16节点的集群状态-1"><a href="#172-25-78-16节点的集群状态-1" class="headerlink" title="172.25.78.16节点的集群状态"></a>172.25.78.16节点的集群状态</h4>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@szdpl1491 ~]# gluster pool list</span><br><span class="line"> UUID                                    Hostname        State</span><br><span class="line">  bde7b9e2-af2a-419e-8242-6a8f8e18bb8a    172.25.78.242   Disconnected </span><br><span class="line">  54fa8ec0-3617-4c8e-968a-7402a80a9017    172.25.78.240   Connected </span><br><span class="line">  588bb497-5d9f-4bcf-b0b1-c9d364afb084    172.25.78.241   Connected </span><br><span class="line">  a8522deb-ee16-44a3-a800-9525cb8d64fa    localhost       Connected</span><br><span class="line">[root@szdpl1491 ~]# cd &#x2F;var&#x2F;lib&#x2F;glusterd&#x2F;peers&#x2F;</span><br><span class="line">[root@szdpl1491 peers]# ls</span><br><span class="line">54fa8ec0-3617-4c8e-968a-7402a80a9017  588bb497-5d9f-4bcf-b0b1-c9d364afb084  bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">[root@szdpl1491 peers]# cat bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">uuid&#x3D;bde7b9e2-af2a-419e-8242-6a8f8e18bb8a</span><br><span class="line">state&#x3D;3</span><br><span class="line">hostname1&#x3D;bogon</span><br><span class="line">hostname2&#x3D;172.25.78.242</span><br></pre></td></tr></table></figure>
-<ul>
-<li>修改每个节点的var/lib/glusterd/peers/bde7b9e2-af2a-419e-8242-6a8f8e18bb8a 中的hostname1修改为真实的IP，然后重启每个节点的glusterd的服务(systemctl restart glusterd)</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1176,7 +1189,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
