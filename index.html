@@ -177,7 +177,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-06-23 18:03:13 / Modified: 18:04:56" itemprop="dateCreated datePublished" datetime="2020-06-23T18:03:13+08:00">2020-06-23</time>
+              <time title="Created: 2020-06-23 18:03:13 / Modified: 18:08:45" itemprop="dateCreated datePublished" datetime="2020-06-23T18:03:13+08:00">2020-06-23</time>
             </span>
 
           
@@ -212,7 +212,8 @@
 <ul>
 <li>多进程方式下，在共享内存设置一个变量，在多个进程accept请求之前针对该变量加锁，哪个进程获取到锁，哪个进程就accept请求。</li>
 </ul>
-<h4 id="5-解决惊群效应解决思路"><a href="#5-解决惊群效应解决思路" class="headerlink" title="5.解决惊群效应解决思路"></a>5.解决惊群效应解决思路</h4><p><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/2.png" alt></p>
+<p><strong>5.解决惊群效应解决思路</strong></p>
+<p><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/2.png" alt></p>
 <ul>
 <li>在epoll_wait返回，获取锁，如果获得锁就继续accept新的request;否则继续epoll_wait</li>
 </ul>
