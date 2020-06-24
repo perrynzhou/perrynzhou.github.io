@@ -1,205 +1,210 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
+
+
+
+
+
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+  <meta name="author" content="perrynzhou">
+  <meta name="keywords" content="C, Go, nginx,glusterfs,redis">
+  <title>epoll中的惊群效应 - perrynzhou</title>
 
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
-
-  <meta name="description" content="多进程(使用epoll&#x2F;select&#x2F;poll)监听同一个端口的惊群效应解决方案1.什么是惊群效应?  多个进程(A、B、C、D的worker进程)使用epoll&#x2F;poll&#x2F;select等函数监听同一个端口时候，当有一个TCP请求连接到该端口时候，A、B、C、D进程会被同时唤醒，但是仅仅有一个进程会accept接受来自客户端的连接，其他的进程则会挂起。   举个例子，假设你去银行柜台取钱，银行有4">
-<meta property="og:type" content="article">
-<meta property="og:title" content="epoll中的惊群效应">
-<meta property="og:url" content="http://yoursite.com/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/index.html">
-<meta property="og:site_name" content="perrynzhou">
-<meta property="og:description" content="多进程(使用epoll&#x2F;select&#x2F;poll)监听同一个端口的惊群效应解决方案1.什么是惊群效应?  多个进程(A、B、C、D的worker进程)使用epoll&#x2F;poll&#x2F;select等函数监听同一个端口时候，当有一个TCP请求连接到该端口时候，A、B、C、D进程会被同时唤醒，但是仅仅有一个进程会accept接受来自客户端的连接，其他的进程则会挂起。   举个例子，假设你去银行柜台取钱，银行有4">
-<meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://yoursite.com/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/1.png">
-<meta property="og:image" content="http://yoursite.com/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/2.png">
-<meta property="og:image" content="http://yoursite.com/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/3.jpg">
-<meta property="og:image" content="http://yoursite.com/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/4.jpg">
-<meta property="article:published_time" content="2020-06-23T10:03:13.000Z">
-<meta property="article:modified_time" content="2020-06-23T10:17:15.745Z">
-<meta property="article:author" content="perrynzhou">
-<meta property="article:tag" content="C">
-<meta property="article:tag" content=" Go">
-<meta property="article:tag" content=" nginx">
-<meta property="article:tag" content="glusterfs">
-<meta property="article:tag" content="redis">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yoursite.com/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/1.png">
-
-<link rel="canonical" href="http://yoursite.com/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/">
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'en'
-  };
-</script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-  <title>epoll中的惊群效应 | perrynzhou</title>
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
   
 
 
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
 
 
 
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
 
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
 
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
+<link  rel="stylesheet" href="/css/main.css" />
 
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
+<!-- 自定义样式保持在最底部 -->
 
-</head>
 
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.0"></head>
 
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
   </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">perrynzhou</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
-
-  </li>
-  </ul>
 </nav>
 
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
 
-
-
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-06-23 18:03">
+      2020年6月23日 晚上
+    </time>
   </div>
 
 
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content post posts-expand">
-            
-
-    
+<div class="mt-1">
   
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.3k 字
+    </span>
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          epoll中的惊群效应
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-06-23 18:03:13 / Modified: 18:17:15" itemprop="dateCreated datePublished" datetime="2020-06-23T18:03:13+08:00">2020-06-23</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
+  
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
       
-        <h3 id="多进程-使用epoll-select-poll-监听同一个端口的惊群效应解决方案"><a href="#多进程-使用epoll-select-poll-监听同一个端口的惊群效应解决方案" class="headerlink" title="多进程(使用epoll/select/poll)监听同一个端口的惊群效应解决方案"></a>多进程(使用epoll/select/poll)监听同一个端口的惊群效应解决方案</h3><h4 id="1-什么是惊群效应"><a href="#1-什么是惊群效应" class="headerlink" title="1.什么是惊群效应?"></a>1.什么是惊群效应?</h4><p><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/1.png" alt></p>
+      
+      20
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h3 id="多进程-使用epoll-select-poll-监听同一个端口的惊群效应解决方案"><a href="#多进程-使用epoll-select-poll-监听同一个端口的惊群效应解决方案" class="headerlink" title="多进程(使用epoll/select/poll)监听同一个端口的惊群效应解决方案"></a>多进程(使用epoll/select/poll)监听同一个端口的惊群效应解决方案</h3><h4 id="1-什么是惊群效应"><a href="#1-什么是惊群效应" class="headerlink" title="1.什么是惊群效应?"></a>1.什么是惊群效应?</h4><p><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/1.png" srcset="/img/loading.gif" alt></p>
 <ul>
 <li>多个进程(A、B、C、D的worker进程)使用epoll/poll/select等函数监听同一个端口时候，当有一个TCP请求连接到该端口时候，A、B、C、D进程会被同时唤醒，但是仅仅有一个进程会accept接受来自客户端的连接，其他的进程则会挂起。</li>
 </ul>
@@ -216,201 +221,439 @@
 <h4 id="4-如何解决惊群效应"><a href="#4-如何解决惊群效应" class="headerlink" title="4.如何解决惊群效应"></a>4.如何解决惊群效应</h4><ul>
 <li>多进程方式下，在共享内存设置一个变量，在多个进程accept请求之前针对该变量加锁，哪个进程获取到锁，哪个进程就accept请求。</li>
 </ul>
-<h4 id="5-解决惊群效应解决思路"><a href="#5-解决惊群效应解决思路" class="headerlink" title="5.解决惊群效应解决思路"></a>5.解决惊群效应解决思路</h4><p><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/2.png" alt></p>
+<h4 id="5-解决惊群效应解决思路"><a href="#5-解决惊群效应解决思路" class="headerlink" title="5.解决惊群效应解决思路"></a>5.解决惊群效应解决思路</h4><p><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/2.png" srcset="/img/loading.gif" alt></p>
 <ul>
 <li>在epoll_wait返回，获取锁，如果获得锁就继续accept新的request;否则继续epoll_wait</li>
 </ul>
 <h4 id="6-惊群效应例子"><a href="#6-惊群效应例子" class="headerlink" title="6.惊群效应例子"></a>6.惊群效应例子</h4><ul>
 <li>运行实例</li>
 </ul>
-<p><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/3.jpg" alt><br><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/4.jpg" alt></p>
+<p><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/3.jpg" srcset="/img/loading.gif" alt><br><img src="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/4.jpg" srcset="/img/loading.gif" alt></p>
 <ul>
-<li>代码<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: epoll_test.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Tuesday, June 23, 2020 AM08:45:28 HKT</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;assert.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;socket.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;epoll.h&gt;</span><br><span class="line">#include &lt;netdb.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;errno.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;wait.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;netinet&#x2F;in.h&gt;</span><br><span class="line">#include &lt;arpa&#x2F;inet.h&gt;</span><br><span class="line"></span><br><span class="line">#define NET_SERVICE_BUFFER_LEN (1024)</span><br><span class="line"></span><br><span class="line">typedef struct net_service_t</span><br><span class="line">&#123;</span><br><span class="line">  int sfd;</span><br><span class="line">  int efd;</span><br><span class="line">  int worker_process_num;</span><br><span class="line">  struct epoll_event event;</span><br><span class="line">  struct epoll_event *events;</span><br><span class="line">&#125; net_service;</span><br><span class="line">inline static int net_service_accept_request(net_service *ns)</span><br><span class="line">&#123;</span><br><span class="line">  struct sockaddr client_addr;</span><br><span class="line">  socklen_t len &#x3D; sizeof(struct sockaddr);</span><br><span class="line">  return accept(ns-&gt;sfd, &amp;client_addr, &amp;len);</span><br><span class="line">&#125;</span><br><span class="line">inline static void net_service_fetch_client_addr(int newfd, char *buf, size_t sz)</span><br><span class="line">&#123;</span><br><span class="line">  struct sockaddr_in addr;</span><br><span class="line">  socklen_t addr_size &#x3D; sizeof(struct sockaddr_in);</span><br><span class="line">  int res &#x3D; getpeername(newfd, (struct sockaddr *)&amp;addr, &amp;addr_size);</span><br><span class="line">  strncpy(buf, inet_ntoa(addr.sin_addr), sz);</span><br><span class="line">&#125;</span><br><span class="line">void net_service_handle_request(net_service *ns, int k)</span><br><span class="line">&#123;</span><br><span class="line">  int max_event &#x3D; 1024;</span><br><span class="line">  int efd &#x3D; ns-&gt;efd;</span><br><span class="line">  int sfd &#x3D; ns-&gt;sfd;</span><br><span class="line">  struct epoll_event *events &#x3D; ns-&gt;events;</span><br><span class="line">  while (1)</span><br><span class="line">  &#123;</span><br><span class="line">    int n &#x3D; epoll_wait(efd, events, max_event, -1);</span><br><span class="line">    usleep(100);</span><br><span class="line">    for (int i &#x3D; 0; i &lt; n; i++)</span><br><span class="line">    &#123;</span><br><span class="line">      if (events[i].events &amp; EPOLLERR)</span><br><span class="line">      &#123;</span><br><span class="line">        fprintf(stdout, &quot;epoll error\n&quot;);</span><br><span class="line">        close(events[i].data.fd);</span><br><span class="line">        continue;</span><br><span class="line">      &#125;</span><br><span class="line">      else if (sfd &#x3D;&#x3D; events[i].data.fd)</span><br><span class="line">      &#123;</span><br><span class="line">        int client_fd &#x3D; net_service_accept_request(ns);</span><br><span class="line">        if (client_fd &#x3D;&#x3D; -1)</span><br><span class="line">        &#123;</span><br><span class="line">          fprintf(stdout, &quot;worker-%d-[%d] process return from  epoll_wait,accept failed\n&quot;, k, getpid());</span><br><span class="line">          break;</span><br><span class="line">        &#125;</span><br><span class="line">        char b[NET_SERVICE_BUFFER_LEN];</span><br><span class="line">        net_service_fetch_client_addr(client_fd, (char *)&amp;b, NET_SERVICE_BUFFER_LEN);</span><br><span class="line">        fprintf(stdout, &quot;worker-%d-[%d] process return from  epoll_wait,accept %s success\n&quot;, k, getpid(), (char *)&amp;b);</span><br><span class="line">        close(client_fd);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">static int net_service_create_and_bind(net_service *ns, const char *addr, int port)</span><br><span class="line">&#123;</span><br><span class="line">  int fd &#x3D; socket(PF_INET, SOCK_STREAM, 0);</span><br><span class="line">  struct sockaddr_in serveraddr;</span><br><span class="line">  serveraddr.sin_family &#x3D; AF_INET;</span><br><span class="line">  inet_pton(AF_INET, addr, &amp;serveraddr.sin_addr);</span><br><span class="line">  serveraddr.sin_port &#x3D; htons(port);</span><br><span class="line">  bind(fd, (struct sockaddr *)&amp;serveraddr, sizeof(serveraddr));</span><br><span class="line"></span><br><span class="line">  ns-&gt;sfd &#x3D; fd;</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br><span class="line">static int net_service_setsockopt(net_service *ns)</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">  int flags, s;</span><br><span class="line">  flags &#x3D; fcntl(ns-&gt;sfd, F_GETFL, 0);</span><br><span class="line">  if (flags &#x3D;&#x3D; -1)</span><br><span class="line">  &#123;</span><br><span class="line">    perror(&quot;fcntl&quot;);</span><br><span class="line">    return -1;</span><br><span class="line">  &#125;</span><br><span class="line">  flags |&#x3D; O_NONBLOCK;</span><br><span class="line">  if (fcntl(ns-&gt;sfd, F_SETFL, flags) &#x3D;&#x3D; -1)</span><br><span class="line">  &#123;</span><br><span class="line">    perror(&quot;fcntl&quot;);</span><br><span class="line">    return -1;</span><br><span class="line">  &#125;</span><br><span class="line">  int reuse &#x3D; 0;</span><br><span class="line">  setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char *)&amp;reuse, sizeof(int));</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br><span class="line">int net_service_init(net_service *ns, const char *addr, int port, int num)</span><br><span class="line">&#123;</span><br><span class="line">  int max_events &#x3D; 1024;</span><br><span class="line">  if (addr !&#x3D; NULL &amp;&amp; net_service_create_and_bind(ns, addr, port) !&#x3D; -1)</span><br><span class="line">  &#123;</span><br><span class="line">    net_service_setsockopt(ns);</span><br><span class="line">    listen(ns-&gt;sfd, 1024);</span><br><span class="line">    ns-&gt;efd &#x3D; epoll_create(max_events);</span><br><span class="line">    ns-&gt;event.data.fd &#x3D; ns-&gt;sfd;</span><br><span class="line">    ns-&gt;event.events &#x3D; EPOLLIN;</span><br><span class="line">    epoll_ctl(ns-&gt;efd, EPOLL_CTL_ADD, ns-&gt;sfd, &amp;ns-&gt;event);</span><br><span class="line">    ns-&gt;events &#x3D; calloc(max_events, sizeof(struct epoll_event));</span><br><span class="line">    assert(ns-&gt;events !&#x3D; NULL);</span><br><span class="line">    ns-&gt;worker_process_num &#x3D; num;</span><br><span class="line">  &#125;</span><br><span class="line">  return -1;</span><br><span class="line">&#125;</span><br><span class="line">int net_service_run(net_service *ns)</span><br><span class="line">&#123;</span><br><span class="line">  pid_t pid &#x3D; 0;</span><br><span class="line">  for (int i &#x3D; 0; i &lt; ns-&gt;worker_process_num; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    fflush(NULL);</span><br><span class="line">    pid &#x3D; fork();</span><br><span class="line">    if (pid &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      fprintf(stdout, &quot;start worker-%d-%d\n&quot;, i, getpid());</span><br><span class="line">      net_service_handle_request(ns, i);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  while ((pid &#x3D; waitpid(-1, NULL, 0)))</span><br><span class="line">  &#123;</span><br><span class="line">    if (errno &#x3D;&#x3D; ECHILD)</span><br><span class="line">    &#123;</span><br><span class="line">      break;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">void net_service_deinit(net_service *ns)</span><br><span class="line">&#123;</span><br><span class="line">  if (ns !&#x3D; NULL)</span><br><span class="line">  &#123;</span><br><span class="line">    if (ns-&gt;efd !&#x3D; -1)</span><br><span class="line">    &#123;</span><br><span class="line">      close(ns-&gt;efd);</span><br><span class="line">    &#125;</span><br><span class="line">    if (ns-&gt;sfd !&#x3D; -1)</span><br><span class="line">    &#123;</span><br><span class="line">      close(ns-&gt;sfd);</span><br><span class="line">    &#125;</span><br><span class="line">    ns-&gt;sfd &#x3D; ns-&gt;efd &#x3D; -1;</span><br><span class="line">    if (ns-&gt;events !&#x3D; NULL)</span><br><span class="line">    &#123;</span><br><span class="line">      free(ns-&gt;events);</span><br><span class="line">      ns-&gt;events &#x3D; NULL;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line">  net_service net;</span><br><span class="line">  net_service_init(&amp;net, &quot;127.0.0.1&quot;, 9988, 4);</span><br><span class="line">  fprintf(stdout, &quot;run on %s:%d\n&quot;, &quot;127.0.0.1&quot;, 9988);</span><br><span class="line">  net_service_run(&amp;net);</span><br><span class="line">  net_service_deinit(&amp;net);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<li>代码<pre><code class="hljs arduino"><span class="hljs-comment">/*************************************************************************</span>
+<span class="hljs-comment">  &gt; File Name: epoll_test.c</span>
+<span class="hljs-comment">  &gt; Author:perrynzhou </span>
+<span class="hljs-comment">  &gt; Mail:perrynzhou@gmail.com </span>
+<span class="hljs-comment">  &gt; Created Time: Tuesday, June 23, 2020 AM08:45:28 HKT</span>
+<span class="hljs-comment"> ************************************************************************/</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;assert.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/socket.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/epoll.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;netdb.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;errno.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/wait.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;netinet/in.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;arpa/inet.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> NET_SERVICE_BUFFER_LEN (1024)</span>
+
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">net_service_t</span></span>
+<span class="hljs-class">&#123;</span>
+  <span class="hljs-keyword">int</span> sfd;
+  <span class="hljs-keyword">int</span> efd;
+  <span class="hljs-keyword">int</span> worker_process_num;
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">epoll_event</span> <span class="hljs-title">event</span>;</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">epoll_event</span> *<span class="hljs-title">events</span>;</span>
+&#125; net_service;
+<span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">net_service_accept_request</span><span class="hljs-params">(net_service *ns)</span></span>
+<span class="hljs-function"></span>&#123;
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sockaddr</span> <span class="hljs-title">client_addr</span>;</span>
+  <span class="hljs-keyword">socklen_t</span> len = <span class="hljs-keyword">sizeof</span>(struct sockaddr);
+  <span class="hljs-keyword">return</span> accept(ns-&gt;sfd, &amp;client_addr, &amp;len);
+&#125;
+<span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">net_service_fetch_client_addr</span><span class="hljs-params">(<span class="hljs-keyword">int</span> newfd, <span class="hljs-keyword">char</span> *buf, <span class="hljs-keyword">size_t</span> sz)</span></span>
+<span class="hljs-function"></span>&#123;
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sockaddr_in</span> <span class="hljs-title">addr</span>;</span>
+  <span class="hljs-keyword">socklen_t</span> addr_size = <span class="hljs-keyword">sizeof</span>(struct sockaddr_in);
+  <span class="hljs-keyword">int</span> res = getpeername(newfd, (struct sockaddr *)&amp;addr, &amp;addr_size);
+  <span class="hljs-built_in">strncpy</span>(buf, inet_ntoa(addr.sin_addr), sz);
+&#125;
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">net_service_handle_request</span><span class="hljs-params">(net_service *ns, <span class="hljs-keyword">int</span> k)</span></span>
+<span class="hljs-function"></span>&#123;
+  <span class="hljs-keyword">int</span> max_event = <span class="hljs-number">1024</span>;
+  <span class="hljs-keyword">int</span> efd = ns-&gt;efd;
+  <span class="hljs-keyword">int</span> sfd = ns-&gt;sfd;
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">epoll_event</span> *<span class="hljs-title">events</span> = <span class="hljs-title">ns</span>-&gt;<span class="hljs-title">events</span>;</span>
+  <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)
+  &#123;
+    <span class="hljs-keyword">int</span> n = epoll_wait(efd, events, max_event, <span class="hljs-number">-1</span>);
+    usleep(<span class="hljs-number">100</span>);
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; n; i++)
+    &#123;
+      <span class="hljs-keyword">if</span> (events[i].events &amp; EPOLLERR)
+      &#123;
+        <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stdout</span>, <span class="hljs-string">"epoll error\n"</span>);
+        <span class="hljs-built_in">close</span>(events[i].data.fd);
+        <span class="hljs-keyword">continue</span>;
+      &#125;
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (sfd == events[i].data.fd)
+      &#123;
+        <span class="hljs-keyword">int</span> client_fd = net_service_accept_request(ns);
+        <span class="hljs-keyword">if</span> (client_fd == <span class="hljs-number">-1</span>)
+        &#123;
+          <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stdout</span>, <span class="hljs-string">"worker-%d-[%d] process return from  epoll_wait,accept failed\n"</span>, k, getpid());
+          <span class="hljs-keyword">break</span>;
+        &#125;
+        <span class="hljs-keyword">char</span> b[NET_SERVICE_BUFFER_LEN];
+        net_service_fetch_client_addr(client_fd, (<span class="hljs-keyword">char</span> *)&amp;b, NET_SERVICE_BUFFER_LEN);
+        <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stdout</span>, <span class="hljs-string">"worker-%d-[%d] process return from  epoll_wait,accept %s success\n"</span>, k, getpid(), (<span class="hljs-keyword">char</span> *)&amp;b);
+        <span class="hljs-built_in">close</span>(client_fd);
+      &#125;
+    &#125;
+  &#125;
+&#125;
+<span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">net_service_create_and_bind</span><span class="hljs-params">(net_service *ns, <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *addr, <span class="hljs-keyword">int</span> port)</span></span>
+<span class="hljs-function"></span>&#123;
+  <span class="hljs-keyword">int</span> fd = socket(PF_INET, SOCK_STREAM, <span class="hljs-number">0</span>);
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sockaddr_in</span> <span class="hljs-title">serveraddr</span>;</span>
+  serveraddr.sin_family = AF_INET;
+  inet_pton(AF_INET, addr, &amp;serveraddr.sin_addr);
+  serveraddr.sin_port = htons(port);
+  bind(fd, (struct sockaddr *)&amp;serveraddr, <span class="hljs-keyword">sizeof</span>(serveraddr));
+
+  ns-&gt;sfd = fd;
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;
+<span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">net_service_setsockopt</span><span class="hljs-params">(net_service *ns)</span></span>
+<span class="hljs-function"></span>&#123;
+
+  <span class="hljs-keyword">int</span> flags, s;
+  flags = fcntl(ns-&gt;sfd, F_GETFL, <span class="hljs-number">0</span>);
+  <span class="hljs-keyword">if</span> (flags == <span class="hljs-number">-1</span>)
+  &#123;
+    perror(<span class="hljs-string">"fcntl"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+  &#125;
+  flags |= O_NONBLOCK;
+  <span class="hljs-keyword">if</span> (fcntl(ns-&gt;sfd, F_SETFL, flags) == <span class="hljs-number">-1</span>)
+  &#123;
+    perror(<span class="hljs-string">"fcntl"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+  &#125;
+  <span class="hljs-keyword">int</span> reuse = <span class="hljs-number">0</span>;
+  setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (<span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *)&amp;reuse, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">int</span>));
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">net_service_init</span><span class="hljs-params">(net_service *ns, <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *addr, <span class="hljs-keyword">int</span> port, <span class="hljs-keyword">int</span> num)</span></span>
+<span class="hljs-function"></span>&#123;
+  <span class="hljs-keyword">int</span> max_events = <span class="hljs-number">1024</span>;
+  <span class="hljs-keyword">if</span> (addr != <span class="hljs-literal">NULL</span> &amp;&amp; net_service_create_and_bind(ns, addr, port) != <span class="hljs-number">-1</span>)
+  &#123;
+    net_service_setsockopt(ns);
+    <span class="hljs-built_in">listen</span>(ns-&gt;sfd, <span class="hljs-number">1024</span>);
+    ns-&gt;efd = epoll_create(max_events);
+    ns-&gt;event.data.fd = ns-&gt;sfd;
+    ns-&gt;event.events = EPOLLIN;
+    epoll_ctl(ns-&gt;efd, EPOLL_CTL_ADD, ns-&gt;sfd, &amp;ns-&gt;event);
+    ns-&gt;events = <span class="hljs-built_in">calloc</span>(max_events, <span class="hljs-keyword">sizeof</span>(struct epoll_event));
+    assert(ns-&gt;events != <span class="hljs-literal">NULL</span>);
+    ns-&gt;worker_process_num = num;
+  &#125;
+  <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+&#125;
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">net_service_run</span><span class="hljs-params">(net_service *ns)</span></span>
+<span class="hljs-function"></span>&#123;
+  <span class="hljs-keyword">pid_t</span> pid = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; ns-&gt;worker_process_num; i++)
+  &#123;
+    fflush(<span class="hljs-literal">NULL</span>);
+    pid = fork();
+    <span class="hljs-keyword">if</span> (pid == <span class="hljs-number">0</span>)
+    &#123;
+      <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stdout</span>, <span class="hljs-string">"start worker-%d-%d\n"</span>, i, getpid());
+      net_service_handle_request(ns, i);
+    &#125;
+  &#125;
+  <span class="hljs-keyword">while</span> ((pid = waitpid(<span class="hljs-number">-1</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>)))
+  &#123;
+    <span class="hljs-keyword">if</span> (errno == ECHILD)
+    &#123;
+      <span class="hljs-keyword">break</span>;
+    &#125;
+  &#125;
+&#125;
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">net_service_deinit</span><span class="hljs-params">(net_service *ns)</span></span>
+<span class="hljs-function"></span>&#123;
+  <span class="hljs-keyword">if</span> (ns != <span class="hljs-literal">NULL</span>)
+  &#123;
+    <span class="hljs-keyword">if</span> (ns-&gt;efd != <span class="hljs-number">-1</span>)
+    &#123;
+      <span class="hljs-built_in">close</span>(ns-&gt;efd);
+    &#125;
+    <span class="hljs-keyword">if</span> (ns-&gt;sfd != <span class="hljs-number">-1</span>)
+    &#123;
+      <span class="hljs-built_in">close</span>(ns-&gt;sfd);
+    &#125;
+    ns-&gt;sfd = ns-&gt;efd = <span class="hljs-number">-1</span>;
+    <span class="hljs-keyword">if</span> (ns-&gt;events != <span class="hljs-literal">NULL</span>)
+    &#123;
+      <span class="hljs-built_in">free</span>(ns-&gt;events);
+      ns-&gt;events = <span class="hljs-literal">NULL</span>;
+    &#125;
+  &#125;
+&#125;
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+  net_service net;
+  net_service_init(&amp;net, <span class="hljs-string">"127.0.0.1"</span>, <span class="hljs-number">9988</span>, <span class="hljs-number">4</span>);
+  <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stdout</span>, <span class="hljs-string">"run on %s:%d\n"</span>, <span class="hljs-string">"127.0.0.1"</span>, <span class="hljs-number">9988</span>);
+  net_service_run(&amp;net);
+  net_service_deinit(&amp;net);
+  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
 </li>
 </ul>
 
-    </div>
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/06/24/nginx-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">nginx 简单介绍</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2020/06/22/linux-%E9%94%81/">
+                        <span class="hidden-mobile"> linux 锁</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
 
-    
-    
-    
-
-      <footer class="post-footer">
-
-        
-
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2020/06/22/linux-%E9%94%81/" rel="prev" title=" linux 锁">
-      <i class="fa fa-chevron-left"></i>  linux 锁
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/06/24/nginx-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/" rel="next" title="nginx 简单介绍">
-      nginx 简单介绍 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
-  </article>
-  
-  
-  
-
-
-
+            
           </div>
-          
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
         </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          Table of Contents
-        </li>
-        <li class="sidebar-nav-overview">
-          Overview
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#多进程-使用epoll-select-poll-监听同一个端口的惊群效应解决方案"><span class="nav-number">1.</span> <span class="nav-text">多进程(使用epoll&#x2F;select&#x2F;poll)监听同一个端口的惊群效应解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-什么是惊群效应"><span class="nav-number">1.1.</span> <span class="nav-text">1.什么是惊群效应?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-如何产生惊群效应"><span class="nav-number">1.2.</span> <span class="nav-text">2.如何产生惊群效应</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-惊群效应影响"><span class="nav-number">1.3.</span> <span class="nav-text">3.惊群效应影响</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-如何解决惊群效应"><span class="nav-number">1.4.</span> <span class="nav-text">4.如何解决惊群效应</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-解决惊群效应解决思路"><span class="nav-number">1.5.</span> <span class="nav-text">5.解决惊群效应解决思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-惊群效应例子"><span class="nav-number">1.6.</span> <span class="nav-text">6.惊群效应例子</span></a></li></ol></li></ol></div>
       </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">perrynzhou</p>
-  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">38</span>
-          <span class="site-state-item-name">posts</span>
-        </a>
-      </div>
-  </nav>
-</div>
-
-
-
-      </div>
-
     </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-
-
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2020</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
-  </div>
-
-        
-
-
-
-
-
-
-
 
       </div>
-    </footer>
+    
   </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
 
   
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
   
 
   
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "epoll中的惊群效应&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>

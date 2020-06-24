@@ -1,1332 +1,632 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
+
+
+
+
+
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
-
-  <meta name="description" content="擅长C&#x2F;Go编程;https:&#x2F;&#x2F;github.com&#x2F;perrynzhou。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="perrynzhou">
-<meta property="og:url" content="http://yoursite.com/page/3/index.html">
-<meta property="og:site_name" content="perrynzhou">
-<meta property="og:description" content="擅长C&#x2F;Go编程;https:&#x2F;&#x2F;github.com&#x2F;perrynzhou。">
-<meta property="og:locale" content="en_US">
-<meta property="article:author" content="perrynzhou">
-<meta property="article:tag" content="C">
-<meta property="article:tag" content=" Go">
-<meta property="article:tag" content=" nginx">
-<meta property="article:tag" content="glusterfs">
-<meta property="article:tag" content="redis">
-<meta name="twitter:card" content="summary">
-
-<link rel="canonical" href="http://yoursite.com/page/3/">
-
-
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : true,
-    isPost : false,
-    lang   : 'en'
-  };
-</script>
-
-  <title>perrynzhou</title>
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+  <meta name="author" content="perrynzhou">
+  <meta name="keywords" content="C, Go, nginx,glusterfs,redis">
+  <title>perrynzhou</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
 
 
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
 
 
 
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
 
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
 
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
+<link  rel="stylesheet" href="/css/main.css" />
 
-</head>
+<!-- 自定义样式保持在最底部 -->
 
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
 
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 100vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
   </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">perrynzhou</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
-
-  </li>
-  </ul>
 </nav>
 
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
 
-
-
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content index posts-expand">
             
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" class="post-title-link" itemprop="url">glusterfsd启动过程</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-16 17:11:54 / Modified: 17:41:07" itemprop="dateCreated datePublished" datetime="2020-04-16T17:11:54+08:00">2020-04-16</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h6 id="0-存在的疑惑"><a href="#0-存在的疑惑" class="headerlink" title="0.存在的疑惑"></a>0.存在的疑惑</h6><ul>
-<li>glusterd启动后怎么把glusterfsd的brick进程拉起来？</li>
-<li>glusterfsd启动的参数从哪里获取？</li>
-<li>glusterfsd如何加载的呢？</li>
-<li>glusterfsd和glusterd启动后各自都是什么角色？(后续再讨论)<h6 id="1-glusterfs的入口函数解释"><a href="#1-glusterfs的入口函数解释" class="headerlink" title="1. glusterfs的入口函数解释"></a>1. glusterfs的入口函数解释</h6></li>
-<li>glusterfsd中main方法加载xlator {name = 0x687dd0 “management”, type = 0x687f50 “mgmt/glusterd”}，然后fork一个子进程加载mgmt/glusterd中的init方法<h6 id="2-glusterd启动过程"><a href="#2-glusterd启动过程" class="headerlink" title="2.glusterd启动过程"></a>2.glusterd启动过程</h6></li>
-<li>子进程中调用mgmt/glusterd对应源文件中glusterd.c中的init,针对glusterd进行初始化，依次会调用如下方法:<ul>
-<li>glusterfs_volumes_init   </li>
-<li>glusterd.c:init</li>
-<li>glusterd_spawn_daemons</li>
-<li>glusterd_restart_bricks</li>
-<li>glusterd_brick_start</li>
-<li>glusterd_volume_start_glusterfs</li>
-<li>runner_run</li>
-<li>runner_start:fork子进程，调用execvp加载/usr/local/sbin/glusterfsd二进制文件<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> int runner_start(runner_t *runner)</span><br><span class="line"> &#123;</span><br><span class="line">        &#x2F;&#x2F;-----忽略----------------</span><br><span class="line">execvp(runner-&gt;argv[0], runner-&gt;argv);</span><br><span class="line">        &#x2F;&#x2F;-----忽略----------------</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-<h6 id="3-glusterfsd如何加载xlator"><a href="#3-glusterfsd如何加载xlator" class="headerlink" title="3.glusterfsd如何加载xlator"></a>3.glusterfsd如何加载xlator</h6></li>
-</ul>
-</li>
-<li>glusterfsd是通过读取配置文件/var/lib/glusterd/vols/dht_vol/dht_vol.172.17.0.2.data-brick.vol来加载glusterfsd运行期间需要的xlator，这些配置信息是用户创建volume时候系统生成的<br><img src="/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-d6d03fa2881d4dfe.png" alt></li>
-</ul>
-<h6 id="4-glusterd启动后进程列表"><a href="#4-glusterd启动后进程列表" class="headerlink" title="4. glusterd启动后进程列表"></a>4. glusterd启动后进程列表</h6><ul>
-<li>runner_start后继续glusterfsd.c中的main方法，启动对应的服务，glusterfsd正式启动了，就如systemctl start glusterd后出现如下的结果:<br><img src="/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2582954-bb00ca85ed37cff0.png" alt></li>
-</ul>
-<h6 id="5-glusterfsd启动流程"><a href="#5-glusterfsd启动流程" class="headerlink" title="5.glusterfsd启动流程"></a>5.glusterfsd启动流程</h6><ul>
-<li>上个步骤通过runner_start加载glusterfsd的二进制进程，glusterfsd进入初始化节点，首先 glusterfs_listener_init 初始化tcp连接</li>
-<li>glusterfsd通过tcp连接到glusterd获取volume xlator信息，准备构建xlator的graph.</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">volume xlator信息如下:</span><br><span class="line"></span><br><span class="line">(gdb) p rsp.spec       </span><br><span class="line">$6 &#x3D; 0x7fffe4002fc0 &quot;volume dht_vol-posix\n    type storage&#x2F;posix\n    option shared-brick-count 1\n    option volume-id 25305c2d-317f-45e9-8e60-be322ed69ee1\n    option directory &#x2F;data&#x2F;brick\nend-volume\n\nvolume dht_vol-trash\n    type features&#x2F;trash\n    option trash-internal-op off\n    option brick-path &#x2F;data&#x2F;brick\n    option trash-dir .trashcan\n    subvolumes dht_vol-posix\nend-volume\n\nvolume dht_vol-changelog\n    type features&#x2F;changelog\n    option changelog-barrier-timeout 120\n    option changelog-dir &#x2F;data&#x2F;brick&#x2F;.glusterfs&#x2F;changelogs\n    option changelog-brick &#x2F;data&#x2F;brick\n    subvolumes dht_vol-trash\nend-volume\n\nvolume dht_vol-bitrot-stub\n    type features&#x2F;bitrot-stub\n    option bitrot disable\n    option export &#x2F;data&#x2F;brick\n    subvolumes dht_vol-changelog\nend-volume\n\nvolume dht_vol-access-control\n    type features&#x2F;access-control\n    subvolumes dht_vol-bitrot-stub\nend-volume\n\nvolume dht_vol-locks\n    type features&#x2F;locks\n    option enforce-mandatory-lock off\n    subvolumes dht_vol-access-control\nend-volume\n\nvolume dht_vol-worm\n    type features&#x2F;worm\n    option worm-files-deletable on\n    option worm-file-level off\n    option worm off\n    subvolumes dht_vol-locks\nend-volume\n\nvolume dht_vol-read-only\n    type features&#x2F;read-only\n    option read-only off\n    subvolumes dht_vol-worm\nend-volume\n\nvolume dht_vol-leases\n    type features&#x2F;leases\n    option leases off\n    subvolumes dht_vol-read-only\nend-volume\n\nvolume dht_vol-upcall\n    type features&#x2F;upcall\n    option cache-invalidation off\n    subvolumes dht_vol-leases\nend-volume\n\nvolume dht_vol-io-threads\n    type performance&#x2F;io-threads\n    subvolumes dht_vol-upcall\nend-volume\n\nvolume dht_vol-selinux\n    type features&#x2F;selinux\n    option selinux on\n    subvolumes dht_vol-io-threads\nend-volume\n\nvolume dht_vol-marker\n    type features&#x2F;marker\n    option inode-quota off\n    option quota off\n    option gsync-force-xtime off\n    option xtime off\n    option quota-version 0\n    option timestamp-file &#x2F;var&#x2F;lib&#x2F;glusterd&#x2F;vols&#x2F;dht_vol&#x2F;marker.tstamp\n    option volume-uuid 25305c2d-317f-45e9-8e60-be322ed69ee1\n    subvolumes dht_vol-selinux\nend-volume\n\nvolume dht_vol-barrier\n    type features&#x2F;barrier\n    option barrier-timeout 120\n    option barrier disable\n    subvolumes dht_vol-marker\nend-volume\n\nvolume dht_vol-index\n    type features&#x2F;index\n    option xattrop-pending-watchlist trusted.afr.dht_vol-\n    option xattrop-dirty-watchlist trusted.afr.dirty\n    option index-base &#x2F;data&#x2F;brick&#x2F;.glusterfs&#x2F;indices\n    subvolumes dht_vol-barrier\nend-volume\n\nvolume dht_vol-quota\n    type features&#x2F;quota\n    option deem-statfs off\n    option server-quota off\n    option volume-uuid dht_vol\n    subvolumes dht_vol-index\nend-volume\n\nvolume dht_vol-io-stats\n    type debug&#x2F;io-stats\n    option count-fop-hits off\n    option latency-measurement off\n    option log-level INFO\n    option unique-id &#x2F;data&#x2F;brick\n    subvolumes dht_vol-quota\nend-volume\n\nvolume &#x2F;data&#x2F;brick\n    type performance&#x2F;decompounder\n    subvolumes dht_vol-io-stats\nend-volume\n\nvolume dht_vol-server\n    type protocol&#x2F;server\n    option transport.listen-backlog 1024\n    option transport.socket.keepalive-count 9\n    option transport.socket.keepalive-interval 2\n    option transport.socket.keepalive-time 20\n    option transport.socket.ssl-enabled off\n    option transport.socket.keepalive 1\n    option auth.addr.&#x2F;data&#x2F;brick.allow *\n    option auth-path &#x2F;data&#x2F;brick\n    option auth.login.b26ac1fd-40a4-4c6e-b211-a9f2b58beedc.password 4eda9afe-9466-4283-b175-6020d5981994\n    option auth.login.&#x2F;data&#x2F;brick.allow b26ac1fd-40a4-4c6e-b211-a9f2b58beedc\n    option transport.address-family inet\n    option transport-type tcp\n    subvolumes &#x2F;data&#x2F;brick\nend-volume\n&quot;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>根据xlator获取初构建graph信息，初始化每个xlator的init方法，这个时候glusterfsd初始化成功<h6 id="6-gdb-调试方法"><a href="#6-gdb-调试方法" class="headerlink" title="6. gdb 调试方法"></a>6. gdb 调试方法</h6></li>
-<li>gdb break 信息<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">set print pretty on</span><br><span class="line">&#x2F;&#x2F;调试子进程,子进程会加载执行mgmt&#x2F;glusterd&#x2F;src&#x2F;glusterd.c:init</span><br><span class="line">set follow-fork-mode child  </span><br><span class="line">set detach-on-fork off</span><br><span class="line">br glusterfsd.c:main</span><br><span class="line">br  br glusterfs_volumes_init   &#x2F;&#x2F;glusterd和glusterfsd都会调用该方法</span><br><span class="line">br glusterd.c:init</span><br><span class="line">&#x2F;&#x2F;------ 进入init函数后执行如下------</span><br><span class="line">&#x2F;* 进入这个函数后设置调试父进程   </span><br><span class="line">  set follow-fork-mode parent</span><br><span class="line">  set detach-on-fork on</span><br><span class="line"> *&#x2F;</span><br><span class="line">br glusterd_spawn_daemons</span><br><span class="line">br glusterd_restart_bricks</span><br><span class="line">br glusterd_brick_start</span><br><span class="line">br glusterd_volume_start_glusterfs</span><br><span class="line">&#x2F;* 进入这个函数后设置调试父进程   </span><br><span class="line">  set follow-fork-mode child</span><br><span class="line">  set detach-on-fork on</span><br><span class="line"> *&#x2F;</span><br><span class="line">br runner_run</span><br><span class="line">br runner_log</span><br><span class="line"></span><br><span class="line">br runner_start </span><br><span class="line"></span><br><span class="line">&#x2F;** 进入runner_start 后设置如下断点，glusterfsd启动以后会按照如下的调用链进行 *&#x2F;</span><br><span class="line">br glusterfs_volumes_init   </span><br><span class="line">br glusterfs_listener_init  &#x2F;&#x2F;glusterd不会调用该方法</span><br><span class="line">br glusterfs_mgmt_init      &#x2F;&#x2F;glusterd不会调用该方法</span><br><span class="line">br mgmt_rpc_notify</span><br><span class="line">br glusterfs_volfile_fetch</span><br><span class="line">br glusterfs_volfile_fetch_one</span><br><span class="line">br mgmt_getspec_cbk </span><br><span class="line">br glusterfs_process_volfp</span><br><span class="line">br glusterfs_graph_activate</span><br><span class="line">br glusterfs_graph_init</span><br></pre></td></tr></table></figure></li>
-<li>1.glusterd gdb日志<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br></pre></td><td class="code"><pre><span class="line">[root@b94a78ebfc80 ~]$ gdb glusterd</span><br><span class="line">GNU gdb (GDB) Red Hat Enterprise Linux 7.6.1-115.el7</span><br><span class="line">Copyright (C) 2013 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http:&#x2F;&#x2F;gnu.org&#x2F;licenses&#x2F;gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;</span><br><span class="line">and &quot;show warranty&quot; for details.</span><br><span class="line">This GDB was configured as &quot;x86_64-redhat-linux-gnu&quot;.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http:&#x2F;&#x2F;www.gnu.org&#x2F;software&#x2F;gdb&#x2F;bugs&#x2F;&gt;...</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;sbin&#x2F;glusterfsd...done.</span><br><span class="line">(gdb) br glusterfsd.c:main</span><br><span class="line">Breakpoint 1 at 0x40b71d: file glusterfsd.c, line 2746.</span><br><span class="line">(gdb) br glusterd.c:init</span><br><span class="line">No source file named glusterd.c.</span><br><span class="line">Make breakpoint pending on future shared library load? (y or [n]) y</span><br><span class="line">Breakpoint 2 (glusterd.c:init) pending.</span><br><span class="line">(gdb) set print pretty on</span><br><span class="line">(gdb) set follow-fork-mode child  </span><br><span class="line">(gdb) set detach-on-fork off</span><br><span class="line">(gdb) c</span><br><span class="line">The program is not being run.</span><br><span class="line">(gdb) r</span><br><span class="line">Starting program: &#x2F;usr&#x2F;local&#x2F;sbin&#x2F;glusterd </span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line"></span><br><span class="line">Breakpoint 1, main (argc&#x3D;1, argv&#x3D;0x7fffffffe778) at glusterfsd.c:2746</span><br><span class="line">2746        glusterfs_ctx_t *ctx &#x3D; NULL;</span><br><span class="line">Missing separate debuginfos, use: debuginfo-install glibc-2.17-292.el7.x86_64 libuuid-2.23.2-61.el7_7.1.x86_64 openssl-libs-1.0.2k-19.el7.x86_64 zlib-1.2.7-18.el7.x86_64</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">[New process 956]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line">[New Thread 0x7ffff5431700 (LWP 957)]</span><br><span class="line">[New Thread 0x7ffff4c30700 (LWP 958)]</span><br><span class="line">[New Thread 0x7ffff442f700 (LWP 959)]</span><br><span class="line">[New Thread 0x7ffff3c2e700 (LWP 960)]</span><br><span class="line">[New Thread 0x7ffff342d700 (LWP 961)]</span><br><span class="line">[New Thread 0x7ffff2c2c700 (LWP 962)]</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;lib&#x2F;glusterfs&#x2F;&#x2F;xlator&#x2F;mgmt&#x2F;glusterd.so...done.</span><br><span class="line">[Switching to Thread 0x7ffff7fea4c0 (LWP 956)]</span><br><span class="line"></span><br><span class="line">Breakpoint 2, init (this&#x3D;0x686d40) at glusterd.c:1373</span><br><span class="line">1373        int32_t ret &#x3D; -1;</span><br><span class="line">Missing separate debuginfos, use: debuginfo-install glibc-2.17-292.el7.x86_64 libuuid-2.23.2-61.el7_7.1.x86_64 libxml2-2.9.1-6.el7_2.3.x86_64 openssl-libs-1.0.2k-19.el7.x86_64 userspace-rcu-0.7.16-1.el7.x86_64 xz-libs-5.2.2-1.el7.x86_64 zlib-1.2.7-18.el7.x86_64</span><br><span class="line">(gdb)  set follow-fork-mode parent</span><br><span class="line">(gdb)   set detach-on-fork on</span><br><span class="line">(gdb) br glusterd_spawn_daemons</span><br><span class="line">Breakpoint 3 at 0x7ffff1f79f85: file glusterd-utils.c, line 3619.</span><br><span class="line">(gdb) br glusterd_restart_bricks</span><br><span class="line">Breakpoint 4 at 0x7ffff1f832e3: file glusterd-utils.c, line 6334.</span><br><span class="line">(gdb) br glusterd_brick_start</span><br><span class="line">Breakpoint 5 at 0x7ffff1f826cd: file glusterd-utils.c, line 6107.</span><br><span class="line">(gdb) br glusterd_volume_start_glusterfs</span><br><span class="line">Breakpoint 6 at 0x7ffff1f73f5f: file glusterd-utils.c, line 2024.</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;lib&#x2F;glusterfs&#x2F;&#x2F;rpc-transport&#x2F;socket.so...done.</span><br><span class="line">Reading symbols from &#x2F;usr&#x2F;local&#x2F;lib&#x2F;glusterfs&#x2F;&#x2F;rpc-transport&#x2F;rdma.so...done.</span><br><span class="line">Detaching after fork from child process 964.</span><br><span class="line">Detaching after fork from child process 965.</span><br><span class="line">Detaching after fork from child process 966.</span><br><span class="line">Detaching after fork from child process 967.</span><br><span class="line">Detaching after fork from child process 968.</span><br><span class="line">Detaching after fork from child process 969.</span><br><span class="line">Detaching after fork from child process 970.</span><br><span class="line">Detaching after fork from child process 971.</span><br><span class="line">Detaching after fork from child process 972.</span><br><span class="line">Detaching after fork from child process 973.</span><br><span class="line">Detaching after fork from child process 974.</span><br><span class="line">Detaching after fork from child process 975.</span><br><span class="line">Detaching after fork from child process 976.</span><br><span class="line">Detaching after fork from child process 977.</span><br><span class="line">Detaching after fork from child process 978.</span><br><span class="line">Detaching after fork from child process 979.</span><br><span class="line">Detaching after fork from child process 980.</span><br><span class="line">Detaching after fork from child process 981.</span><br><span class="line">Detaching after fork from child process 982.</span><br><span class="line">Detaching after fork from child process 983.</span><br><span class="line">Detaching after fork from child process 984.</span><br><span class="line">Detaching after fork from child process 985.</span><br><span class="line">Detaching after fork from child process 986.</span><br><span class="line">Detaching after fork from child process 987.</span><br><span class="line">Detaching after fork from child process 988.</span><br><span class="line">[Switching to Thread 0x7ffff342d700 (LWP 961)]</span><br><span class="line"></span><br><span class="line">Breakpoint 3, glusterd_spawn_daemons (opaque&#x3D;0x0) at glusterd-utils.c:3619</span><br><span class="line">3619        glusterd_conf_t *conf &#x3D; THIS-&gt;private;</span><br><span class="line">Missing separate debuginfos, use: debuginfo-install keyutils-libs-1.5.8-3.el7.x86_64 krb5-libs-1.15.1-37.el7_7.2.x86_64 libcom_err-1.42.9-16.el7.x86_64 libibverbs-22.1-3.el7.x86_64 libnl3-3.2.28-4.el7.x86_64 librdmacm-22.1-3.el7.x86_64 libselinux-2.5-14.1.el7.x86_64 pcre-8.32-17.el7.x86_64</span><br><span class="line">(gdb) n</span><br><span class="line">3620        int ret &#x3D; -1;</span><br><span class="line">(gdb) </span><br><span class="line">3622        synclock_lock(&amp;conf-&gt;big_lock);</span><br><span class="line">(gdb) </span><br><span class="line">[New Thread 0x7fffef606700 (LWP 989)]</span><br><span class="line">3623        glusterd_restart_bricks();</span><br><span class="line">(gdb) </span><br><span class="line"></span><br><span class="line">Breakpoint 4, glusterd_restart_bricks (opaque&#x3D;0x7fffef9a9fc8) at glusterd-utils.c:6334</span><br><span class="line">6334        int ret &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">6335        glusterd_volinfo_t *volinfo &#x3D; NULL;</span><br><span class="line">(gdb) </span><br><span class="line">6336        glusterd_brickinfo_t *brickinfo &#x3D; NULL;</span><br><span class="line">(gdb)   set follow-fork-mode child</span><br><span class="line">(gdb)   set detach-on-fork on</span><br><span class="line">(gdb) br runner_run</span><br><span class="line">Breakpoint 7 at 0x7ffff7b35f04: runner_run. (2 locations)</span><br><span class="line">(gdb) br runner_start</span><br><span class="line">Breakpoint 8 at 0x7ffff7b35825: runner_start. (2 locations)</span><br><span class="line">(gdb) info break</span><br><span class="line">Num     Type           Disp Enb Address            What</span><br><span class="line">1       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">1.1                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 1</span><br><span class="line">1.2                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 2</span><br><span class="line">2       breakpoint     keep y   0x00007ffff1f3a7ee in init at glusterd.c:1373 inf 2</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">3       breakpoint     keep y   0x00007ffff1f79f85 in glusterd_spawn_daemons at glusterd-utils.c:3619 inf 2</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">4       breakpoint     keep y   0x00007ffff1f832e3 in glusterd_restart_bricks at glusterd-utils.c:6334 inf 2</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">5       breakpoint     keep y   0x00007ffff1f826cd in glusterd_brick_start at glusterd-utils.c:6107 inf 2</span><br><span class="line">6       breakpoint     keep y   0x00007ffff1f73f5f in glusterd_volume_start_glusterfs at glusterd-utils.c:2024 inf 2</span><br><span class="line">7       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">7.1                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 1</span><br><span class="line">7.2                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 2</span><br><span class="line">8       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">8.1                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 1</span><br><span class="line">8.2                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 2</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line"></span><br><span class="line">Breakpoint 5, glusterd_brick_start (volinfo&#x3D;0x6db4b0, brickinfo&#x3D;0x6ef490, wait&#x3D;false, only_connect&#x3D;false) at glusterd-utils.c:6107</span><br><span class="line">6107        int ret &#x3D; -1;</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">[New Thread 0x7fffeee05700 (LWP 991)]</span><br><span class="line"></span><br><span class="line">Breakpoint 6, glusterd_volume_start_glusterfs (volinfo&#x3D;0x6db4b0, brickinfo&#x3D;0x6ef490, wait&#x3D;false) at glusterd-utils.c:2024</span><br><span class="line">2024        int32_t ret &#x3D; -1;</span><br><span class="line">(gdb) c</span><br><span class="line">Continuing.</span><br><span class="line">[New process 992]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line">[Switching to Thread 0x7ffff342d700 (LWP 992)]</span><br><span class="line"></span><br><span class="line">Breakpoint 8, runner_start (runner&#x3D;0x7fffef800e00) at run.c:259</span><br><span class="line">259         int pi[3][2] &#x3D; &#123;&#123;-1, -1&#125;, &#123;-1, -1&#125;, &#123;-1, -1&#125;&#125;;</span><br><span class="line">(gdb) n</span><br><span class="line">261         int ret &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">262         int errno_priv &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">263         int i &#x3D; 0;</span><br><span class="line">(gdb) </span><br><span class="line">266         if (runner-&gt;runerr || !runner-&gt;argv) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">271         GF_ASSERT(runner-&gt;argv[0]);</span><br><span class="line">(gdb)  set follow-fork-mode child</span><br><span class="line">(gdb)   set detach-on-fork on</span><br><span class="line">(gdb) n</span><br><span class="line">276         ret &#x3D; pipe(xpi);</span><br><span class="line">(gdb) </span><br><span class="line">277         if (ret !&#x3D; -1)</span><br><span class="line">(gdb) </span><br><span class="line">278             ret &#x3D; fcntl(xpi[1], F_SETFD, FD_CLOEXEC);</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">281             if (runner-&gt;chfd[i] !&#x3D; -2)</span><br><span class="line">(gdb) </span><br><span class="line">282                 continue;</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">281             if (runner-&gt;chfd[i] !&#x3D; -2)</span><br><span class="line">(gdb) </span><br><span class="line">282                 continue;</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">281             if (runner-&gt;chfd[i] !&#x3D; -2)</span><br><span class="line">(gdb) </span><br><span class="line">282                 continue;</span><br><span class="line">(gdb) </span><br><span class="line">280         for (i &#x3D; 0; i &lt; 3; i++) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">291         if (ret !&#x3D; -1)</span><br><span class="line">(gdb) </span><br><span class="line">292             runner-&gt;chpid &#x3D; fork();</span><br><span class="line">(gdb) </span><br><span class="line">[New process 995]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line">[Switching to Thread 0x7ffff342d700 (LWP 995)]</span><br><span class="line">293         switch (runner-&gt;chpid) &#123;</span><br><span class="line">327                 if (ret !&#x3D; -1) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">328                     int fdv[4] &#x3D; &#123;0, 1, 2, xpi[1]&#125;;</span><br><span class="line">(gdb) </span><br><span class="line">330                     ret &#x3D; close_fds_except(fdv, sizeof(fdv) &#x2F; sizeof(*fdv));</span><br><span class="line">(gdb) </span><br><span class="line">333                 if (ret !&#x3D; -1) &#123;</span><br><span class="line">(gdb) </span><br><span class="line">335                     sigemptyset(&amp;set);</span><br><span class="line">(gdb) </span><br><span class="line">336                     sigprocmask(SIG_SETMASK, &amp;set, NULL);</span><br><span class="line">(gdb) </span><br><span class="line">338                     execvp(runner-&gt;argv[0], runner-&gt;argv);</span><br><span class="line">(gdb) p runner-&gt;argv[0]</span><br><span class="line">$1 &#x3D; 0x7fffe8000c60 &quot;&#x2F;usr&#x2F;local&#x2F;sbin&#x2F;glusterfsd&quot;</span><br><span class="line">(gdb) p runner-&gt;argv</span><br><span class="line">$2 &#x3D; (char **) 0x7fffe8000970</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv</span><br><span class="line">$3 &#x3D; (char **) 0x7fffe8000970</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[1]</span><br><span class="line">$4 &#x3D; 0x7fffe8000ce0 &quot;-s&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[2]</span><br><span class="line">$5 &#x3D; 0x7fffe8000d50 &quot;172.17.0.2&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[3]</span><br><span class="line">$6 &#x3D; 0x7fffe8000dc0 &quot;--volfile-id&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[4]</span><br><span class="line">$7 &#x3D; 0x7fffe8000e30 &quot;dht_vol.172.17.0.2.data-brick&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[5]</span><br><span class="line">$8 &#x3D; 0x7fffe8000eb0 &quot;-p&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[6]</span><br><span class="line">$9 &#x3D; 0x7fffe8000f20 &quot;&#x2F;var&#x2F;run&#x2F;gluster&#x2F;vols&#x2F;dht_vol&#x2F;172.17.0.2-data-brick.pid&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[7]</span><br><span class="line">$10 &#x3D; 0x7fffe8000fc0 &quot;-S&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[8]</span><br><span class="line">$11 &#x3D; 0x7fffe8001030 &quot;&#x2F;var&#x2F;run&#x2F;gluster&#x2F;cb954c564295c3be.socket&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[9]</span><br><span class="line">$12 &#x3D; 0x7fffe80010c0 &quot;--brick-name&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[10]</span><br><span class="line">$13 &#x3D; 0x7fffe8001130 &quot;&#x2F;data&#x2F;brick&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[11]</span><br><span class="line">$14 &#x3D; 0x7fffe80011a0 &quot;-l&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[12]</span><br><span class="line">$15 &#x3D; 0x7fffe8001210 &quot;&#x2F;var&#x2F;log&#x2F;glusterfs&#x2F;bricks&#x2F;data-brick.log&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[13]</span><br><span class="line">$16 &#x3D; 0x7fffe80012a0 &quot;--xlator-option&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[14]</span><br><span class="line">$17 &#x3D; 0x7fffe8001310 &quot;*-posix.glusterd-uuid&#x3D;88efffbe-ce9e-4117-8d1a-77de0a8ecd75&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[15]</span><br><span class="line">$18 &#x3D; 0x7fffe80013b0 &quot;--process-name&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[16]</span><br><span class="line">$19 &#x3D; 0x7fffe8001420 &quot;brick&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[17]</span><br><span class="line">$20 &#x3D; 0x7fffe8001490 &quot;--brick-port&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[18]</span><br><span class="line">$21 &#x3D; 0x7fffe8001500 &quot;49152&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[19]</span><br><span class="line">$22 &#x3D; 0x7fffe8001570 &quot;--xlator-option&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[20]</span><br><span class="line">$23 &#x3D; 0x7fffe80015e0 &quot;dht_vol-server.listen-port&#x3D;49152&quot;</span><br><span class="line">(gdb) p&#x2F;s  runner-&gt;argv[21]</span><br><span class="line">$24 &#x3D; 0x0</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure></li>
-<li>glusterfsd gdb 日志<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info break</span><br><span class="line">Num     Type           Disp Enb Address            What</span><br><span class="line">1       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 2 times</span><br><span class="line">1.1                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 1</span><br><span class="line">1.2                         y     0x000000000040b71d in main at glusterfsd.c:2746 inf 5, 4, 3</span><br><span class="line">2       breakpoint     keep y   &lt;PENDING&gt;          glusterd.c:init inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">3       breakpoint     keep y   &lt;PENDING&gt;          glusterd_spawn_daemons inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">4       breakpoint     keep y   &lt;PENDING&gt;          glusterd_restart_bricks inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">5       breakpoint     keep y   &lt;PENDING&gt;          glusterd_brick_start inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">6       breakpoint     keep y   &lt;PENDING&gt;          glusterd_volume_start_glusterfs inf 5, 4, 3</span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">7       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">7.1                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 1</span><br><span class="line">7.2                         y     0x00007ffff7b35f04 in runner_run at run.c:430 inf 5, 4, 3</span><br><span class="line">8       breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">8.1                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 1</span><br><span class="line">8.2                         y     0x00007ffff7b35825 in runner_start at run.c:259 inf 5, 4, 3</span><br><span class="line">9       breakpoint     keep y   &lt;PENDING&gt;          server-rpc-fops_v2.c:server4_0_mkdir</span><br><span class="line">10      breakpoint     keep y   &lt;PENDING&gt;          server-resolve.c:server_resolve</span><br><span class="line">11      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">11.1                        y     0x000000000040b603 in glusterfs_volumes_init at glusterfsd.c:2704 inf 1</span><br><span class="line">11.2                        y     0x000000000040b603 in glusterfs_volumes_init at glusterfsd.c:2704 inf 5, 4, 3</span><br><span class="line">12      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">12.1                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 1</span><br><span class="line">12.2                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 5, 4, 3</span><br><span class="line">13      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">13.1                        y     0x000000000040710f in get_volfp at glusterfsd.c:781 inf 1</span><br><span class="line">13.2                        y     0x000000000040710f in get_volfp at glusterfsd.c:781 inf 5, 4, 3</span><br><span class="line">14      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">14.1                        y     0x0000000000412581 in glusterfs_mgmt_init at glusterfsd-mgmt.c:2648 inf 1</span><br><span class="line">14.2                        y     0x0000000000412581 in glusterfs_mgmt_init at glusterfsd-mgmt.c:2648 inf 5, 4, 3</span><br><span class="line">15      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">---Type &lt;return&gt; to continue, or q &lt;return&gt; to quit---</span><br><span class="line">15.1                        y     0x0000000000411848 in glusterfs_volfile_fetch at glusterfsd-mgmt.c:2270 inf 1</span><br><span class="line">15.2                        y     0x0000000000411848 in glusterfs_volfile_fetch at glusterfsd-mgmt.c:2270 inf 5, 4, 3</span><br><span class="line">16      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">16.1                        y     0x00000000004114ed in glusterfs_volfile_fetch_one at glusterfsd-mgmt.c:2166 inf 1</span><br><span class="line">16.2                        y     0x00000000004114ed in glusterfs_volfile_fetch_one at glusterfsd-mgmt.c:2166 inf 5, 4, 3</span><br><span class="line">17      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">        breakpoint already hit 1 time</span><br><span class="line">17.1                        y     0x0000000000410a85 in mgmt_getspec_cbk at glusterfsd-mgmt.c:1922 inf 1</span><br><span class="line">17.2                        y     0x0000000000410a85 in mgmt_getspec_cbk at glusterfsd-mgmt.c:1922 inf 5, 4, 3</span><br><span class="line">18      breakpoint     keep y   &lt;MULTIPLE&gt;         </span><br><span class="line">18.1                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 1</span><br><span class="line">18.2                        y     0x000000000040b390 in glusterfs_process_volfp at glusterfsd.c:2626 inf 5, 4, 3</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/global-threading%E5%90%8E%E5%AF%BC%E8%87%B4mount%E5%AE%A2%E6%88%B7%E7%AB%AFcrash/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/global-threading%E5%90%8E%E5%AF%BC%E8%87%B4mount%E5%AE%A2%E6%88%B7%E7%AB%AFcrash/" class="post-title-link" itemprop="url">global-threading后导致mount客户端crash</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 17:34:16 / Modified: 17:41:02" itemprop="dateCreated datePublished" datetime="2020-04-15T17:34:16+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">[2020-04-15 08:37:04.727619] I [rpc-clnt.c:1963:rpc_clnt_reconfig] 0-hot2_vol-client-2: changing port to 49153 (from 0)</span><br><span class="line">[2020-04-15 08:37:04.727653] I [socket.c:864:__socket_shutdown] 0-hot2_vol-client-2: intentional socket shutdown(12)</span><br><span class="line">[2020-04-15 08:37:04.730524] I [MSGID: 114057] [client-handshake.c:1376:select_server_supported_programs] 0-hot2_vol-client-1: Using Program GlusterFS 4.x v1, Num (1298437), Version (400) </span><br><span class="line">[2020-04-15 08:37:04.730986] I [MSGID: 114046] [client-handshake.c:1106:client_setvolume_cbk] 0-hot2_vol-client-1: Connected to hot2_vol-client-1, attached to remote volume &#39;&#x2F;glusterfs&#x2F;hotvol2&#x2F;brick1&#39;. </span><br><span class="line">[2020-04-15 08:37:04.733549] I [MSGID: 114057] [client-handshake.c:1376:select_server_supported_programs] 0-hot2_vol-client-2: Using Program GlusterFS 4.x v1, Num (1298437), Version (400) </span><br><span class="line">[2020-04-15 08:37:04.733979] I [MSGID: 114046] [client-handshake.c:1106:client_setvolume_cbk] 0-hot2_vol-client-2: Connected to hot2_vol-client-2, attached to remote volume &#39;&#x2F;glusterfs&#x2F;hotvol2&#x2F;brick1&#39;. </span><br><span class="line">[2020-04-15 08:37:04.735104] I [fuse-bridge.c:5166:fuse_init] 0-glusterfs-fuse: FUSE inited with protocol versions: glusterfs 7.24 kernel 7.22</span><br><span class="line">[2020-04-15 08:37:04.735112] I [fuse-bridge.c:5777:fuse_graph_sync] 0-fuse: switched to graph 0</span><br><span class="line">pending frames:</span><br><span class="line">frame : type(1) op(LOOKUP)</span><br><span class="line">frame : type(1) op(OPEN)</span><br><span class="line">patchset: git:&#x2F;&#x2F;git.gluster.org&#x2F;glusterfs.git</span><br><span class="line">signal received: 11</span><br><span class="line">time of crash: </span><br><span class="line">2020-04-15 08:50:04</span><br><span class="line">configuration details:</span><br><span class="line">argp 1</span><br><span class="line">backtrace 1</span><br><span class="line">dlfcn 1</span><br><span class="line">libpthread 1</span><br><span class="line">llistxattr 1</span><br><span class="line">setfsid 1</span><br><span class="line">spinlock 1</span><br><span class="line">epoll.h 1</span><br><span class="line">xattr.h 1</span><br><span class="line">st_atim.tv_nsec 1</span><br><span class="line">package-string: glusterfs 7.1</span><br><span class="line">&#x2F;lib64&#x2F;libglusterfs.so.0(+0x277ff)[0x2b4618afe7ff]</span><br><span class="line">&#x2F;lib64&#x2F;libglusterfs.so.0(gf_print_trace+0x334)[0x2b4618b09234]</span><br><span class="line">&#x2F;lib64&#x2F;libc.so.6(+0x36280)[0x2b461a424280]</span><br><span class="line">&#x2F;lib64&#x2F;libglusterfs.so.0(+0xaeeb5)[0x2b4618b85eb5]</span><br><span class="line">&#x2F;lib64&#x2F;libpthread.so.0(+0x7dd5)[0x2b4619d78dd5]</span><br><span class="line">&#x2F;lib64&#x2F;libc.so.6(clone+0x6d)[0x2b461a4ebead]</span><br><span class="line">---------</span><br></pre></td></tr></table></figure>
-
-<h2 id="系统版本信息"><a href="#系统版本信息" class="headerlink" title="系统版本信息"></a>系统版本信息</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">[root@szdpl1543 ~]# uname -a</span><br><span class="line">Linux szdpl1543 3.10.0-957.el7.x86_64 #1 SMP Thu Nov 8 23:39:32 UTC 2018 x86_64 x86_64 x86_64 GNU&#x2F;Linux</span><br><span class="line">[root@szdpl1543 ~]# gluster --version</span><br><span class="line">glusterfs 7.2</span><br><span class="line">Repository revision: git:&#x2F;&#x2F;git.gluster.org&#x2F;glusterfs.git</span><br><span class="line">Copyright (c) 2006-2016 Red Hat, Inc. &lt;https:&#x2F;&#x2F;www.gluster.org&#x2F;&gt;</span><br><span class="line">GlusterFS comes with ABSOLUTELY NO WARRANTY.</span><br><span class="line">It is licensed to you under your choice of the GNU Lesser</span><br><span class="line">General Public License, version 3 or any later version (LGPLv3</span><br><span class="line">or later), or the GNU General Public License, version 2 (GPLv2),</span><br><span class="line">in all cases as published by the Free Software Foundation.</span><br><span class="line">[root@szdpl1543 ~]# gluster volume info hot2_vol </span><br><span class="line"> </span><br><span class="line">Volume Name: hot2_vol</span><br><span class="line">Type: Distribute</span><br><span class="line">Volume ID: a04761f1-3380-4795-9054-cf152e55ea61</span><br><span class="line">Status: Started</span><br><span class="line">Snapshot Count: 0</span><br><span class="line">Number of Bricks: 3</span><br><span class="line">Transport-type: tcp</span><br><span class="line">Bricks:</span><br><span class="line">Brick1: 172.25.78.240:&#x2F;glusterfs&#x2F;hotvol2&#x2F;brick1</span><br><span class="line">Brick2: 172.25.78.241:&#x2F;glusterfs&#x2F;hotvol2&#x2F;brick1</span><br><span class="line">Brick3: 172.25.78.242:&#x2F;glusterfs&#x2F;hotvol2&#x2F;brick1</span><br><span class="line">Options Reconfigured:</span><br><span class="line">storage.health-check-interval: 0</span><br><span class="line">performance.write-behind: on</span><br><span class="line">performance.flush-behind: on</span><br><span class="line">performance.aggregate-size: 1mb</span><br><span class="line">performance.read-ahead-page-count: 16</span><br><span class="line">performance.client-io-threads: off</span><br><span class="line">performance.io-cache: on</span><br><span class="line">nfs.disable: on</span><br><span class="line">storage.fips-mode-rchecksum: on</span><br><span class="line">transport.address-family: inet</span><br><span class="line">server.outstanding-rpc-limit: 512</span><br><span class="line">network.tcp-window-size: 1048576</span><br><span class="line">cluster.min-free-disk: 20</span><br><span class="line">server.event-threads: 64</span><br><span class="line">client.event-threads: 32</span><br><span class="line">performance.io-thread-count: 32</span><br><span class="line">performance.readdir-ahead: on</span><br><span class="line">cluster.readdir-optimize: on</span><br><span class="line">performance.parallel-readdir: on</span><br><span class="line">performance.quick-read: on</span><br><span class="line">cluster.lookup-unhashed: off</span><br><span class="line">performance.rda-cache-limit: 16GB</span><br><span class="line">cluster.lookup-optimize: on</span><br><span class="line">performance.stat-prefetch: on</span><br><span class="line">features.cache-invalidation: on</span><br><span class="line">features.cache-invalidation-timeout: 600</span><br><span class="line">performance.cache-invalidation: on</span><br><span class="line">performance.md-cache-timeout: 600</span><br><span class="line">network.inode-lru-limit: 200000</span><br></pre></td></tr></table></figure>
-
-<h2 id="mount选项"><a href="#mount选项" class="headerlink" title="mount选项"></a>mount选项</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount -t glusterfs -o acl,global-threading 172.25.78.240:hot2_vol &#x2F;data&#x2F;glusterfs_train_hot2</span><br></pre></td></tr></table></figure>
-
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;每当接收到打开的调用时，它都会向应用程序发送成功通知，从而提高了应用程序从文件读取数据的能力</span><br><span class="line">Option: performance.open-behind</span><br><span class="line">Default Value: on</span><br><span class="line">Description: enable&#x2F;disable open-behind translator in the volume.</span><br></pre></td></tr></table></figure>
-<h2 id="相关的issue"><a href="#相关的issue" class="headerlink" title="相关的issue"></a>相关的issue</h2><ul>
-<li><a href="https://github.com/gluster/glusterfs/issues/784" target="_blank" rel="noopener">https://github.com/gluster/glusterfs/issues/784</a></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/Automatic-File-Replication-%E8%BD%AC%E8%BD%BD/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/Automatic-File-Replication-%E8%BD%AC%E8%BD%BD/" class="post-title-link" itemprop="url">Automatic File Replication-转载</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 16:41:25 / Modified: 16:48:43" itemprop="dateCreated datePublished" datetime="2020-04-15T16:41:25+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Automatic-File-Replication"><a href="#Automatic-File-Replication" class="headerlink" title="Automatic File Replication"></a>Automatic File Replication</h1><p>Afr xlator in glusterfs is responsible for replicating the data across the bricks.</p>
-<h3 id="Responsibilities-of-AFR"><a href="#Responsibilities-of-AFR" class="headerlink" title="Responsibilities of AFR"></a>Responsibilities of AFR</h3><p>Its responsibilities include the following:</p>
-<ol>
-<li><p>Maintain replication consistency (i.e. Data on both the bricks should be same, even in the cases where there are operations happening on same file/directory in parallel from multiple applications/mount points as long as all the bricks in replica set are up)</p>
-</li>
-<li><p>Provide a way of recovering data in case of failures as long as there is<br> at least one brick which has the correct data.</p>
-</li>
-<li><p>Serve fresh data for read/stat/readdir etc</p>
-</li>
-</ol>
-<h3 id="Transaction-framework"><a href="#Transaction-framework" class="headerlink" title="Transaction framework"></a>Transaction framework</h3><p>For 1, 2 above afr uses transaction framework which consists of the following 5<br>phases which happen on all the bricks in replica set(Bricks which are in replication):</p>
-<h4 id="1-Lock-Phase"><a href="#1-Lock-Phase" class="headerlink" title="1.Lock Phase"></a>1.Lock Phase</h4><h4 id="2-Pre-op-Phase"><a href="#2-Pre-op-Phase" class="headerlink" title="2. Pre-op Phase"></a>2. Pre-op Phase</h4><h4 id="3-Op-Phase"><a href="#3-Op-Phase" class="headerlink" title="3. Op Phase"></a>3. Op Phase</h4><h4 id="4-Post-op-Phase"><a href="#4-Post-op-Phase" class="headerlink" title="4. Post-op Phase"></a>4. Post-op Phase</h4><h4 id="5-Unlock-Phase"><a href="#5-Unlock-Phase" class="headerlink" title="5. Unlock Phase"></a>5. Unlock Phase</h4><p><em>Op Phase</em> is the actual operation sent by application (<code>write/create/unlink</code> etc). For every operation which afr receives that modifies data it sends that same operation in parallel to all the bricks in its replica set. This is how it achieves replication.</p>
-<p><em>Lock, Unlock Phases</em> take necessary locks so that <em>Op phase</em> can provide <strong>replication consistency</strong> in normal work flow.</p>
-<h5 id="For-example"><a href="#For-example" class="headerlink" title="For example:"></a>For example:</h5><p>If an application performs <code>touch a</code> and the other one does <code>mkdir a</code>, afr makes sure that either file with name <code>a</code> or directory with name <code>a</code> is created on both the bricks.</p>
-<p><em>Pre-op, Post-op Phases</em> provide changelogging which enables afr to figure out which copy is fresh.<br>Once afr knows how to figure out fresh copy in the replica set it can <strong>recover data</strong> from fresh copy to stale copy. Also it can <strong>serve fresh</strong> data for <code>read/stat/readdir</code> etc.</p>
-<h2 id="Internal-Operations"><a href="#Internal-Operations" class="headerlink" title="Internal Operations"></a>Internal Operations</h2><p>Brief introduction to internal operations in Glusterfs which make <em>Locking, Unlocking, Pre/Post ops</em> possible:</p>
-<h3 id="Internal-Locking-Operations"><a href="#Internal-Locking-Operations" class="headerlink" title="Internal Locking Operations"></a>Internal Locking Operations</h3><p>Glusterfs has <strong>locks</strong> translator which provides the following internal locking operations called <code>inodelk</code>, <code>entrylk</code> which are used by afr to achieve synchronization of operations on files or directories that conflict with each other.</p>
-<p><code>Inodelk</code> gives the facility for translators in Glusterfs to obtain range (denoted by tuple with <strong>offset</strong>, <strong>length</strong>) locks in a given domain for an inode.<br>Full file lock is denoted by the tuple (offset: <code>0</code>, length: <code>0</code>) i.e. length <code>0</code> is considered as infinity.</p>
-<p><code>Entrylk</code> enables translators of Glusterfs to obtain locks on <code>name</code> in a given domain for an inode, typically a directory.</p>
-<p><strong>Locks</strong> translator provides both <em>blocking</em> and <em>nonblocking</em> variants and of these operations.</p>
-<h3 id="Xattrop"><a href="#Xattrop" class="headerlink" title="Xattrop"></a>Xattrop</h3><p>For pre/post ops posix translator provides an operation called xattrop.<br>xattrop is a way of <em>incrementing</em>/<em>decrementing</em> a number present in the extended attribute of the inode <em>atomically</em>.</p>
-<h2 id="Transaction-Types"><a href="#Transaction-Types" class="headerlink" title="Transaction Types"></a>Transaction Types</h2><p>There are 3 types of transactions in AFR.</p>
-<ol>
-<li><p>Data transactions</p>
-<ul>
-<li>Operations that add/modify/truncate the file contents.</li>
-<li><code>Write</code>/<code>Truncate</code>/<code>Ftruncate</code> etc</li>
-</ul>
-</li>
-<li><p>Metadata transactions</p>
-<ul>
-<li>Operations that modify the data kept in inode.</li>
-<li><code>Chmod</code>/<code>Chown</code> etc</li>
-</ul>
-</li>
-</ol>
-<p>3) Entry transactions</p>
-<ul>
-<li>Operations that add/remove/rename entries in a directory</li>
-<li><code>Touch</code>/<code>Mkdir</code>/<code>Mknod</code> etc</li>
-</ul>
-<h3 id="Data-transactions"><a href="#Data-transactions" class="headerlink" title="Data transactions:"></a>Data transactions:</h3><p><em>write</em> (<code>offset</code>, <code>size</code>) - writes data from <code>offset</code> of <code>size</code></p>
-<p><em>ftruncate</em>/<em>truncate</em> (<code>offset</code>) - truncates data from <code>offset</code> till the end of file.</p>
-<p>Afr internal locking needs to make sure that two conflicting data operations happen in order, one after the other so that it does not result in replication inconsistency. Afr data operations take inodelks in same domain (lets call it <code>data</code> domain).</p>
-<p><em>Write</em> operation with offset <code>O</code> and size <code>S</code> takes an inode lock in data domain with range <code>(O, S)</code>.</p>
-<p><em>Ftruncate</em>/<em>Truncate</em> operations with offset <code>O</code> take inode locks in <code>data</code> domain with range <code>(O, 0)</code>. Please note that size <code>0</code> means size infinity.</p>
-<p>These ranges make sure that overlapping write/truncate/ftruncate operations are done one after the other.</p>
-<p>Now that we know the ranges the operations take locks on, we will see how locking happens in afr.</p>
-<h4 id="Lock"><a href="#Lock" class="headerlink" title="Lock:"></a>Lock:</h4><p>Afr initially attempts <strong>non-blocking</strong> locks on <strong>all</strong> the bricks of the replica set in <strong>parallel</strong>. If all the locks are successful then it goes on to perform pre-op. But in case <strong>non-blocking</strong> locks <strong>fail</strong> because there is <em>at least one conflicting operation</em> which already has a <strong>granted lock</strong> then it <strong>unlocks</strong> the <strong>non-blocking</strong> locks it already acquired in this previous step and proceeds to perform <strong>blocking</strong> locks <strong>one after the other</strong> on each of the subvolumes in the order of subvolumes specified in the volfile.</p>
-<p>Chances of <strong>conflicting operations</strong> is <strong>very low</strong> and time elapsed in <strong>non-blocking</strong> locks phase is <code>Max(latencies of the bricks for responding to inodelk)</code>, where as time elapsed in <strong>blocking locks</strong> phase is <code>Sum(latencies of the bricks for responding to inodelk)</code>. That is why afr always tries for non-blocking locks first and only then it moves to blocking locks.</p>
-<h4 id="Pre-op"><a href="#Pre-op" class="headerlink" title="Pre-op:"></a>Pre-op:</h4><p>Each file/dir in a brick maintains the changelog(roughly pending operation count) of itself and that of the files<br>present in all the other bricks in it’s replica set as seen by that brick.</p>
-<p>Lets consider an example replica volume with 2 bricks brick-a and brick-b.<br>all files in brick-a will have 2 entries<br>one for itself and the other for the file present in it’s replica set, i.e.brick-b:<br>One can inspect changelogs using getfattr command.</p>
-<pre><code># getfattr -d -e hex -m. brick-a/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for itself (brick-a)
-trusted.afr.vol-client-1=0x000000000000000000000000 --&gt;changelog for brick-b as seen by brick-a</code></pre><p>Likewise, all files in brick-b will have:</p>
-<pre><code># getfattr -d -e hex -m. brick-b/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for brick-a as seen by brick-b
-trusted.afr.vol-client-1=0x000000000000000000000000 --&gt;changelog for itself (brick-b)</code></pre><h5 id="Interpreting-Changelog-Value"><a href="#Interpreting-Changelog-Value" class="headerlink" title="Interpreting Changelog Value:"></a>Interpreting Changelog Value:</h5><p>Each extended attribute has a value which is <code>24</code> hexa decimal digits. i.e. <code>12</code> bytes<br>First <code>8</code> digits (<code>4</code> bytes) represent changelog of <code>data</code>. Second <code>8</code> digits represent changelog<br>of <code>metadata</code>. Last 8 digits represent Changelog of <code>directory entries</code>.</p>
-<p>Pictorially representing the same, we have:</p>
-<pre><code>0x 00000000 00000000 00000000
-      |        |        |
-      |        |        \_ changelog of directory entries
-      |        \_ changelog of metadata
-      \ _ changelog of data</code></pre><p>Before write operation is performed on the brick, afr marks the file saying there is a pending operation.</p>
-<p>As part of this pre-op afr sends xattrop operation with increment 1 for data operation to make the extended attributes the following:<br>    # getfattr -d -e hex -m. brick-a/file.txt<br>    trusted.afr.vol-client-0=0x000000010000000000000000 –&gt;changelog for itself (brick-a)<br>    trusted.afr.vol-client-1=0x000000010000000000000000 –&gt;changelog for brick-b as seen by brick-a</p>
-<p>Likewise, all files in brick-b will have:</p>
-<pre><code># getfattr -d -e hex -m. brick-b/file.txt
-trusted.afr.vol-client-0=0x000000010000000000000000 --&gt;changelog for brick-a as seen by brick-b
-trusted.afr.vol-client-1=0x000000010000000000000000 --&gt;changelog for itself (brick-b)</code></pre><p>As the operation is in progress on files on both the bricks all the extended attributes show the same value.</p>
-<h4 id="Op"><a href="#Op" class="headerlink" title="Op:"></a>Op:</h4><p>Now it sends the actual write operation to both the bricks. Afr remembers whether the operation is successful or not on all the subvolumes.</p>
-<h4 id="Post-Op"><a href="#Post-Op" class="headerlink" title="Post-Op:"></a>Post-Op:</h4><p>If the operation succeeds on all the bricks then there is no pending operations on any of the bricks so as part of POST-OP afr sends xattrop operation with increment -1 i.e. decrement by 1 for data operation to make the extended attributes back to all zeros again.</p>
-<p>In case there is a failure on brick-b then there is still a pending operation on brick-b where as no pending operations are there on brick-a. So xattrop operation for both of these extended attributes differs now. For extended attribute corresponding to brick-a i.e. trusted.afr.vol-client-0 decrement by 1 is sent where as for extended attribute corresponding to brick-b increment by ‘0’ is sent to retain the pending operation count.</p>
-<pre><code># getfattr -d -e hex -m. brick-a/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for itself (brick-a)
-trusted.afr.vol-client-1=0x000000010000000000000000 --&gt;changelog for brick-b as seen by brick-a
-
-# getfattr -d -e hex -m. brick-b/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for brick-a as seen by brick-b
-trusted.afr.vol-client-1=0x000000010000000000000000 --&gt;changelog for itself (brick-b)</code></pre><h4 id="Unlock"><a href="#Unlock" class="headerlink" title="Unlock:"></a>Unlock:</h4><p>Once the transaction is completed unlock is sent on all the bricks where lock is acquired.</p>
-<h3 id="Meta-Data-transactions"><a href="#Meta-Data-transactions" class="headerlink" title="Meta Data transactions:"></a>Meta Data transactions:</h3><p>setattr, setxattr, removexattr<br>All metadata operations take same inode lock with same range in metadata domain.</p>
-<h4 id="Lock-1"><a href="#Lock-1" class="headerlink" title="Lock:"></a>Lock:</h4><p>Metadata locking also starts initially with non-blocking locks then move on to blocking locks on any failures because of conflicting operations.</p>
-<h4 id="Pre-op-1"><a href="#Pre-op-1" class="headerlink" title="Pre-op:"></a>Pre-op:</h4><p>Before metadata operation is performed on the brick, afr marks the file saying there is a pending operation.<br>As part of this pre-op afr sends xattrop operation with increment 1 for metadata operation to make the extended attributes the following:<br>    # getfattr -d -e hex -m. brick-a/file.txt<br>    trusted.afr.vol-client-0=0x000000000000000100000000 –&gt;changelog for itself (brick-a)<br>    trusted.afr.vol-client-1=0x000000000000000100000000 –&gt;changelog for brick-b as seen by brick-a</p>
-<p>Likewise, all files in brick-b will have:<br>    # getfattr -d -e hex -m. brick-b/file.txt<br>    trusted.afr.vol-client-0=0x000000000000000100000000 –&gt;changelog for brick-a as seen by brick-b<br>    trusted.afr.vol-client-1=0x000000000000000100000000 –&gt;changelog for itself (brick-b)</p>
-<p>As the operation is in progress on files on both the bricks all the extended attributes show the same value.</p>
-<h4 id="Op-1"><a href="#Op-1" class="headerlink" title="Op:"></a>Op:</h4><p>Now it sends the actual metadata operation to both the bricks. Afr remembers whether the operation is successful or not on all the subvolumes.</p>
-<p>Post-Op:<br>If the operation succeeds on all the bricks then there is no pending operations on any of the bricks so as part of POST-OP afr sends xattrop operation with increment -1 i.e. decrement by 1 for metadata operation to make the extended attributes back to all zeros again.</p>
-<p>In case there is a failure on brick-b then there is still a pending operation on brick-b where as no pending operations are there on brick-a. So xattrop operation for both of these extended attributes differs now. For extended attribute corresponding to brick-a i.e. trusted.afr.vol-client-0 decrement by 1 is sent where as for extended attribute corresponding to brick-b increment by ‘0’ is sent to retain the pending operation count.</p>
-<pre><code># getfattr -d -e hex -m. brick-a/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for itself (brick-a)
-trusted.afr.vol-client-1=0x000000000000000100000000 --&gt;changelog for brick-b as seen by brick-a
-
-# getfattr -d -e hex -m. brick-b/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for brick-a as seen by brick-b
-trusted.afr.vol-client-1=0x000000000000000100000000 --&gt;changelog for itself (brick-b)</code></pre><h4 id="Unlock-1"><a href="#Unlock-1" class="headerlink" title="Unlock:"></a>Unlock:</h4><p>Once the transaction is completed unlock is sent on all the bricks where lock is acquired.</p>
-<h3 id="Entry-transactions"><a href="#Entry-transactions" class="headerlink" title="Entry transactions:"></a>Entry transactions:</h3><p>create, mknod, mkdir, link, symlink, rename, unlink, rmdir<br>Pre-op/Post-op (done using xattrop) always happens on the parent directory.</p>
-<p>Entry Locks taken by these entry operations:</p>
-<p><strong>Create</strong> (file <code>dir/a</code>): Lock on name <code>a</code> in inode of <code>dir</code></p>
-<p><strong>mknod</strong> (file <code>dir/a</code>): Lock on name <code>a</code> in inode of <code>dir</code></p>
-<p><strong>mkdir</strong> (dir <code>dir/a</code>): Lock on name <code>a</code> in inode of <code>dir</code></p>
-<p><strong>link</strong> (file <code>oldfile</code>, file <code>dir/newfile</code>): Lock on name <code>newfile</code> in inode of <code>dir</code></p>
-<p><strong>Symlink</strong> (file <code>oldfile</code>, file <code>dir</code>/<code>symlinkfile</code>): Lock on name <code>symlinkfile</code> in inode of <code>dir</code></p>
-<p><strong>rename</strong> of (file <code>dir1</code>/<code>file1</code>, file <code>dir2</code>/<code>file2</code>): Lock on name <code>file1</code> in inode of <code>dir1</code>, Lock on name <code>file2</code> in inode of <code>dir2</code></p>
-<p><strong>rename</strong> of (dir <code>dir1</code>/<code>dir2</code>, dir <code>dir3</code>/<code>dir4</code>): Lock on name <code>dir2</code> in inode of <code>dir1</code>, Lock on name <code>dir4</code> in inode of <code>dir3</code>, Lock on <code>NULL</code> in inode of <code>dir4</code></p>
-<p><strong>unlink</strong> (file <code>dir</code>/<code>a</code>): Lock on name <code>a</code> in inode of <code>dir</code></p>
-<p><strong>rmdir</strong> (dir dir/a): Lock on name <code>a</code> in inode of <code>dir</code>, Lock on <code>NULL</code> in inode of <code>a</code></p>
-<h4 id="Lock-2"><a href="#Lock-2" class="headerlink" title="Lock:"></a>Lock:</h4><p>Even entry locking starts initially with non-blocking locks then move on to blocking locks on any failures because of conflicting operations.</p>
-<h4 id="Pre-op-2"><a href="#Pre-op-2" class="headerlink" title="Pre-op:"></a>Pre-op:</h4><p>Before entry operation is performed on the brick, afr marks the directory saying there is a pending operation.</p>
-<p>As part of this pre-op afr sends xattrop operation with increment 1 for entry operation to make the extended attributes the following:</p>
-<pre><code># getfattr -d -e hex -m. brick-a/
-trusted.afr.vol-client-0=0x000000000000000000000001 --&gt;changelog for itself (brick-a)
-trusted.afr.vol-client-1=0x000000000000000000000001 --&gt;changelog for brick-b as seen by brick-a</code></pre><p>Likewise, all files in brick-b will have:<br>    # getfattr -d -e hex -m. brick-b/<br>    trusted.afr.vol-client-0=0x000000000000000000000001 –&gt;changelog for brick-a as seen by brick-b<br>    trusted.afr.vol-client-1=0x000000000000000000000001 –&gt;changelog for itself (brick-b)</p>
-<p>As the operation is in progress on files on both the bricks all the extended attributes show the same value.</p>
-<h4 id="Op-2"><a href="#Op-2" class="headerlink" title="Op:"></a>Op:</h4><p>Now it sends the actual entry operation to both the bricks. Afr remembers whether the operation is successful or not on all the subvolumes.</p>
-<h4 id="Post-Op-1"><a href="#Post-Op-1" class="headerlink" title="Post-Op:"></a>Post-Op:</h4><p>If the operation succeeds on all the bricks then there is no pending operations on any of the bricks so as part of POST-OP afr sends xattrop operation with increment -1 i.e. decrement by 1 for entry operation to make the extended attributes back to all zeros again.</p>
-<p>In case there is a failure on brick-b then there is still a pending operation on brick-b where as no pending operations are there on brick-a. So xattrop operation for both of these extended attributes differs now. For extended attribute corresponding to brick-a i.e. trusted.afr.vol-client-0 decrement by 1 is sent where as for extended attribute corresponding to brick-b increment by ‘0’ is sent to retain the pending operation count.</p>
-<pre><code># getfattr -d -e hex -m. brick-a/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for itself (brick-a)
-trusted.afr.vol-client-1=0x000000000000000000000001 --&gt;changelog for brick-b as seen by brick-a
-
-# getfattr -d -e hex -m. brick-b/file.txt
-trusted.afr.vol-client-0=0x000000000000000000000000 --&gt;changelog for brick-a as seen by brick-b
-trusted.afr.vol-client-1=0x000000000000000000000001 --&gt;changelog for itself (brick-b)</code></pre><h4 id="Unlock-2"><a href="#Unlock-2" class="headerlink" title="Unlock:"></a>Unlock:</h4><p>Once the transaction is completed unlock is sent on all the bricks where lock is acquired.</p>
-<p>The parts above cover how replication consistency is achieved in afr.</p>
-<p>Now let us look at how afr can figure out how to recover from failures given the changelog extended attributes</p>
-<h3 id="Recovering-from-failures-Self-heal"><a href="#Recovering-from-failures-Self-heal" class="headerlink" title="Recovering from failures (Self-heal)"></a>Recovering from failures (Self-heal)</h3><p>For recovering from failures afr tries to determine which copy is the fresh copy based on the extended attributes.</p>
-<p>There are 3 possibilities:</p>
-<ol>
-<li><p>All the extended attributes are zero on all the bricks. This means there are no pending operations on any of the bricks so there is nothing to recover.</p>
-</li>
-<li><p>According to the extended attributes there is a brick(brick-a) which noticed that there are operations pending on the other brick(brick-b).</p>
-<ul>
-<li><p>There are 4 possibilities for brick-b</p>
-<ul>
-<li><p>It did not even participate in transaction (all extended attributes on brick-b are zeros). Choose brick-a as source and perform recovery to brick-b.</p>
-</li>
-<li><p>It participated in the transaction but died even before post-op. (All extended attributes on brick-b have a pending-count). Choose brick-a as source and perform recovery to brick-b.</p>
-</li>
-<li><p>It participated in the transaction and after the post-op extended attributes on brick-b show that there are pending operations on itself. Choose brick-a as source and perform recovery to brick-b.</p>
-</li>
-<li><p>It participated in the transaction and after the post-op extended attributes on brick-b show that there are pending operations on brick-a. This situation is called Split-brain and there is no way to recover. This situation can happen in cases of network partition.</p>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>The only possibility now is where both brick-a, brick-b have pending operations. In this case changelogs extended attributes are all non-zeros on all the bricks. Basically what could have happened is the operations started on the file but either the whole replica set went down or the mount process itself dies before post-op is performed. In this case there is a possibility that data on the bricks is different. In this case afr chooses file with bigger size as source, if both files have same size then it choses the subvolume which has witnessed large number of pending operations on the other brick as source. If both have same number of pending operations then it chooses the file with newest ctime as source. If this is also same then it just picks one of the two bricks as source and syncs data on to the other to make sure that the files are replicas to each other.</p>
-</li>
-</ol>
-<h3 id="Self-healing"><a href="#Self-healing" class="headerlink" title="Self-healing:"></a>Self-healing:</h3><p>Afr does 3 types of self-heals for data recovery.</p>
-<ol>
-<li><p>Data self-heal</p>
-</li>
-<li><p>Metadata self-heal</p>
-</li>
-<li><p>Entry self-heal</p>
-</li>
-</ol>
-<p>As we have seen earlier, afr depends on changelog extended attributes to figure out which copy is source and which copy is sink. General algorithm for performing this recovery (self-heal) is same for all of these different self-heals.</p>
-<ol>
-<li><p>Take appropriate full locks on the file/directory to make sure no other transaction is in progress while inspecting changelog extended attributes.<br>In this step, for</p>
-<ul>
-<li>Data self-heal afr takes inode lock with <code>offset: 0</code> and <code>size: 0</code>(infinity) in data domain.</li>
-<li>Entry self-heal takes entry lock on directory with <code>NULL</code> name i.e. full directory lock.</li>
-<li>Metadata self-heal it takes pre-defined range in metadata domain on which all the metadata operations on that inode take locks on. To prevent duplicate data self-heal an inode lock is taken in self-heal domain as well.</li>
-</ul>
-</li>
-<li><p>Perform Sync from fresh copy to stale copy.<br>In this step,</p>
-<ul>
-<li><p>Metadata self-heal gets the inode attributes, extended attributes from source copy and sets them on the stale copy.</p>
-</li>
-<li><p>Entry self-heal reads entries on stale directories and see if they are present on source directory, if they are not present it deletes them. Then it reads entries on fresh directory and creates the missing entries on stale directories.</p>
-</li>
-<li><p>Data self-heal does things a bit differently to make sure no other writes on the file are blocked for the duration of self-heal because files sizes could be as big as 100G(VM files) and we don’t want to block all the transactions until the self-heal is over. Locks translator allows two overlapping locks to be granted if they are from same lock owner. Using this what data self-heal does is it takes a small 128k size range lock and unlock previous acquired lock, heals just that 128k chunk and takes next 128k chunk lock and unlock previous lock and moves to the next one. It always makes sure that at least one lock is present on the file by selfheal throughout the duration of self-heal so that two self-heals don’t happen in parallel.</p>
-</li>
-<li><p>Data self-heal has two algorithms, where the file can be copied only when there is data mismatch for that chunk called as ‘diff’ self-heal. The other one is blind copy of each chunk called ‘full’ self-heal</p>
-</li>
-</ul>
-</li>
-<li><p>Change extended attributes to mark new sources after the sync.</p>
-</li>
-<li><p>Unlock the locks acquired to perform self-heal.</p>
-</li>
-</ol>
-<h3 id="Transaction-Optimizations"><a href="#Transaction-Optimizations" class="headerlink" title="Transaction Optimizations:"></a>Transaction Optimizations:</h3><p>As we saw earlier afr transaction for all the operations that modify data happens in 5 phases, i.e. it sends 5 operations on the network for every operation. In the following sections we will see optimizations already implemented in afr which reduce the number of operations on the network to just 1 per transaction in best case.</p>
-<h4 id="Changelog-piggybacking"><a href="#Changelog-piggybacking" class="headerlink" title="Changelog-piggybacking"></a>Changelog-piggybacking</h4><p>This optimization comes into picture when on same file descriptor, before write1’s post op is complete write2’s pre-op starts and the operations are succeeding. When writes come in that manner we can piggyback on the pre-op of write1 for write2 and somehow tell write1 that write2 will do the post-op that was supposed to be done by write1. So write1’s post-op does not happen over network, write2’s pre-op does not happen over network. This optimization does not hold if there are any failures in write1’s phases.</p>
-<h4 id="Delayed-Post-op"><a href="#Delayed-Post-op" class="headerlink" title="Delayed Post-op"></a>Delayed Post-op</h4><p>This optimization just delays post-op of the write transaction(write1) by a pre-configured amount time to increase the probability of next write piggybacking on the pre-op done by write1.</p>
-<p>With the combination of these two optimizations for operations like full file copy which are write intensive operations, what will essentially happen is for the first write a pre-op will happen. Then for the last write on the file post-op happens. So for all the write transactions between first write and last write afr reduced network operations from 5 to 3.</p>
-<h4 id="Eager-locking"><a href="#Eager-locking" class="headerlink" title="Eager-locking:"></a>Eager-locking:</h4><p>This optimization comes into picture when only one file descriptor is open on the file and performing writes just like in the previous optimization. What this optimization does is it takes a full file lock on the file irrespective of the offset, size of the write, so that lock acquired by write1 can be piggybacked by write2 and write2 takes the responsibility of unlocking it. both write1, write2 will have same lock owner and afr takes the responsibility of serializing overlapping writes so that replication consistency is maintained.</p>
-<p>With the combination of these optimizations for operations like full file copy which are write intensive operations, what will essentially happen is for the first write a pre-op, full-file lock will happen. Then for the last write on the file post-op, unlock happens. So for all the write transactions between first write and last write afr reduced network operations from 5 to 1.</p>
-<h3 id="Quorum-in-afr"><a href="#Quorum-in-afr" class="headerlink" title="Quorum in afr:"></a>Quorum in afr:</h3><p>To avoid split-brains, afr employs the following quorum policies.</p>
-<ul>
-<li>In replica set with odd number of bricks, replica set is said to be in quorum if more than half of the bricks are up.</li>
-<li>In replica set with even number of bricks, if more than half of the bricks are up then it is said to be in quorum but if number of bricks that are up is equal to number of bricks that are down then, it is said to be in quorum if the first brick is also up in the set of bricks that are up.</li>
-</ul>
-<p>When quorum is not met in the replica set then modify operations on the mount are not allowed by afr.</p>
-<h3 id="Self-heal-daemon-and-Index-translator-usage-by-afr"><a href="#Self-heal-daemon-and-Index-translator-usage-by-afr" class="headerlink" title="Self-heal daemon and Index translator usage by afr:"></a>Self-heal daemon and Index translator usage by afr:</h3><h4 id="Index-xlator"><a href="#Index-xlator" class="headerlink" title="Index xlator"></a>Index xlator</h4><p>On each brick index xlator is loaded. This xlator keeps track of what is happening in afr’s pre-op and post-op. If there is an ongoing I/O or a pending self-heal, changelog xattrs would have non-zero values. Whenever xattrop/fxattrop fop (pre-op, post-ops are done using these fops) comes to index xlator a link (with gfid as name of the file on which the fop is performed) is added in <brick>/.glusterfs/indices/xattrop directory. If the value returned by the fop is zero the link is removed from the index otherwise it is kept until zero is returned in the subsequent xattrop/fxattrop fops.</brick></p>
-<h4 id="Self-heal-daemon"><a href="#Self-heal-daemon" class="headerlink" title="Self-heal-daemon:"></a>Self-heal-daemon:</h4><p>self-heal-daemon process keeps running on each machine of the trusted storage pool. This process has afr xlators of all the volumes which are started. Its job is to crawl indices on bricks that are local to that machine. If any of the files represented by the gfid of the link name need healing and automatically heal them. This operation is performed every 10 minutes for each replica set. Additionally when a brick comes online also this operation is performed.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/glusterfs-dht%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/glusterfs-dht%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/" class="post-title-link" itemprop="url">How GlusterFs Distribution Works</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 16:24:54 / Modified: 16:29:05" itemprop="dateCreated datePublished" datetime="2020-04-15T16:24:54+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="How-GlusterFS-Distribution-Works"><a href="#How-GlusterFS-Distribution-Works" class="headerlink" title="How GlusterFS Distribution Works"></a>How GlusterFS Distribution Works</h1><p>The defining feature of any scale-out system is its ability to distribute work<br>or data among many servers.  Accordingly, people in the distributed-system<br>community have developed many powerful techniques to perform such distribution,<br>but those techniques often remain little known or understood even among other<br>members of the file system and database communities that benefit.  This<br>confusion is represented even in the name of the GlusterFS component that<br>performs distribution - DHT, which stands for Distributed Hash Table but is not<br>actually a DHT as that term is most commonly used or defined.  The way<br>GlusterFS’s DHT works is based on a few basic principles:</p>
-<ul>
-<li><p>All operations are driven by clients, which are all equal.  There are no<br>special nodes with special knowledge of where files are or should be.</p>
-</li>
-<li><p>Directories exist on all subvolumes (bricks or lower-level aggregations of<br>bricks); files exist on only one.</p>
-</li>
-<li><p>Files are assigned to subvolumes based on <em>consistent hashing</em>, and even<br>more specifically a form of consistent hashing exemplified by Amazon’s<br><a href="http://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf" target="_blank" rel="noopener">Dynamo</a>.</p>
-</li>
-</ul>
-<p>The result of all this is that users are presented with a set of files that is<br>the union of the files present on all subvolumes.  The following sections<br>describe how this “uniting” process actually works.</p>
-<h2 id="Layouts"><a href="#Layouts" class="headerlink" title="Layouts"></a>Layouts</h2><p>The conceptual basis of Dynamo-style consistent hashing is of numbers around a<br>circle, like a clock.  First, the circle is divided into segments and those<br>segments are assigned to bricks.  (For the sake of simplicity we’ll use<br>“bricks” hereafter even though they might actually be replicated/striped<br>subvolumes.)  Several factors guide this assignment.</p>
-<ul>
-<li><p>Assignments are done separately for each directory.</p>
-</li>
-<li><p>Historically, segments have all been the same size.  However, this can lead<br>to smaller bricks becoming full while plenty of space remains on larger<br>ones.  If the <em>cluster.weighted-rebalance</em> option is set, segments sizes<br>will be proportional to brick sizes.</p>
-</li>
-<li><p>Assignments need not include all bricks in the volume.  If the<br><em>cluster.subvols-per-directory</em> option is set, only that many bricks will<br>receive assignments for that directory.</p>
-</li>
-</ul>
-<p>However these assignments are done, they collectively become what we call a<br><em>layout</em> for a directory.  This layout is then stored using extended<br>attributes, with each brick’s copy of that extended attribute on that directory<br>consisting of four 32-bit fields.</p>
-<ul>
-<li><p>A version, which might be DHT_HASH_TYPE_DM to represent an assignment as<br>described above, or DHT_HASH_TYPE_DM_USER to represent an assignment made<br>manually by the user (or external script).</p>
-</li>
-<li><p>A “commit hash” which will be described later.</p>
-</li>
-<li><p>The first number in the assigned range (segment).</p>
-</li>
-<li><p>The last number in the assigned range.</p>
-</li>
-</ul>
-<p>For example, the extended attributes representing a weighted assignment between<br>three bricks, one twice as big as the others, might look like this.</p>
-<ul>
-<li><p>Brick A (the large one): DHT_HASH_TYPE_DM 1234 0 0x7ffffff</p>
-</li>
-<li><p>Brick B: DHT_HASH_TYPE_DM 1234 0x80000000 0xbfffffff</p>
-</li>
-<li><p>Brick C: DHT_HASH_TYPE_DM 1234 0xc0000000 0xffffffff</p>
-</li>
-</ul>
-<h2 id="Placing-Files"><a href="#Placing-Files" class="headerlink" title="Placing Files"></a>Placing Files</h2><p>To place a file in a directory, we first need a layout for that directory - as<br>described above.  Next, we calculate a hash for the file.  To minimize<br>collisions either between files in the same directory with different names or<br>between files in different directories with the same name, this hash is<br>generated using both the (containing) directory’s unique GFID and the file’s<br>name.  This hash is then matched to one of the layout assignments, to yield<br>what we call a <em>hashed location</em>.  For example, consider the layout shown<br>above.  The hash 0xabad1dea is between 0x80000000 and 0xbfffffff, so the<br>corresponding file’s hashed location would be on Brick B.  A second file with a<br>hash of 0xfaceb00c would be assigned to Brick C by the same reasoning.</p>
-<h2 id="Looking-Up-Files"><a href="#Looking-Up-Files" class="headerlink" title="Looking Up Files"></a>Looking Up Files</h2><p>Because layout assignments might change, especially as bricks are added or<br>removed, finding a file involves more than calculating its hashed location and<br>looking there.  That is in fact the first step, and works most of the time -<br>i.e. the file is found where we expected it to be - but there are a few more<br>steps when that’s not the case.  Historically, the next step has been to look<br>for the file <strong>everywhere</strong> - i.e. to broadcast our lookup request to all<br>subvolumes.  If the file isn’t found that way, it doesn’t exist.  At this<br>point, an open that requires the file’s presence will fail, or a create/mkdir<br>that requires its absence will be allowed to continue.</p>
-<p>Regardless of whether a file is found at its hashed location or elsewhere, we<br>now know its <em>cached location</em>.  As the name implies, this is stored within DHT<br>to satisfy future lookups.  If it’s not the same as the hashed location, we<br>also take an extra step.  This step is the creation of a <em>linkfile</em>, which is a<br>special stub left at the <strong>hashed</strong> location pointing to the <strong>cached</strong><br>location.  Therefore, if a client naively looks for a file at its hashed<br>location and finds a linkfile instead, it can use that linkfile to look up the<br>file where it really is instead of needing to inquire everywhere.</p>
-<h2 id="Rebalancing"><a href="#Rebalancing" class="headerlink" title="Rebalancing"></a>Rebalancing</h2><p>As bricks are added or removed, or files are renamed, many files can end up<br>somewhere other than at their hashed locations.  When this happens, the volumes<br>need to be rebalanced.  This process consists of two parts.</p>
-<ol>
-<li><p>Calculate new layouts, according to the current set of bricks (and possibly<br>their characteristics).  We call this the “fix-layout” phase.</p>
-</li>
-<li><p>Migrate any “misplaced” files to their correct (hashed) locations, and<br>clean up any linkfiles which are no longer necessary.  We call this the<br>“migrate-data” phase.</p>
-</li>
-</ol>
-<p>Usually, these two phases are done together.  (In fact, the code for them is<br>somewhat intermingled.)  However, the migrate-data phase can involve a lot of<br>I/O and be very disruptive, so users can do just the fix-layout phase and defer<br>migrate-data until a more convenient time.  This allows new files to be placed<br>on new bricks, even though old files might still be in the “wrong” place.</p>
-<p>When calculating a new layout to replace an old one, DHT specifically tries to<br>maximize overlap of the assigned ranges, thus minimizing data movement.  This<br>difference can be very large.  For example, consider the case where our example<br>layout from earlier is updated to add a new double-sided brick.  Here’s a very<br>inefficient way to do that.</p>
-<ul>
-<li><p>Brick A (the large one): 0x00000000 to 0x55555555</p>
-</li>
-<li><p>Brick B: 0x55555556 to 0x7fffffff</p>
-</li>
-<li><p>Brick C: 0x80000000 to 0xaaaaaaaa</p>
-</li>
-<li><p>Brick D (the new one): 0xaaaaaaab to 0xffffffff</p>
-</li>
-</ul>
-<p>This would cause files in the following ranges to be migrated:</p>
-<ul>
-<li><p>0x55555556 to 0x7fffffff (from A to B)</p>
-</li>
-<li><p>0x80000000 to 0xaaaaaaaa (from B to C)</p>
-</li>
-<li><p>0xaaaaaaab to 0xbfffffff (from B to D)</p>
-</li>
-<li><p>0xc0000000 to 0xffffffff (from C to D)</p>
-</li>
-</ul>
-<p>As an historical note, this is exactly what we used to do, and in this case it<br>would have meant moving 7/12 of all files in the volume.  Now let’s consider a<br>new layout that’s optimized to maximize overlap with the old one. </p>
-<ul>
-<li><p>Brick A: 0x00000000 to 0x55555555</p>
-</li>
-<li><p>Brick D: 0x55555556 to 0xaaaaaaaa  &lt;- optimized insertion point</p>
-</li>
-<li><p>Brick B: 0xaaaaaaab to 0xd5555554</p>
-</li>
-<li><p>Brick C: 0xd5555555 to 0xffffffff</p>
-</li>
-</ul>
-<p>In this case we only need to move 5/12 of all files.  In a volume with millions<br>or even billions of files, reducing data movement by 1/6 of all files is a<br>pretty big improvement.  In the future, DHT might use “virtual node IDs” or<br>multiple hash rings to make rebalancing even more efficient.</p>
-<h2 id="Rename-Optimizations"><a href="#Rename-Optimizations" class="headerlink" title="Rename Optimizations"></a>Rename Optimizations</h2><p>With the file-lookup mechanisms we already have in place, it’s not necessary to<br>move a file from one brick to another when it’s renamed - even across<br>directories.  It will still be found, albeit a little less efficiently.  The<br>first client to look for it after the rename will add a linkfile, which every<br>other client will follow from then on.  Also, every client that has found the<br>file once will continue to find it based on its cached location, without any<br>network traffic at all.  Because the extra lookup cost is small, and the<br>movement cost might be very large, DHT renames the file “in place” on its<br>current brick instead (taking advantage of the fact that directories exist<br>everywhere).</p>
-<p>This optimization is further extended to handle cases where renames are very<br>common.  For example, rsync and similar tools often use a “write new then<br>rename” idiom in which a file “xxx” is actually written as “.xxx.1234” and then<br>moved into place only after its contents have been fully written.  To make this<br>process more efficient, DHT uses a regular expression to separate the permanent<br>part of a file’s name (in this case “xxx”) from what is likely to be a<br>temporary part (the leading “.” and trailing “.1234”).  That way, after the<br>file is renamed it will be in its correct hashed location - which it wouldn’t<br>be otherwise if “xxx” and “.xxx.1234” hash differently - and no linkfiles or<br>broadcast lookups will be necessary.</p>
-<p>In fact, there are two regular expressions available for this purpose -<br><em>cluster.rsync-hash-regex</em> and <em>cluster.extra-hash-regex</em>.  As its name<br>implies, <em>rsync-hash-regex</em> defaults to the pattern that regex uses, while<br><em>extra-hash-regex</em> can be set by the user to support a second tool using the<br>same temporary-file idiom.</p>
-<h2 id="Commit-Hashes"><a href="#Commit-Hashes" class="headerlink" title="Commit Hashes"></a>Commit Hashes</h2><p>A very recent addition to DHT’s algorithmic arsenal is intended to reduce the<br>number of “broadcast” lookups the it issues.  If a volume is completely in<br>balance, then no file could exist anywhere but at its hashed location.<br>Therefore, if we’ve already looked there and not found it, then looking<br>elsewhere would be pointless (and wasteful).  The <em>commit hash</em> mechanism is<br>used to detect this case.  A commit hash is assigned to a volume, and<br>separately to each directory, and then updated according to the following<br>rules.</p>
-<ul>
-<li><p>The volume commit hash is changed whenever actions are taken that might<br>cause layout assignments across all directories to become invalid - i.e.<br>bricks being added, removed, or replaced.</p>
-</li>
-<li><p>The directory commit hash is changed whenever actions are taken that might<br>cause files to be “misplaced” - e.g. when they’re renamed.</p>
-</li>
-<li><p>The directory commit hash is set to the volume commit hash when the<br>directory is created, and whenever the directory is fully rebalanced so that<br>all files are at their hashed locations.</p>
-</li>
-</ul>
-<p>In other words, whenever either the volume or directory commit hash is changed<br>that creates a mismatch.  In that case we revert to the “pessimistic”<br>broadcast-lookup method described earlier.  However, if the two hashes match<br>then we can with skip the broadcast lookup and return a result immediately.<br>This has been observed to cause a 3x performance improvement in workloads that<br>involve creating many small files across many bricks.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/" class="post-title-link" itemprop="url">glusterfs global-threading挂载选项</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 16:13:48 / Modified: 16:15:32" itemprop="dateCreated datePublished" datetime="2020-04-15T16:13:48+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">core: implement a global thread pool</span><br><span class="line"></span><br><span class="line">This patch implements a thread pool that is wait-free for adding jobs to</span><br><span class="line">the queue and uses a very small locked region to get jobs. This makes it</span><br><span class="line">possible to decrease contention drastically. It&#39;s based on wfcqueue</span><br><span class="line">structure provided by urcu library.</span><br><span class="line"></span><br><span class="line">It automatically enables more threads when load demands it, and stops</span><br><span class="line">them when not needed. There&#39;s a maximum number of threads that can be</span><br><span class="line">used. This value can be configured.</span><br><span class="line"></span><br><span class="line">Depending on the workload, the maximum number of threads plays an</span><br><span class="line">important role. So it needs to be configured for optimal performance.</span><br><span class="line">Currently the thread pool doesn&#39;t self adjust the maximum for the</span><br><span class="line">workload, so this configuration needs to be changed manually.</span><br><span class="line"></span><br><span class="line">For this reason, the global thread pool has been made optional, so that</span><br><span class="line">volumes can still use the thread pool provided by io-threads.</span><br><span class="line"></span><br><span class="line">To enable it for bricks, the following option needs to be set:</span><br><span class="line"></span><br><span class="line">config.global-threading &#x3D; on</span><br><span class="line"></span><br><span class="line">This option has no effect if bricks are already running. A restart is</span><br><span class="line">required to activate it. It&#39;s recommended to also enable the following</span><br><span class="line">option when running bricks with the global thread pool:</span><br><span class="line"></span><br><span class="line">performance.iot-pass-through &#x3D; on</span><br><span class="line"></span><br><span class="line">To enable it for a FUSE mount point, the option &#39;--global-threading&#39;</span><br><span class="line">must be added to the mount command. To change it, an umount and remount</span><br><span class="line">is needed. It&#39;s recommended to disable the following option when using</span><br><span class="line">global threading on a mount point:</span><br><span class="line"></span><br><span class="line">performance.client-io-threads &#x3D; off</span><br><span class="line"></span><br><span class="line">Currently it can only be enabled for bricks and FUSE mounts.</span><br><span class="line"></span><br><span class="line">The maximum number of threads for clients and bricks can be configured</span><br><span class="line">using the following options:</span><br><span class="line"></span><br><span class="line">config.client-threads</span><br><span class="line">config.brick-threads</span><br><span class="line"></span><br><span class="line">These options can be applied online and its effect is immediate most of</span><br><span class="line">the times. If one of them is set to 0, the maximum number of threads</span><br><span class="line">will be calcutated as #cores * 2.</span><br><span class="line"></span><br><span class="line">Some distributions use a very old userspace-rcu library (version 0.7)</span><br><span class="line">for this reason, some header files from version 0.10 have been copied</span><br><span class="line">into contrib&#x2F;userspace-rcu and are used if the detected version is 0.7</span><br><span class="line">or older.</span><br><span class="line"></span><br><span class="line">If you also want to enable global-threading for fuse clients, you also need to set this option:</span><br><span class="line"></span><br><span class="line"># gluster volume set &lt;volname&gt; performance.client-io-threads off</span><br><span class="line">And remount the volume using --global-threading mount option.</span><br><span class="line"></span><br><span class="line">gluster volume set dht_vol performance.client-io-threads off</span><br><span class="line">mount -t glusterfs -o acl,global-threading 127.0.0.1:&#x2F;dht_vol &#x2F;mnt&#x2F;data</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/" class="post-title-link" itemprop="url">go pipeline样例</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 14:44:56 / Modified: 14:46:29" itemprop="dateCreated datePublished" datetime="2020-04-15T14:44:56+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="workflow-for-pipeline"><a href="#workflow-for-pipeline" class="headerlink" title="workflow for pipeline"></a>workflow for pipeline</h3><p><img src="https://upload-images.jianshu.io/upload_images/2582954-e811c2065a9f1b09.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="pipeline-v1.jpg"></p>
-<h3 id="runing-result"><a href="#runing-result" class="headerlink" title="runing result"></a>runing result</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">enter contrl+c  to stop pipeline program</span><br></pre></td></tr></table></figure>
-<p><img src="https://upload-images.jianshu.io/upload_images/2582954-1c05168284572a19.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="result.png"></p>
-<h3 id="code-example"><a href="#code-example" class="headerlink" title="code example"></a>code example</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">        &quot;log&quot;</span><br><span class="line">        &quot;math&#x2F;rand&quot;</span><br><span class="line">        &quot;os&quot;</span><br><span class="line">        &quot;os&#x2F;signal&quot;</span><br><span class="line">        &quot;syscall&quot;</span><br><span class="line">        &quot;time&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">classic pipeline demo write by perrynzhou@gmail.com</span><br><span class="line">*&#x2F;</span><br><span class="line">const (</span><br><span class="line">        batchSize &#x3D; 8</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">note:</span><br><span class="line">        for range 在chan上有如下特性</span><br><span class="line">                1.如果chan上有数据，则for 继续往下执行，如果chan没有数据则for 会阻塞</span><br><span class="line">                2.如果chan被close了，则chan为nil,for range会退出循环。</span><br><span class="line">*&#x2F;</span><br><span class="line">type PipeFeature struct &#123;</span><br><span class="line">        input1 chan int64</span><br><span class="line">        input2 chan int64</span><br><span class="line">        input3 chan int64</span><br><span class="line">        done   chan struct&#123;&#125;</span><br><span class="line">        stop   chan struct&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func NewPipeFeature() *PipeFeature &#123;</span><br><span class="line">        return &amp;PipeFeature&#123;</span><br><span class="line">                input1: make(chan int64, batchSize),</span><br><span class="line">                input2: make(chan int64, batchSize),</span><br><span class="line">                input3: make(chan int64, batchSize),</span><br><span class="line">                done:   make(chan struct&#123;&#125;),</span><br><span class="line">                stop:   make(chan struct&#123;&#125;),</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) init() &#123;</span><br><span class="line">        log.Println(&quot;...init running...&quot;)</span><br><span class="line">        defer close(p.input1)</span><br><span class="line">        for &#123;</span><br><span class="line">                select &#123;</span><br><span class="line">                case &lt;-p.done:</span><br><span class="line">                        log.Println(&quot;...init stop...&quot;)</span><br><span class="line">                        return</span><br><span class="line">                default:</span><br><span class="line">                        time.Sleep(5 * time.Millisecond)</span><br><span class="line">                        p.input1 &lt;- rand.Int63n(65535)</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) stage1() &#123;</span><br><span class="line">        log.Println(&quot;...stage1 running...&quot;)</span><br><span class="line">        defer close(p.input2)</span><br><span class="line">        for v :&#x3D; range p.input1 &#123; &#x2F;&#x2F;will block util input1 close</span><br><span class="line">                v &#x3D; v - rand.Int63n(1024)</span><br><span class="line">                p.input2 &lt;- v</span><br><span class="line">        &#125;</span><br><span class="line">        log.Println(&quot;stage1 done...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) stage2() &#123;</span><br><span class="line">        log.Println(&quot;...stage2 running...&quot;)</span><br><span class="line">        defer close(p.input3)</span><br><span class="line">        for v :&#x3D; range p.input2 &#123;</span><br><span class="line">                v &#x3D; v + 1</span><br><span class="line">                p.input3 &lt;- v</span><br><span class="line">        &#125;</span><br><span class="line">        log.Println(&quot;stage2 done...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) stage3() &#123;</span><br><span class="line">        log.Println(&quot;...stage3 running...&quot;)</span><br><span class="line">        for v3 :&#x3D; range p.input3 &#123; &#x2F;&#x2F;will block</span><br><span class="line">                v3 &#x3D; v3 + rand.Int63n(100)</span><br><span class="line">        &#125;</span><br><span class="line">        log.Println(&quot;stage3 done...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) Run() &#123;</span><br><span class="line">        log.Println(&quot;start pipeline...&quot;)</span><br><span class="line">        go p.init() &#x2F;&#x2F;order2- recv data from done and closed input1, return this function</span><br><span class="line">        go p.stage1() order 3-if input1 is closed,break for loop, and close input2 before return </span><br><span class="line">        go p.stage2() &#x2F;&#x2F;order 4-if input2 is closed ,break for range input2 and close input3 before return </span><br><span class="line">       &#x2F;&#x2F; order 5- if input3 is closed,stage3 return</span><br><span class="line">        p.stage3() &#x2F;&#x2F;  will block util input3 closed after call stage2</span><br><span class="line">        p.stop &lt;- struct&#123;&#125;&#123;&#125; &#x2F;&#x2F; order 6-send stop flag to stop chan before end Run function</span><br><span class="line">&#125;</span><br><span class="line">func (p *PipeFeature) Stop() &#123;</span><br><span class="line">        p.done &lt;- struct&#123;&#125;&#123;&#125;  &#x2F;&#x2F; order 1-let init function to stop</span><br><span class="line">      &#x2F;&#x2F;order 7 - already recv data from stop chan</span><br><span class="line">        &lt;-p.stop &#x2F;&#x2F;wait for recv stop chan</span><br><span class="line">        log.Println(&quot;stop pipeline...&quot;)</span><br><span class="line">&#125;</span><br><span class="line">func main() &#123;</span><br><span class="line">        pipe :&#x3D; NewPipeFeature()</span><br><span class="line">        defer pipe.Stop()</span><br><span class="line">        sigs :&#x3D; make(chan os.Signal, 1)</span><br><span class="line">        signal.Notify(sigs, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)</span><br><span class="line">        go pipe.Run()</span><br><span class="line">        for &#123;</span><br><span class="line">                select &#123;</span><br><span class="line">                case &lt;-sigs:</span><br><span class="line">                        log.Println(&quot;recieve stop signal&quot;)</span><br><span class="line">                        return</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/System-IO%E5%92%8CStandard-IO%E8%AF%A6%E8%A7%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/System-IO%E5%92%8CStandard-IO%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">System IO和Standard IO详解</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 14:34:12 / Modified: 14:43:24" itemprop="dateCreated datePublished" datetime="2020-04-15T14:34:12+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="System-IO"><a href="#System-IO" class="headerlink" title="System IO"></a>System IO</h2><ul>
-<li>System IO指的是使用open/close/read/write/lseek系统调用使用io的方式，这样的方式是实打实的从user space-&gt;kernel space中函数调用,这样的方式是实时性高。<h2 id="Standard-IO"><a href="#Standard-IO" class="headerlink" title="Standard IO"></a>Standard IO</h2></li>
-<li>Standard IO 是是指使用stdio中的FILE中的fopen/fclose/fread/fwrite/fseek等方式进行IO的操作.使用stdio中的函数实现是依赖底层system io的系统函数。stdio中的函数是带有cache的机制，说简单点就是merge system io函数的调用，已达到在kernel层面减少系统调用的，这样的IO方式可以提高吞吐量。</li>
-</ul>
-<h2 id="文件描述符本质"><a href="#文件描述符本质" class="headerlink" title="文件描述符本质"></a>文件描述符本质</h2><p><img src="https://upload-images.jianshu.io/upload_images/2582954-b0b70b4672c56758.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
-<ul>
-<li><p>每个文件open/fopen以后会产生一个inode-struct.一个inode-struct包含了文件操作的基本属性以及position，position是这个文件读写的位置。每个inode-struct会保存在每个进程中的文件描述符的数组中，open返回的fd就是这个数组的下边。</p>
-</li>
-<li><p>每个进程在默认情况下最多打开1024个文件描述符，0/1/2默认是是输入、输出、错误输出。</p>
-</li>
-<li><p>进程中文件描述符数组使用方式按照最小下标方式。</p>
-</li>
-<li><p>FILE 结构中的position和inode-struct中的postition基本不是一样的，这个为什么？比如执行三次fput(FILE,’a’)，这样的操作在FILE结构中postion会++3次。这个position中是揍batch然后在kernel层面统一执行一次系统调用。</p>
-</li>
-<li><p>System IO 和 Standard IO 不能混用。</p>
-<h2 id="验证推断"><a href="#验证推断" class="headerlink" title="验证推断"></a>验证推断</h2></li>
-<li><p>实例代码验证standard io缓冲以及system io 实打实的调用</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: test.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Sat May  4 21:58:45 2019</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line"></span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line"></span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line">    exit(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>执行结果如下</p>
-</li>
-</ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/2582954-77a03ea892dfc791.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Snipaste_2019-05-04_22-11-44.png"></p>
-<ul>
-<li><p>trace下test执行路径<br><img src="https://upload-images.jianshu.io/upload_images/2582954-f654d46749be9fcb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Snipaste_2019-05-04_22-16-58.png"></p>
-</li>
-<li><p>分析<br>strace后的执行路径，可以看出，putchar执行三次最后是一次write(1,”aaa”,3)写入。其他的关于b的写入，每一次write都会写一次。</p>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/zombies-%E5%92%8C-init-process/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/zombies-%E5%92%8C-init-process/" class="post-title-link" itemprop="url">zombies 和 init process</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 14:32:21 / Modified: 14:34:02" itemprop="dateCreated datePublished" datetime="2020-04-15T14:32:21+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="进程关系"><a href="#进程关系" class="headerlink" title="进程关系"></a>进程关系</h4><h4 id="zombies进程"><a href="#zombies进程" class="headerlink" title="zombies进程"></a>zombies进程</h4><ul>
-<li>linux中的pid号和file的fd号的规则不同，pid的增长是逐次递增使用，如果达到上限再来一次从小到大的周期，寻找可用的pid号。如果没有就会出现系统错误。<ul>
-<li>linux fork后子进程先于父进程退出，这个进程子进程就是zombies的进程，zombies的进程占用的是pcb块资源以及pid资源，zombies的进程最终由1号(init process接管),统一由init process回收这些zombies进程，但是这个回收zombies的进程是异步的<h4 id="孤儿进程"><a href="#孤儿进程" class="headerlink" title="孤儿进程"></a>孤儿进程</h4></li>
-<li>linux fork之后父进程退出，子进程存活，这些子进程是孤儿进程，孤儿进程是由init process接管。这些孤儿进程最开始得父进程是fork出来这些子进程的父进程，之后父进程退出后，孤儿进程的父进程就是1号进程(init process)<h4 id="zombies-代码例子"><a href="#zombies-代码例子" class="headerlink" title="zombies 代码例子"></a>zombies 代码例子</h4><img src="https://upload-images.jianshu.io/upload_images/2582954-8acbf597c443ce01.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
-</ul>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: fork0.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Sun 16 Jun 2019 01:55:54 PM CST</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;getopt.h&gt;</span><br><span class="line">#include &lt;ctype.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">int is_num(const char *s)</span><br><span class="line">&#123;</span><br><span class="line">  if (NULL &#x3D;&#x3D; s)</span><br><span class="line">  &#123;</span><br><span class="line">    return -1;</span><br><span class="line">  &#125;</span><br><span class="line">  size_t len &#x3D; strlen(s);</span><br><span class="line">  for (int i &#x3D; 0; i &lt; len; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    if (isdigit(s[i]) &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      return -1;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br><span class="line">int main(int argc,char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">  int pn, fn;</span><br><span class="line">  int default_pn &#x3D; 2;</span><br><span class="line">  const char *cmd_line &#x3D; &quot;p:&quot;;</span><br><span class="line">  char ch;</span><br><span class="line">  while ((ch &#x3D; getopt(argc, argv, cmd_line)) !&#x3D; -1)</span><br><span class="line">  &#123;</span><br><span class="line">    int flag &#x3D; is_num(optarg);</span><br><span class="line">    switch(ch)</span><br><span class="line">    &#123;</span><br><span class="line">    case &#39;p&#39;:</span><br><span class="line">      pn &#x3D; (flag &#x3D;&#x3D; 0) ? atoi(optarg) : default_pn;</span><br><span class="line">      break;</span><br><span class="line">    default:</span><br><span class="line">      break;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  fprintf(stdout,&quot;process number:%d\n&quot;,pn);</span><br><span class="line">  fflush(NULL);</span><br><span class="line">  for (int i &#x3D; 0; i &lt; pn; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    fflush(NULL);</span><br><span class="line">    pid_t pid &#x3D; fork();</span><br><span class="line">    if (pid &#x3D;&#x3D; -1)</span><br><span class="line">    &#123;</span><br><span class="line">      perror(&quot;fork()&quot;);</span><br><span class="line">      exit(1);</span><br><span class="line">    &#125;</span><br><span class="line">    if (pid &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      fprintf(stdout, &quot;child process %ld,parent process %ld\n&quot;, getpid(), getppid());</span><br><span class="line">      &#x2F;&#x2F;sleep(100000); </span><br><span class="line">      exit(0);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  sleep(10000);</span><br><span class="line">  exit(0);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h5 id="孤儿进程-1"><a href="#孤儿进程-1" class="headerlink" title="孤儿进程"></a>孤儿进程</h5><p><img src="https://upload-images.jianshu.io/upload_images/2582954-70345eae7ba28d33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: fork0.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Sun 16 Jun 2019 01:55:54 PM CST</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;getopt.h&gt;</span><br><span class="line">#include &lt;ctype.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">int is_num(const char *s)</span><br><span class="line">&#123;</span><br><span class="line">  if (NULL &#x3D;&#x3D; s)</span><br><span class="line">  &#123;</span><br><span class="line">    return -1;</span><br><span class="line">  &#125;</span><br><span class="line">  size_t len &#x3D; strlen(s);</span><br><span class="line">  for (int i &#x3D; 0; i &lt; len; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    if (isdigit(s[i]) &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      return -1;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br><span class="line">int main(int argc,char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">  int pn, fn;</span><br><span class="line">  int default_pn &#x3D; 2;</span><br><span class="line">  const char *cmd_line &#x3D; &quot;p:&quot;;</span><br><span class="line">  char ch;</span><br><span class="line">  while ((ch &#x3D; getopt(argc, argv, cmd_line)) !&#x3D; -1)</span><br><span class="line">  &#123;</span><br><span class="line">    int flag &#x3D; is_num(optarg);</span><br><span class="line">    switch(ch)</span><br><span class="line">    &#123;</span><br><span class="line">    case &#39;p&#39;:</span><br><span class="line">      pn &#x3D; (flag &#x3D;&#x3D; 0) ? atoi(optarg) : default_pn;</span><br><span class="line">      break;</span><br><span class="line">    default:</span><br><span class="line">      break;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  fprintf(stdout,&quot;process number:%d\n&quot;,pn);</span><br><span class="line">  fflush(NULL);</span><br><span class="line">  for (int i &#x3D; 0; i &lt; pn; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    fflush(NULL);</span><br><span class="line">    pid_t pid &#x3D; fork();</span><br><span class="line">    if (pid &#x3D;&#x3D; -1)</span><br><span class="line">    &#123;</span><br><span class="line">      perror(&quot;fork()&quot;);</span><br><span class="line">      exit(1);</span><br><span class="line">    &#125;</span><br><span class="line">    if (pid &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      fprintf(stdout, &quot;child process %ld,parent process %ld\n&quot;, getpid(), getppid());</span><br><span class="line">      sleep(100000); </span><br><span class="line">      exit(0);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> &#x2F;&#x2F; sleep(10000);</span><br><span class="line">  exit(0);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/" class="post-title-link" itemprop="url">理解简单汇编程序</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 14:31:00 / Modified: 14:31:57" itemprop="dateCreated datePublished" datetime="2020-04-15T14:31:00+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <ul>
-<li>寄存器以及中断号对应表</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>eax(系统调用号)</th>
-<th>系统调用</th>
-<th>ebx(系统调用参数1)</th>
-<th>ecx(系统调用参数2)</th>
-<th>ecx(系统调用参数3)</th>
-<th>edx(系统调用参数4 )</th>
-<th>esx(系统调用参数5)</th>
-<th>edi（系统调用参数6）</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>sys_exit</td>
-<td>int</td>
-<td>无</td>
-<td>无</td>
-<td>无</td>
-<td>无</td>
-<td>无</td>
-</tr>
-<tr>
-<td>4</td>
-<td>sys_write</td>
-<td>unsigned int</td>
-<td>const char *</td>
-<td>size_t</td>
-<td>无</td>
-<td>无</td>
-<td>无</td>
-</tr>
-</tbody></table>
-<ul>
-<li>hello.asm汇编代码解释<pre><code>//定义数据段
-SECTION .data;
-</code></pre></li>
-</ul>
-<p>//db 代表一个字节占8个字节，读完一个偏移量加1字节<br>//dw 是汇编中的一个字，就是占用2个字节，读完一个偏移量加2<br>//dd 是汇编中的一个双字节，占用4个字节，读完一个偏移量加4<br>MyMsg: db “hello,word”;<br>MyMsgLen: equ $-MyMsg;</p>
-<p>//定义bbs段<br>SECTION  .bbs;<br>//定义代码段<br>SECTION .text;</p>
-<p>global _start;</p>
-<p>_start:<br>            nop;<br>            mov eax,4;                         //把4号系统调用写入到eax,sys_write写入到eax寄存器<br>            mov ebx,1;                         //把1号文件描述符写入到ebx<br>            mov ecx,MyMsg;                     //把MyMsg的地址写入到ecx<br>            mov edx,MyMsgLen;                       //把MyMsgLen写入到edx<br>            int 80H;                           //调用系统sys_write，回去eax取出对应的中断号，同时从ebx,ecx,edx出去系统调用参数进行调用<br>            mov eax,1;                              //把1号系统调用写入到eax<br>            mov ebx ,0;                         //把0写入到ebx中<br>            int 80H;                         //调用系统exit</p>
-<pre><code>
-- linux系统中断对应表
-
-
-![image.png](https://upload-images.jianshu.io/upload_images/2582954-c5536607f4a7b75d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-
-</code></pre>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/" class="post-title-link" itemprop="url">golang 1.4 mod 使用经验</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 14:29:42 / Modified: 14:30:35" itemprop="dateCreated datePublished" datetime="2020-04-15T14:29:42+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="1-go-mod-替代原来gopath的功能-依赖包下载依赖Go环境变量"><a href="#1-go-mod-替代原来gopath的功能-依赖包下载依赖Go环境变量" class="headerlink" title="1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量"></a>1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">export GOPROXY&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;goproxy&#x2F;</span><br></pre></td></tr></table></figure>
-<h4 id="2-go-mod-init-一个golang-项目"><a href="#2-go-mod-init-一个golang-项目" class="headerlink" title="2.go mod init 一个golang 项目"></a>2.go mod init 一个golang 项目</h4><ul>
-<li>go mod 的命令使用<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ go help mod</span><br><span class="line">Usage:</span><br><span class="line"></span><br><span class="line">        go mod &lt;command&gt; [arguments]</span><br><span class="line"></span><br><span class="line">The commands are:</span><br><span class="line"></span><br><span class="line">        download    download modules to local cache</span><br><span class="line">        edit        edit go.mod from tools or scripts</span><br><span class="line">        graph       print module requirement graph</span><br><span class="line">        init        initialize new module in current directory</span><br><span class="line">        tidy        add missing and remove unused modules</span><br><span class="line">        vendor      make vendored copy of dependencies</span><br><span class="line">        verify      verify dependencies have expected content</span><br><span class="line">        why         explain why packages or modules are needed</span><br></pre></td></tr></table></figure></li>
-<li>用go mod 初始化glusterfs-benchmark依赖包管理</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;进入glusterfs-benchmark目录</span><br><span class="line">cd glusterfs-benchmark </span><br><span class="line">go mod init glusterfs-benchmark </span><br><span class="line">&#x2F;&#x2F;会在 lusterfs-benchmark目录中  生成go.mod的文件</span><br></pre></td></tr></table></figure>
-<ul>
-<li>项目目录架构<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[perrynzhou@Debian ~&#x2F;Source&#x2F;perryn&#x2F;glusterfs-benchmark]$ tree ..&#x2F;glusterfs-benchmark&#x2F;</span><br><span class="line">..&#x2F;glusterfs-benchmark&#x2F;</span><br><span class="line">├── api</span><br><span class="line">│   ├── fuse_fetch.go</span><br><span class="line">│   └── glfs_fetch.go</span><br><span class="line">├── conf</span><br><span class="line">│   └── conf.go</span><br><span class="line">├── go.mod</span><br><span class="line">├── metric</span><br><span class="line">│   └── metric.go</span><br><span class="line">├── pkg</span><br><span class="line">│   └── mod</span><br><span class="line">│       └── cache</span><br><span class="line">│           └── lock</span><br><span class="line">└── utils</span><br><span class="line">    └── utils.go</span><br><span class="line"></span><br><span class="line">14 directories, 114 files</span><br></pre></td></tr></table></figure></li>
-<li>引入glusterfs-benchmark/api/fuse_fetch.go中引入utils库本地库</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; fuse_fetch.go的包信息</span><br><span class="line">package api</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">	&quot;bufio&quot;</span><br><span class="line">	&quot;fmt&quot;</span><br><span class="line">	log &quot;github.com&#x2F;sirupsen&#x2F;logrus&quot;</span><br><span class="line">	&quot;glusterfs-benchmark&#x2F;conf&quot;</span><br><span class="line">	&quot;glusterfs-benchmark&#x2F;metric&quot;</span><br><span class="line">	&quot;glusterfs-benchmark&#x2F;utils&quot;</span><br><span class="line">	&quot;os&quot;</span><br><span class="line">	&quot;path&#x2F;filepath&quot;</span><br><span class="line">	&quot;sync&quot;</span><br><span class="line">	&quot;sync&#x2F;atomic&quot;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;修改go.mod文件</span><br><span class="line">module glusterfs-benchmark</span><br><span class="line"></span><br><span class="line">go 1.14</span><br><span class="line"></span><br><span class="line">require github.com&#x2F;sirupsen&#x2F;logrus v1.4.2</span><br></pre></td></tr></table></figure>
-<ul>
-<li>项目构建<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;进入包含main.go的目录下执行go mod vendor,保存依赖包</span><br><span class="line">go mod vendor</span><br><span class="line">&#x2F;&#x2F;下载第三方依赖库</span><br><span class="line">go mod tidy -v</span><br><span class="line">&#x2F;&#x2F;编译项目</span><br><span class="line">go build -mod&#x3D;vendor</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
-  </nav>
-
-
-
           </div>
+
           
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
+            <div class="scroll-down-bar">
+              <i class="iconfont icon-arrowdown"></i>
+            </div>
+          
         </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          Table of Contents
-        </li>
-        <li class="sidebar-nav-overview">
-          Overview
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
       </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">perrynzhou</p>
-  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">38</span>
-          <span class="site-state-item-name">posts</span>
-        </a>
-      </div>
-  </nav>
-</div>
-
-
-
-      </div>
-
     </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
+  </header>
+
+  <main>
+    
+      <div class="container nopadding-md">
+        <div class="py-5" id="board"
+          style=margin-top:0>
+          
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-md-10 m-auto">
+                
 
 
-      </div>
-    </main>
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">glusterfsd启动过程</a>
 
-    <footer class="footer">
-      <div class="footer-inner">
+      <a href="/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" class="index-excerpt">
         
+        
+          
+        
+        <div>0.存在的疑惑
+glusterd启动后怎么把glusterfsd的brick进程拉起来？
+glusterfsd启动的参数从哪里获取？
+glusterfsd如何加载的呢？
+glusterfsd和glusterd启动后各自都是什么角色？(后续再讨论)1. glusterfs的入口函数解释
+glusterfsd中main方法加载xlator {name = 0x687dd0 “management”, </div>
+      </a>
 
-        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-16
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/15/global-threading%E5%90%8E%E5%AF%BC%E8%87%B4mount%E5%AE%A2%E6%88%B7%E7%AB%AFcrash/">global-threading后导致mount客户端crash</a>
+
+      <a href="/2020/04/15/global-threading%E5%90%8E%E5%AF%BC%E8%87%B4mount%E5%AE%A2%E6%88%B7%E7%AB%AFcrash/" class="index-excerpt">
+        
+        
+          
+        
+        <div>现象[2020-04-15 08:37:04.727619] I [rpc-clnt.c:1963:rpc_clnt_reconfig] 0-hot2_vol-client-2: changing port to 49153 (from 0)
+[2020-04-15 08:37:04.727653] I [socket.c:864:__socket_shutdown] 0-hot2_vol-cli</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/15/Automatic-File-Replication-%E8%BD%AC%E8%BD%BD/">Automatic File Replication-转载</a>
+
+      <a href="/2020/04/15/Automatic-File-Replication-%E8%BD%AC%E8%BD%BD/" class="index-excerpt">
+        
+        
+          
+        
+        <div>Automatic File ReplicationAfr xlator in glusterfs is responsible for replicating the data across the bricks.
+Responsibilities of AFRIts responsibilities include the following:
+
+Maintain replication co</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/15/glusterfs-dht%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/">How GlusterFs Distribution Works</a>
+
+      <a href="/2020/04/15/glusterfs-dht%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/" class="index-excerpt">
+        
+        
+          
+        
+        <div>How GlusterFS Distribution WorksThe defining feature of any scale-out system is its ability to distribute workor data among many servers.  Accordingly, people in the distributed-systemcommunity have d</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/">glusterfs global-threading挂载选项</a>
+
+      <a href="/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/" class="index-excerpt">
+        
+        
+          
+        
+        <div>core: implement a global thread pool
+
+This patch implements a thread pool that is wait-free for adding jobs to
+the queue and uses a very small locked region to get jobs. This makes it
+possible to decr</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/">go pipeline样例</a>
+
+      <a href="/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/" class="index-excerpt">
+        
+        
+          
+        
+        <div>workflow for pipeline
+runing resultenter contrl+c  to stop pipeline program
+
+code examplepackage main
+
+import (
+        "log"
+        "math/rand"
+        "os"
+        "os/signal"
+        "syscall"
+   </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/15/System-IO%E5%92%8CStandard-IO%E8%AF%A6%E8%A7%A3/">System IO和Standard IO详解</a>
+
+      <a href="/2020/04/15/System-IO%E5%92%8CStandard-IO%E8%AF%A6%E8%A7%A3/" class="index-excerpt">
+        
+        
+          
+        
+        <div>System IO
+System IO指的是使用open/close/read/write/lseek系统调用使用io的方式，这样的方式是实打实的从user space-&gt;kernel space中函数调用,这样的方式是实时性高。Standard IO
+Standard IO 是是指使用stdio中的FILE中的fopen/fclose/fread/fwrite/fseek等方式进行IO的操</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/15/zombies-%E5%92%8C-init-process/">zombies 和 init process</a>
+
+      <a href="/2020/04/15/zombies-%E5%92%8C-init-process/" class="index-excerpt">
+        
+        
+          
+        
+        <div>进程关系zombies进程
+linux中的pid号和file的fd号的规则不同，pid的增长是逐次递增使用，如果达到上限再来一次从小到大的周期，寻找可用的pid号。如果没有就会出现系统错误。
+linux fork后子进程先于父进程退出，这个进程子进程就是zombies的进程，zombies的进程占用的是pcb块资源以及pid资源，zombies的进程最终由1号(init process接管),统一</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/">理解简单汇编程序</a>
+
+      <a href="/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/" class="index-excerpt">
+        
+        
+          
+        
+        <div>
+寄存器以及中断号对应表
 
 
 
-<div class="copyright">
+
+eax(系统调用号)
+系统调用
+ebx(系统调用参数1)
+ecx(系统调用参数2)
+ecx(系统调用参数3)
+edx(系统调用参数4 )
+esx(系统调用参数5)
+edi（系统调用参数6）
+
+
+
+1
+sys_exit
+int
+无
+无
+无
+无
+无
+
+
+4
+sys_write
+unsigned int
+const char *
+size_t
+无
+无
+无
+
+
+
+hell</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/">golang 1.4 mod 使用经验</a>
+
+      <a href="/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/" class="index-excerpt">
+        
+        
+          
+        
+        <div>1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量export GO111MODULE=on
+export GOPROXY=https://mirrors.aliyun.com/goproxy/
+2.go mod init 一个golang 项目
+go mod 的命令使用$ go help mod
+Usage:
+
+        go mod &lt;command&gt; </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/page/2/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
   
-  &copy; 
-  <span itemprop="copyrightYear">2020</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+  <script>
+    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
+      ele.href += '#board';
+    }
+  </script>
+
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
   </div>
+</footer>
 
-        
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
 
+<!-- Plugins -->
 
-
-
-
-
-
-
-      </div>
-    </footer>
-  </div>
 
   
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
-
+    <script  src="/js/lazyload.js" ></script>
   
 
 
 
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "An elegant Material-Design theme for Hexo&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
 
 
 
@@ -1339,9 +639,15 @@ SECTION .data;
 
 
 
-  
 
-  
+
+
+
+
+
+
+
+
 
 </body>
 </html>

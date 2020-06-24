@@ -1,398 +1,526 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
+
+
+
+
+
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+  <meta name="author" content="perrynzhou">
+  <meta name="keywords" content="C, Go, nginx,glusterfs,redis">
+  <title>golang 1.4 mod 使用经验 - perrynzhou</title>
 
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
-
-  <meta name="description" content="1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量12export GO111MODULE&#x3D;onexport GOPROXY&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;goproxy&#x2F; 2.go mod init 一个golang 项目 go mod 的命令使用123456789101112131415$">
-<meta property="og:type" content="article">
-<meta property="og:title" content="golang 1.4 mod 使用经验">
-<meta property="og:url" content="http://yoursite.com/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/index.html">
-<meta property="og:site_name" content="perrynzhou">
-<meta property="og:description" content="1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量12export GO111MODULE&#x3D;onexport GOPROXY&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;goproxy&#x2F; 2.go mod init 一个golang 项目 go mod 的命令使用123456789101112131415$">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-04-15T06:29:42.000Z">
-<meta property="article:modified_time" content="2020-04-15T06:30:35.850Z">
-<meta property="article:author" content="perrynzhou">
-<meta property="article:tag" content="C">
-<meta property="article:tag" content=" Go">
-<meta property="article:tag" content=" nginx">
-<meta property="article:tag" content="glusterfs">
-<meta property="article:tag" content="redis">
-<meta name="twitter:card" content="summary">
-
-<link rel="canonical" href="http://yoursite.com/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/">
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'en'
-  };
-</script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-  <title>golang 1.4 mod 使用经验 | perrynzhou</title>
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
   
 
 
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
 
 
 
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
 
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
 
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
+<link  rel="stylesheet" href="/css/main.css" />
 
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
+<!-- 自定义样式保持在最底部 -->
 
-</head>
 
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.0"></head>
 
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
   </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">perrynzhou</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
-
-  </li>
-  </ul>
 </nav>
 
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
 
-
-
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-04-15 14:29">
+      2020年4月15日 下午
+    </time>
   </div>
 
 
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content post posts-expand">
-            
-
-    
+<div class="mt-1">
   
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      307 字
+    </span>
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          golang 1.4 mod 使用经验
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-15 14:29:42 / Modified: 14:30:35" itemprop="dateCreated datePublished" datetime="2020-04-15T14:29:42+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
+  
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
       
-        <h4 id="1-go-mod-替代原来gopath的功能-依赖包下载依赖Go环境变量"><a href="#1-go-mod-替代原来gopath的功能-依赖包下载依赖Go环境变量" class="headerlink" title="1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量"></a>1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">export GOPROXY&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;goproxy&#x2F;</span><br></pre></td></tr></table></figure>
+      
+      5
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h4 id="1-go-mod-替代原来gopath的功能-依赖包下载依赖Go环境变量"><a href="#1-go-mod-替代原来gopath的功能-依赖包下载依赖Go环境变量" class="headerlink" title="1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量"></a>1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量</h4><pre><code class="hljs routeros"><span class="hljs-builtin-name">export</span> <span class="hljs-attribute">GO111MODULE</span>=on
+<span class="hljs-builtin-name">export</span> <span class="hljs-attribute">GOPROXY</span>=https://mirrors.aliyun.com/goproxy/</code></pre>
 <h4 id="2-go-mod-init-一个golang-项目"><a href="#2-go-mod-init-一个golang-项目" class="headerlink" title="2.go mod init 一个golang 项目"></a>2.go mod init 一个golang 项目</h4><ul>
-<li>go mod 的命令使用<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ go help mod</span><br><span class="line">Usage:</span><br><span class="line"></span><br><span class="line">        go mod &lt;command&gt; [arguments]</span><br><span class="line"></span><br><span class="line">The commands are:</span><br><span class="line"></span><br><span class="line">        download    download modules to local cache</span><br><span class="line">        edit        edit go.mod from tools or scripts</span><br><span class="line">        graph       print module requirement graph</span><br><span class="line">        init        initialize new module in current directory</span><br><span class="line">        tidy        add missing and remove unused modules</span><br><span class="line">        vendor      make vendored copy of dependencies</span><br><span class="line">        verify      verify dependencies have expected content</span><br><span class="line">        why         explain why packages or modules are needed</span><br></pre></td></tr></table></figure></li>
+<li>go mod 的命令使用<pre><code class="hljs sql">$ go <span class="hljs-keyword">help</span> <span class="hljs-keyword">mod</span>
+<span class="hljs-keyword">Usage</span>:
+
+        <span class="hljs-keyword">go</span> <span class="hljs-keyword">mod</span> &lt;command&gt; [arguments]
+
+The commands <span class="hljs-keyword">are</span>:
+
+        download    download modules <span class="hljs-keyword">to</span> <span class="hljs-keyword">local</span> <span class="hljs-keyword">cache</span>
+        edit        edit go.mod <span class="hljs-keyword">from</span> tools <span class="hljs-keyword">or</span> scripts
+        graph       print <span class="hljs-keyword">module</span> requirement graph
+        init        initialize <span class="hljs-keyword">new</span> <span class="hljs-keyword">module</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">current</span> <span class="hljs-keyword">directory</span>
+        tidy        <span class="hljs-keyword">add</span> <span class="hljs-keyword">missing</span> <span class="hljs-keyword">and</span> remove <span class="hljs-keyword">unused</span> modules
+        vendor      make vendored copy <span class="hljs-keyword">of</span> dependencies
+        <span class="hljs-keyword">verify</span>      <span class="hljs-keyword">verify</span> dependencies have expected <span class="hljs-keyword">content</span>
+        why         <span class="hljs-keyword">explain</span> why packages <span class="hljs-keyword">or</span> modules <span class="hljs-keyword">are</span> needed</code></pre></li>
 <li>用go mod 初始化glusterfs-benchmark依赖包管理</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;进入glusterfs-benchmark目录</span><br><span class="line">cd glusterfs-benchmark </span><br><span class="line">go mod init glusterfs-benchmark </span><br><span class="line">&#x2F;&#x2F;会在 lusterfs-benchmark目录中  生成go.mod的文件</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs sqf"><span class="hljs-comment">//进入glusterfs-benchmark目录</span>
+cd glusterfs-<span class="hljs-built_in">benchmark</span> 
+go <span class="hljs-built_in">mod</span> init glusterfs-<span class="hljs-built_in">benchmark</span> 
+<span class="hljs-comment">//会在 lusterfs-benchmark目录中  生成go.mod的文件</span></code></pre>
 <ul>
-<li>项目目录架构<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[perrynzhou@Debian ~&#x2F;Source&#x2F;perryn&#x2F;glusterfs-benchmark]$ tree ..&#x2F;glusterfs-benchmark&#x2F;</span><br><span class="line">..&#x2F;glusterfs-benchmark&#x2F;</span><br><span class="line">├── api</span><br><span class="line">│   ├── fuse_fetch.go</span><br><span class="line">│   └── glfs_fetch.go</span><br><span class="line">├── conf</span><br><span class="line">│   └── conf.go</span><br><span class="line">├── go.mod</span><br><span class="line">├── metric</span><br><span class="line">│   └── metric.go</span><br><span class="line">├── pkg</span><br><span class="line">│   └── mod</span><br><span class="line">│       └── cache</span><br><span class="line">│           └── lock</span><br><span class="line">└── utils</span><br><span class="line">    └── utils.go</span><br><span class="line"></span><br><span class="line">14 directories, 114 files</span><br></pre></td></tr></table></figure></li>
+<li>项目目录架构<pre><code class="hljs vim">[perrynzhou@Debian ~/Source/perryn/glusterfs-benchmark]$ tree ../glusterfs-benchmark/
+../glusterfs-benchmark/
+├── api
+│   ├── fuse_fetch.<span class="hljs-keyword">go</span>
+│   └── glfs_fetch.<span class="hljs-keyword">go</span>
+├── <span class="hljs-keyword">conf</span>
+│   └── <span class="hljs-keyword">conf</span>.<span class="hljs-keyword">go</span>
+├── <span class="hljs-keyword">go</span>.<span class="hljs-keyword">mod</span>
+├── metric
+│   └── metric.<span class="hljs-keyword">go</span>
+├── pkg
+│   └── <span class="hljs-keyword">mod</span>
+│       └── cache
+│           └── lock
+└── utils
+    └── utils.<span class="hljs-keyword">go</span>
+
+<span class="hljs-number">14</span> directories, <span class="hljs-number">114</span> <span class="hljs-keyword">files</span></code></pre></li>
 <li>引入glusterfs-benchmark/api/fuse_fetch.go中引入utils库本地库</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; fuse_fetch.go的包信息</span><br><span class="line">package api</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">	&quot;bufio&quot;</span><br><span class="line">	&quot;fmt&quot;</span><br><span class="line">	log &quot;github.com&#x2F;sirupsen&#x2F;logrus&quot;</span><br><span class="line">	&quot;glusterfs-benchmark&#x2F;conf&quot;</span><br><span class="line">	&quot;glusterfs-benchmark&#x2F;metric&quot;</span><br><span class="line">	&quot;glusterfs-benchmark&#x2F;utils&quot;</span><br><span class="line">	&quot;os&quot;</span><br><span class="line">	&quot;path&#x2F;filepath&quot;</span><br><span class="line">	&quot;sync&quot;</span><br><span class="line">	&quot;sync&#x2F;atomic&quot;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;修改go.mod文件</span><br><span class="line">module glusterfs-benchmark</span><br><span class="line"></span><br><span class="line">go 1.14</span><br><span class="line"></span><br><span class="line">require github.com&#x2F;sirupsen&#x2F;logrus v1.4.2</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs processing"><span class="hljs-comment">// fuse_fetch.go的包信息</span>
+<span class="hljs-keyword">package</span> api
+
+<span class="hljs-keyword">import</span> (
+	<span class="hljs-string">"bufio"</span>
+	<span class="hljs-string">"fmt"</span>
+	<span class="hljs-built_in">log</span> <span class="hljs-string">"github.com/sirupsen/logrus"</span>
+	<span class="hljs-string">"glusterfs-benchmark/conf"</span>
+	<span class="hljs-string">"glusterfs-benchmark/metric"</span>
+	<span class="hljs-string">"glusterfs-benchmark/utils"</span>
+	<span class="hljs-string">"os"</span>
+	<span class="hljs-string">"path/filepath"</span>
+	<span class="hljs-string">"sync"</span>
+	<span class="hljs-string">"sync/atomic"</span>
+)</code></pre>
+<pre><code class="hljs angelscript"><span class="hljs-comment">//修改go.mod文件</span>
+module glusterfs-benchmark
+
+go <span class="hljs-number">1.14</span>
+
+require github.com/sirupsen/logrus v1<span class="hljs-number">.4</span><span class="hljs-number">.2</span></code></pre>
 <ul>
-<li>项目构建<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;进入包含main.go的目录下执行go mod vendor,保存依赖包</span><br><span class="line">go mod vendor</span><br><span class="line">&#x2F;&#x2F;下载第三方依赖库</span><br><span class="line">go mod tidy -v</span><br><span class="line">&#x2F;&#x2F;编译项目</span><br><span class="line">go build -mod&#x3D;vendor</span><br></pre></td></tr></table></figure>
+<li>项目构建<pre><code class="hljs maxima">//进入包含main.<span class="hljs-built_in">go</span>的目录下执行<span class="hljs-built_in">go</span> <span class="hljs-built_in">mod</span> vendor,保存依赖包
+<span class="hljs-built_in">go</span> <span class="hljs-built_in">mod</span> vendor
+//下载第三方依赖库
+<span class="hljs-built_in">go</span> <span class="hljs-built_in">mod</span> tidy -v
+//编译项目
+<span class="hljs-built_in">go</span> build -<span class="hljs-built_in">mod</span>=vendor</code></pre>
 </li>
 </ul>
 
-    </div>
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">理解简单汇编程序</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+                        <span class="hidden-mobile">linux文件系统</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
 
-    
-    
-    
-
-      <footer class="post-footer">
-
-        
-
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" rel="prev" title="linux文件系统">
-      <i class="fa fa-chevron-left"></i> linux文件系统
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/" rel="next" title="理解简单汇编程序">
-      理解简单汇编程序 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
-  </article>
-  
-  
-  
-
-
-
+            
           </div>
-          
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
         </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          Table of Contents
-        </li>
-        <li class="sidebar-nav-overview">
-          Overview
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-go-mod-替代原来gopath的功能-依赖包下载依赖Go环境变量"><span class="nav-number">1.</span> <span class="nav-text">1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-go-mod-init-一个golang-项目"><span class="nav-number">2.</span> <span class="nav-text">2.go mod init 一个golang 项目</span></a></li></ol></div>
       </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">perrynzhou</p>
-  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">38</span>
-          <span class="site-state-item-name">posts</span>
-        </a>
-      </div>
-  </nav>
-</div>
-
-
-
-      </div>
-
     </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-
-
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2020</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
-  </div>
-
-        
-
-
-
-
-
-
-
 
       </div>
-    </footer>
+    
   </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
 
   
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
   
 
   
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "golang 1.4 mod 使用经验&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>

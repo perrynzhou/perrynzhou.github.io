@@ -1,200 +1,210 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
+
+
+
+
+
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+  <meta name="author" content="perrynzhou">
+  <meta name="keywords" content="C, Go, nginx,glusterfs,redis">
+  <title>lustre-2.13部署 - perrynzhou</title>
 
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
-
-  <meta name="description" content="chapter 1.lustre部署0.节点信息   node role    centos1(mgs_node&#x2F;mds_node) mgs&#x2F;mds   centos2(oss_node) oss   centos3(client_node) client   1.kernel版本信息1234[root@CentOS1 ~]# cat &#x2F;etc&#x2F;redhat-release C">
-<meta property="og:type" content="article">
-<meta property="og:title" content="lustre-2.13部署">
-<meta property="og:url" content="http://yoursite.com/2020/05/05/lustre-2-13%E9%83%A8%E7%BD%B2/index.html">
-<meta property="og:site_name" content="perrynzhou">
-<meta property="og:description" content="chapter 1.lustre部署0.节点信息   node role    centos1(mgs_node&#x2F;mds_node) mgs&#x2F;mds   centos2(oss_node) oss   centos3(client_node) client   1.kernel版本信息1234[root@CentOS1 ~]# cat &#x2F;etc&#x2F;redhat-release C">
-<meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-05-05T05:53:58.000Z">
-<meta property="article:modified_time" content="2020-05-05T07:16:23.441Z">
-<meta property="article:author" content="perrynzhou">
-<meta property="article:tag" content="C">
-<meta property="article:tag" content=" Go">
-<meta property="article:tag" content=" nginx">
-<meta property="article:tag" content="glusterfs">
-<meta property="article:tag" content="redis">
-<meta name="twitter:card" content="summary">
-
-<link rel="canonical" href="http://yoursite.com/2020/05/05/lustre-2-13%E9%83%A8%E7%BD%B2/">
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'en'
-  };
-</script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
 
-  <title>lustre-2.13部署 | perrynzhou</title>
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
   
 
 
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
 
 
 
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
 
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
 
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
+<link  rel="stylesheet" href="/css/main.css" />
 
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
+<!-- 自定义样式保持在最底部 -->
 
-</head>
 
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.0"></head>
 
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
   </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">perrynzhou</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
-
-  </li>
-  </ul>
 </nav>
 
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
 
-
-
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-05-05 13:53">
+      2020年5月5日 下午
+    </time>
   </div>
 
 
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content post posts-expand">
-            
-
-    
+<div class="mt-1">
   
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2k 字
+    </span>
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/05/lustre-2-13%E9%83%A8%E7%BD%B2/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="perrynzhou">
-      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="perrynzhou">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          lustre-2.13部署
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-05-05 13:53:58 / Modified: 15:16:23" itemprop="dateCreated datePublished" datetime="2020-05-05T13:53:58+08:00">2020-05-05</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
+  
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
       
-        <h2 id="chapter-1-lustre部署"><a href="#chapter-1-lustre部署" class="headerlink" title="chapter 1.lustre部署"></a>chapter 1.lustre部署</h2><h3 id="0-节点信息"><a href="#0-节点信息" class="headerlink" title="0.节点信息"></a>0.节点信息</h3><table>
+      
+      38
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h2 id="chapter-1-lustre部署"><a href="#chapter-1-lustre部署" class="headerlink" title="chapter 1.lustre部署"></a>chapter 1.lustre部署</h2><h3 id="0-节点信息"><a href="#0-节点信息" class="headerlink" title="0.节点信息"></a>0.节点信息</h3><table>
 <thead>
 <tr>
 <th>node</th>
@@ -214,223 +224,507 @@
 <td>client</td>
 </tr>
 </tbody></table>
-<h3 id="1-kernel版本信息"><a href="#1-kernel版本信息" class="headerlink" title="1.kernel版本信息"></a>1.kernel版本信息</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@CentOS1 ~]# cat &#x2F;etc&#x2F;redhat-release </span><br><span class="line">CentOS Linux release 7.7.1908 (Core)</span><br><span class="line">[root@CentOS1 ~]# uname -r</span><br><span class="line">3.10.0-1062.el7.x86_64</span><br></pre></td></tr></table></figure>
+<h3 id="1-kernel版本信息"><a href="#1-kernel版本信息" class="headerlink" title="1.kernel版本信息"></a>1.kernel版本信息</h3><pre><code class="hljs angelscript">[<span class="hljs-symbol">root@</span>CentOS1 ~]# cat /etc/redhat-release 
+CentOS Linux release <span class="hljs-number">7.7</span><span class="hljs-number">.1908</span> (Core)
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# uname -r
+<span class="hljs-number">3.10</span><span class="hljs-number">.0</span><span class="hljs-number">-1062.</span>el7.x86_64</code></pre>
 
-<h3 id="2-配置离线lustre-安装包安装源"><a href="#2-配置离线lustre-安装包安装源" class="headerlink" title="2.配置离线lustre 安装包安装源"></a>2.配置离线lustre 安装包安装源</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; lustre-2.13.0 内核刚好匹配 kernel 3.10.0-1062.el7.x86_64</span><br><span class="line">[root@CentOS1 lustre]# pwd</span><br><span class="line">&#x2F;root&#x2F;lustre</span><br><span class="line">[root@CentOS1 lustre]# ls</span><br><span class="line">repo.conf</span><br><span class="line">[root@CentOS1 lustre]# cat repo.conf </span><br><span class="line">[lustre-server]</span><br><span class="line">name&#x3D;lustre-server</span><br><span class="line">baseurl&#x3D;https:&#x2F;&#x2F;downloads.whamcloud.com&#x2F;public&#x2F;lustre&#x2F;lustre-2.13.0&#x2F;el7.7.1908&#x2F;server</span><br><span class="line">gpgcheck&#x3D;0</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[patchless-ldiskfs-server]</span><br><span class="line">name&#x3D;patchless-ldiskfs-server</span><br><span class="line">baseurl&#x3D;https:&#x2F;&#x2F;downloads.whamcloud.com&#x2F;public&#x2F;lustre&#x2F;lustre-2.13.0&#x2F;el7.7.1908&#x2F;patchless-ldiskfs-server</span><br><span class="line">gpgcheck&#x3D;0</span><br><span class="line"></span><br><span class="line">[lustre-client]</span><br><span class="line">name&#x3D;lustre-client</span><br><span class="line">baseurl&#x3D;https:&#x2F;&#x2F;downloads.whamcloud.com&#x2F;public&#x2F;lustre&#x2F;lustre-2.13.0&#x2F;el7.7.1908&#x2F;client</span><br><span class="line">gpgcheck&#x3D;0</span><br><span class="line"></span><br><span class="line">[e2fsprogs-wc]</span><br><span class="line">name&#x3D;e2fsprogs-wc</span><br><span class="line">baseurl&#x3D;https:&#x2F;&#x2F;downloads.whamcloud.com&#x2F;public&#x2F;e2fsprogs&#x2F;latest&#x2F;el7</span><br><span class="line">gpgcheck&#x3D;0</span><br></pre></td></tr></table></figure>
+<h3 id="2-配置离线lustre-安装包安装源"><a href="#2-配置离线lustre-安装包安装源" class="headerlink" title="2.配置离线lustre 安装包安装源"></a>2.配置离线lustre 安装包安装源</h3><pre><code class="hljs cs"><span class="hljs-comment">// lustre-2.13.0 内核刚好匹配 kernel 3.10.0-1062.el7.x86_64</span>
+[<span class="hljs-meta">root@CentOS1 lustre</span>]<span class="hljs-meta"># pwd</span>
+/root/lustre
+[<span class="hljs-meta">root@CentOS1 lustre</span>]<span class="hljs-meta"># ls</span>
+repo.conf
+[<span class="hljs-meta">root@CentOS1 lustre</span>]<span class="hljs-meta"># cat repo.conf </span>
+[<span class="hljs-meta">lustre-server</span>]
+name=lustre-server
+baseurl=https:<span class="hljs-comment">//downloads.whamcloud.com/public/lustre/lustre-2.13.0/el7.7.1908/server</span>
+gpgcheck=<span class="hljs-number">0</span>
 
-<h3 id="3-下载lustre安装包到本地"><a href="#3-下载lustre安装包到本地" class="headerlink" title="3.下载lustre安装包到本地"></a>3.下载lustre安装包到本地</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@CentOS1 ~]# cd ~&#x2F;lustre</span><br><span class="line">[root@CentOS1 ~]# yum groupinstall “Development Tools” -y</span><br><span class="line">[root@CentOS1 ~]# yum install epel-release quilt libselinux-devel python-docutils xmlto asciidoc elfutils-libelf-devel elfutils-devel zlib-devel rng-tools binutils-devel python-devel sg3_utils newt-devel perl-ExtUtils-Embed audit-libs-devel lsof hmaccalc -y</span><br><span class="line">[root@CentOS1 ~]# systemctl stop firewalld.service</span><br><span class="line">[root@CentOS1 ~]# systemctl disable firewalld.service</span><br><span class="line">[root@CentOS1 ~]# yum install  yum-utils dkms-y</span><br><span class="line">[root@CentOS1 ~]# reposync -c lustre-repo.conf -n \</span><br><span class="line">-r lustre-server \</span><br><span class="line">-r lustre-client \</span><br><span class="line">-r patchless-ldiskfs-server \</span><br><span class="line">-r e2fsprogs-wc</span><br><span class="line">[root@CentOS1 ~]# cp ~&#x2F;lustre&#x2F;repo.conf &#x2F;etc&#x2F;yum.repos.d&#x2F;lustre.repo</span><br></pre></td></tr></table></figure>
 
-<h3 id="4-安装lustre版本kernel"><a href="#4-安装lustre版本kernel" class="headerlink" title="4.安装lustre版本kernel"></a>4.安装lustre版本kernel</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;after download all lustre package</span><br><span class="line">[root@CentOS1 lustre]# ls</span><br><span class="line">e2fsprogs-wc  lustre-client  lustre-server  patchless-ldiskfs-server  repo.conf</span><br><span class="line"></span><br><span class="line">[root@CentOS1 lustre]# cd e2fsprogs-wc&#x2F;RPMS&#x2F;x86_64&#x2F; &amp;&amp; pwd</span><br><span class="line">&#x2F;root&#x2F;lustre&#x2F;e2fsprogs-wc&#x2F;RPMS&#x2F;x86_64 &amp;&amp; yum --nogpgcheck --disablerepo&#x3D;* --enablerepo&#x3D;e2fsprogs-wc install  e2fsprogs-1.45.2.wc1-0.el7.x86_64.rpm </span><br><span class="line"></span><br><span class="line">[root@CentOS1 lustre]# cd lustre-server&#x2F;RPMS&#x2F;x86_64&#x2F; &amp;&amp; pwd </span><br><span class="line">&#x2F;root&#x2F;lustre&#x2F;lustre-server&#x2F;RPMS&#x2F;x86_64</span><br><span class="line">yum --nogpgcheck --disablerepo&#x3D;* --enablerepo&#x3D;e2fsprogs-wc install  e2fsprogs-1.45.2.wc1-0.el7.x86_64.rpm</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">yum --nogpgcheck --disablerepo&#x3D;* --enablerepo&#x3D;lustre-server install  kernel-devel-3.10.0-1062.1.1.el7_lustre.x86_64.rpm  kernel-headers-3.10.0-1062.1.1.el7_lustre.x86_64.rpm </span><br><span class="line">[root@CentOS1 ~] reboot</span><br></pre></td></tr></table></figure>
-<h3 id="5-安装zfs"><a href="#5-安装zfs" class="headerlink" title="5.安装zfs"></a>5.安装zfs</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@CentOS1 lustre]# cd lustre-server&#x2F;RPMS&#x2F;x86_64&#x2F; &amp;&amp; pwd </span><br><span class="line">&#x2F;root&#x2F;lustre&#x2F;lustre-server&#x2F;RPMS&#x2F;x86_64</span><br><span class="line"></span><br><span class="line">[root@CentOS1 x86_64]# yum --nogpgcheck --disablerepo&#x3D;* --enablerepo&#x3D;lustre-server install zfs-0.7.13-1.el7.x86_64.rpm  zfs-dkms-0.7.13-1.el7.noarch.rpm  zfs-dracut-0.7.13-1.el7.x86_64.rpm</span><br><span class="line"></span><br><span class="line">[root@CentOS1 x86_64]# reboot</span><br><span class="line">[root@CentOS1 x86_64]# modprobe  zfs</span><br><span class="line">[root@CentOS1 x86_64]# lsmod  |grep zfs</span><br><span class="line">zfs                  3564425  3 </span><br><span class="line">zunicode              331170  1 zfs</span><br><span class="line">zavl                   15236  1 zfs</span><br><span class="line">icp                   270148  1 zfs</span><br><span class="line">zcommon                73440  1 zfs</span><br><span class="line">znvpair                89131  2 zfs,zcommon</span><br><span class="line">spl                   102412  4 icp,zfs,zcommon,znvpair</span><br></pre></td></tr></table></figure>
-<h3 id="6-安装lustre-server-核心包"><a href="#6-安装lustre-server-核心包" class="headerlink" title="6.安装lustre server 核心包"></a>6.安装lustre server 核心包</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[root@CentOS1 ~] yum --nogpgcheck --disablerepo&#x3D;*  --enablerepo&#x3D;lustre-server install kmod-lustre-2.13.0-1.el7.x86_64.rpm kmod-lustre-osd-ldiskfs-2.13.0-1.el7.x86_64.rpm lustre-2.13.0-1.el7.x86_64.rpm lustre-osd-ldiskfs-mount-2.13.0-1.el7.x86_64.rpm lustre-osd-zfs-mount-2.13.0-1.el7.x86_64.rpm lustre-resource-agents-2.13.0-1.el7.x86_64.rpm</span><br><span class="line"></span><br><span class="line">[root@CentOS1 ~]# reboot</span><br><span class="line">[root@CentOS1 ~]# modprobe  lustre</span><br><span class="line">[root@CentOS1 ~]# lsmod  |grep lustre</span><br><span class="line">lustre                875887  0 </span><br><span class="line">lmv                   191957  1 lustre</span><br><span class="line">mdc                   247683  1 lustre</span><br><span class="line">lov                   320485  1 lustre</span><br><span class="line">ptlrpc               2287996  7 fid,fld,lmv,mdc,lov,osc,lustre</span><br><span class="line">obdclass             2649116  8 fid,fld,lmv,mdc,lov,osc,lustre,ptlrpc</span><br><span class="line">lnet                  595547  6 lmv,osc,lustre,obdclass,ptlrpc,ksocklnd</span><br><span class="line">libcfs                388506  11 fid,fld,lmv,mdc,lov,osc,lnet,lustre,obdclass,ptlrpc,ksocklnd</span><br><span class="line"></span><br><span class="line">[root@CentOS1 ~]# modprobe  lnet</span><br><span class="line">[root@CentOS1 ~]# lsmod  |grep lnet</span><br><span class="line">lnet                  595547  6 lmv,osc,lustre,obdclass,ptlrpc,ksocklnd</span><br><span class="line">libcfs                388506  11 fid,fld,lmv,mdc,lov,osc,lnet,lustre,obdclass,ptlrpc,ksocklnd</span><br></pre></td></tr></table></figure>
+[<span class="hljs-meta">patchless-ldiskfs-server</span>]
+name=patchless-ldiskfs-server
+baseurl=https:<span class="hljs-comment">//downloads.whamcloud.com/public/lustre/lustre-2.13.0/el7.7.1908/patchless-ldiskfs-server</span>
+gpgcheck=<span class="hljs-number">0</span>
 
-<h3 id="7-安装lustre-client核心包-客户端节点"><a href="#7-安装lustre-client核心包-客户端节点" class="headerlink" title="7.安装lustre client核心包(客户端节点)"></a>7.安装lustre client核心包(客户端节点)</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;lustre server和lustre client版本版本冲突，客户端必须在其他节点安装</span><br><span class="line">[root@CentOS3 ~]# yum install epel-release -y</span><br><span class="line">[root@CentOS3 ~]# yum install dkms -y</span><br><span class="line">[root@CentOS3 ~]# cd lustre&#x2F;</span><br><span class="line">[root@CentOS3 lustre]# cd lustre-client&#x2F;RPMS&#x2F;x86_64&#x2F;</span><br><span class="line">[root@CentOS3 x86_64]# ls</span><br><span class="line">kmod-lustre-client-2.13.0-1.el7.x86_64.rpm        lustre-client-debuginfo-2.13.0-1.el7.x86_64.rpm  lustre-iokit-2.13.0-1.el7.x86_64.rpm</span><br><span class="line">kmod-lustre-client-tests-2.13.0-1.el7.x86_64.rpm  lustre-client-dkms-2.13.0-1.el7.noarch.rpm</span><br><span class="line">lustre-client-2.13.0-1.el7.x86_64.rpm             lustre-client-tests-2.13.0-1.el7.x86_64.rpm</span><br><span class="line">[root@CentOS3 x86_64]# yum --nogpgcheck --disablerepo&#x3D;*  --enablerepo&#x3D;lustre-client install  kmod-lustre-client-2.13.0-1.el7.x86_64.rpm  lustre-client-2.13.0-1.el7.x86_64.rpm  lustre-client-dkms-2.13.0-1.el7.noarch.rpm</span><br></pre></td></tr></table></figure>
+[<span class="hljs-meta">lustre-client</span>]
+name=lustre-client
+baseurl=https:<span class="hljs-comment">//downloads.whamcloud.com/public/lustre/lustre-2.13.0/el7.7.1908/client</span>
+gpgcheck=<span class="hljs-number">0</span>
+
+[<span class="hljs-meta">e2fsprogs-wc</span>]
+name=e2fsprogs-wc
+baseurl=https:<span class="hljs-comment">//downloads.whamcloud.com/public/e2fsprogs/latest/el7</span>
+gpgcheck=<span class="hljs-number">0</span></code></pre>
+
+<h3 id="3-下载lustre安装包到本地"><a href="#3-下载lustre安装包到本地" class="headerlink" title="3.下载lustre安装包到本地"></a>3.下载lustre安装包到本地</h3><pre><code class="hljs livescript">[root@CentOS1 ~]<span class="hljs-comment"># cd ~/lustre</span>
+[root@CentOS1 ~]<span class="hljs-comment"># yum groupinstall “Development Tools” -y</span>
+[root@CentOS1 ~]<span class="hljs-comment"># yum install epel-release quilt libselinux-devel python-docutils xmlto asciidoc elfutils-libelf-devel elfutils-devel zlib-devel rng-tools binutils-devel python-devel sg3_utils newt-devel perl-ExtUtils-Embed audit-libs-devel lsof hmaccalc -y</span>
+[root@CentOS1 ~]<span class="hljs-comment"># systemctl stop firewalld.service</span>
+[root@CentOS1 ~]<span class="hljs-comment"># systemctl disable firewalld.service</span>
+[root@CentOS1 ~]<span class="hljs-comment"># yum install  yum-utils dkms-y</span>
+[root@CentOS1 ~]<span class="hljs-comment"># reposync -c lustre-repo.conf -n \</span>
+-r lustre-server <span class="hljs-string">\</span>
+-r lustre-client <span class="hljs-string">\</span>
+-r patchless-ldiskfs-server <span class="hljs-string">\</span>
+-r e2fsprogs-wc
+[root@CentOS1 ~]<span class="hljs-comment"># cp ~/lustre/repo.conf /etc/yum.repos.d/lustre.repo</span></code></pre>
+
+<h3 id="4-安装lustre版本kernel"><a href="#4-安装lustre版本kernel" class="headerlink" title="4.安装lustre版本kernel"></a>4.安装lustre版本kernel</h3><pre><code class="hljs angelscript"><span class="hljs-comment">//after download all lustre package</span>
+[<span class="hljs-symbol">root@</span>CentOS1 lustre]# ls
+e2fsprogs-wc  lustre-client  lustre-server  patchless-ldiskfs-server  repo.conf
+
+[<span class="hljs-symbol">root@</span>CentOS1 lustre]# cd e2fsprogs-wc/RPMS/x86_64/ &amp;&amp; pwd
+/root/lustre/e2fsprogs-wc/RPMS/x86_64 &amp;&amp; yum --nogpgcheck --disablerepo=* --enablerepo=e2fsprogs-wc install  e2fsprogs<span class="hljs-number">-1.45</span><span class="hljs-number">.2</span>.wc1<span class="hljs-number">-0.</span>el7.x86_64.rpm 
+
+[<span class="hljs-symbol">root@</span>CentOS1 lustre]# cd lustre-server/RPMS/x86_64/ &amp;&amp; pwd 
+/root/lustre/lustre-server/RPMS/x86_64
+yum --nogpgcheck --disablerepo=* --enablerepo=e2fsprogs-wc install  e2fsprogs<span class="hljs-number">-1.45</span><span class="hljs-number">.2</span>.wc1<span class="hljs-number">-0.</span>el7.x86_64.rpm
 
 
-<h3 id="8-deploy-msg-mst"><a href="#8-deploy-msg-mst" class="headerlink" title="8.deploy msg/mst"></a>8.deploy msg/mst</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[root@CentOS1 ~]# fdisk -l|grep sd</span><br><span class="line">Disk &#x2F;dev&#x2F;sda: 68.7 GB, 68719476736 bytes, 134217728 sectors</span><br><span class="line">&#x2F;dev&#x2F;sda1   *        2048     2099199     1048576   83  Linux</span><br><span class="line">&#x2F;dev&#x2F;sda2         2099200   134217727    66059264   8e  Linux LVM</span><br><span class="line">Disk &#x2F;dev&#x2F;sdc: 25.8 GB, 25769803776 bytes, 50331648 sectors</span><br><span class="line">Disk &#x2F;dev&#x2F;sdb: 25.8 GB, 25769803776 bytes, 50331648 sectors</span><br><span class="line">[root@CentOS1 ~]# mkfs.lustre --mgs  &#x2F;dev&#x2F;sdb</span><br><span class="line">[root@CentOS1 ~]# mkdir &#x2F;mgt</span><br><span class="line">[root@CentOS1 ~]# mount.lustre  &#x2F;dev&#x2F;sdb &#x2F;mgt&#x2F;</span><br><span class="line">[root@CentOS1 ~]# df -h</span><br><span class="line">Filesystem               Size  Used Avail Use% Mounted on</span><br><span class="line">devtmpfs                 905M     0  905M   0% &#x2F;dev</span><br><span class="line">tmpfs                    917M     0  917M   0% &#x2F;dev&#x2F;shm</span><br><span class="line">tmpfs                    917M  9.0M  908M   1% &#x2F;run</span><br><span class="line">tmpfs                    917M     0  917M   0% &#x2F;sys&#x2F;fs&#x2F;cgroup</span><br><span class="line">&#x2F;dev&#x2F;mapper&#x2F;centos-root   41G  2.9G   39G   7% &#x2F;</span><br><span class="line">&#x2F;dev&#x2F;sda1               1014M  193M  822M  20% &#x2F;boot</span><br><span class="line">&#x2F;dev&#x2F;mapper&#x2F;centos-home   20G   33M   20G   1% &#x2F;home</span><br><span class="line">tmpfs                    184M     0  184M   0% &#x2F;run&#x2F;user&#x2F;0</span><br><span class="line">&#x2F;dev&#x2F;sdb                  24G   46M   23G   1% &#x2F;mgt</span><br></pre></td></tr></table></figure>
-<h3 id="9-deploy-mds-mdt"><a href="#9-deploy-mds-mdt" class="headerlink" title="9.deploy mds/mdt"></a>9.deploy mds/mdt</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;mkfs.lustre --fsname&#x3D;lustrefs --mgsnode&#x3D;msg_node@tcp0  --mdt --index&#x3D;0 &#x2F;dev&#x2F;sdc</span><br><span class="line">[root@CentOS1 ~]# mkfs.lustre --fsname&#x3D;lustrefs --mgsnode&#x3D;10.211.55.3@tcp0  --mdt --index&#x3D;0 &#x2F;dev&#x2F;sdc</span><br><span class="line"></span><br><span class="line">   Permanent disk data:</span><br><span class="line">Target:     lustrefs:MDT0000</span><br><span class="line">Index:      0</span><br><span class="line">Lustre FS:  lustrefs</span><br><span class="line">Mount type: ldiskfs</span><br><span class="line">Flags:      0x61</span><br><span class="line">              (MDT first_time update )</span><br><span class="line">Persistent mount opts: user_xattr,errors&#x3D;remount-ro</span><br><span class="line">Parameters: mgsnode&#x3D;10.211.55.3@tcp</span><br><span class="line"></span><br><span class="line">checking for existing Lustre data: not found</span><br><span class="line">device size &#x3D; 24576MB</span><br><span class="line">formatting backing filesystem ldiskfs on &#x2F;dev&#x2F;sdc</span><br><span class="line">        target name   lustrefs:MDT0000</span><br><span class="line">        kilobytes     25165824</span><br><span class="line">        options        -J size&#x3D;983 -I 1024 -i 2560 -q -O dirdata,uninit_bg,^extents,dir_nlink,quota,huge_file,ea_inode,flex_bg -E lazy_journal_init -F</span><br><span class="line">mkfs_cmd &#x3D; mke2fs -j -b 4096 -L lustrefs:MDT0000  -J size&#x3D;983 -I 1024 -i 2560 -q -O dirdata,uninit_bg,^extents,dir_nlink,quota,huge_file,ea_inode,flex_bg -E lazy_journal_init -F &#x2F;dev&#x2F;sdc 25165824k</span><br><span class="line">Writing CONFIGS&#x2F;mountdata</span><br><span class="line">[root@CentOS1 ~]# mkdir &#x2F;mdt</span><br><span class="line">[root@CentOS1 ~]# mount.lustre &#x2F;dev&#x2F;sdc  &#x2F;mdt</span><br></pre></td></tr></table></figure>
+yum --nogpgcheck --disablerepo=* --enablerepo=lustre-server install  kernel-devel<span class="hljs-number">-3.10</span><span class="hljs-number">.0</span><span class="hljs-number">-1062.1</span><span class="hljs-number">.1</span>.el7_lustre.x86_64.rpm  kernel-headers<span class="hljs-number">-3.10</span><span class="hljs-number">.0</span><span class="hljs-number">-1062.1</span><span class="hljs-number">.1</span>.el7_lustre.x86_64.rpm 
+[<span class="hljs-symbol">root@</span>CentOS1 ~] reboot</code></pre>
+<h3 id="5-安装zfs"><a href="#5-安装zfs" class="headerlink" title="5.安装zfs"></a>5.安装zfs</h3><pre><code class="hljs angelscript">[<span class="hljs-symbol">root@</span>CentOS1 lustre]# cd lustre-server/RPMS/x86_64/ &amp;&amp; pwd 
+/root/lustre/lustre-server/RPMS/x86_64
 
-<h3 id="10-deploy-oss-ost"><a href="#10-deploy-oss-ost" class="headerlink" title="10.deploy oss/ost"></a>10.deploy oss/ost</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;mkfs.lustre --ost --fsname&#x3D;lustrefs --mgsnode&#x3D;mgs_node@tcp0 --index&#x3D;1 &#x2F;dev&#x2F;sdb</span><br><span class="line"></span><br><span class="line">[root@CentOS2 ~]# mkfs.lustre --ost --fsname&#x3D;lustrefs --mgsnode&#x3D;10.211.55.3@tcp0 --index&#x3D;1 &#x2F;dev&#x2F;sdb</span><br><span class="line"></span><br><span class="line">   Permanent disk data:</span><br><span class="line">Target:     lustrefs:OST0001</span><br><span class="line">Index:      1</span><br><span class="line">Lustre FS:  lustrefs</span><br><span class="line">Mount type: ldiskfs</span><br><span class="line">Flags:      0x62</span><br><span class="line">              (OST first_time update )</span><br><span class="line">Persistent mount opts: ,errors&#x3D;remount-ro</span><br><span class="line">Parameters: mgsnode&#x3D;10.211.55.3@tcp</span><br><span class="line"></span><br><span class="line">checking for existing Lustre data: not found</span><br><span class="line">device size &#x3D; 24576MB</span><br><span class="line">formatting backing filesystem ldiskfs on &#x2F;dev&#x2F;sdb</span><br><span class="line">        target name   lustrefs:OST0001</span><br><span class="line">        kilobytes     25165824</span><br><span class="line">        options        -J size&#x3D;983 -I 512 -i 69905 -q -O extents,uninit_bg,dir_nlink,quota,huge_file,flex_bg -G 256 -E resize&#x3D;&quot;4290772992&quot;,lazy_journal_init -F</span><br><span class="line">mkfs_cmd &#x3D; mke2fs -j -b 4096 -L lustrefs:OST0001  -J size&#x3D;983 -I 512 -i 69905 -q -O extents,uninit_bg,dir_nlink,quota,huge_file,flex_bg -G 256 -E resize&#x3D;&quot;4290772992&quot;,lazy_journal_init -F &#x2F;dev&#x2F;sdb 25165824k</span><br><span class="line">Writing CONFIGS&#x2F;mountdata</span><br><span class="line">[root@CentOS2 ~]# mkdir &#x2F;ost</span><br><span class="line">[root@CentOS2 ~]# mount.lustre  &#x2F;dev&#x2F;sdb &#x2F;ost&#x2F;</span><br></pre></td></tr></table></figure>
+[<span class="hljs-symbol">root@</span>CentOS1 x86_64]# yum --nogpgcheck --disablerepo=* --enablerepo=lustre-server install zfs<span class="hljs-number">-0.7</span><span class="hljs-number">.13</span><span class="hljs-number">-1.</span>el7.x86_64.rpm  zfs-dkms<span class="hljs-number">-0.7</span><span class="hljs-number">.13</span><span class="hljs-number">-1.</span>el7.noarch.rpm  zfs-dracut<span class="hljs-number">-0.7</span><span class="hljs-number">.13</span><span class="hljs-number">-1.</span>el7.x86_64.rpm
 
-<h3 id="11-mount-on-client-node"><a href="#11-mount-on-client-node" class="headerlink" title="11.mount on client node"></a>11.mount on client node</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@CentOS3 ~]# mkdir &#x2F;mnt&#x2F;lustrefs</span><br><span class="line">[root@CentOS3 ~]# mount -t lustre 10.211.55.3@tcp0:&#x2F;lustrefs &#x2F;mnt&#x2F;lustrefs</span><br><span class="line">[root@CentOS3 ~]# df -h</span><br><span class="line">Filesystem                 Size  Used Avail Use% Mounted on</span><br><span class="line">devtmpfs                   906M     0  906M   0% &#x2F;dev</span><br><span class="line">tmpfs                      917M     0  917M   0% &#x2F;dev&#x2F;shm</span><br><span class="line">tmpfs                      917M  9.0M  908M   1% &#x2F;run</span><br><span class="line">tmpfs                      917M     0  917M   0% &#x2F;sys&#x2F;fs&#x2F;cgroup</span><br><span class="line">&#x2F;dev&#x2F;mapper&#x2F;centos-root     41G  2.8G   39G   7% &#x2F;</span><br><span class="line">&#x2F;dev&#x2F;sda1                 1014M  149M  866M  15% &#x2F;boot</span><br><span class="line">&#x2F;dev&#x2F;mapper&#x2F;centos-home     20G   33M   20G   1% &#x2F;home</span><br><span class="line">tmpfs                      184M     0  184M   0% &#x2F;run&#x2F;user&#x2F;0</span><br><span class="line">10.211.55.3@tcp:&#x2F;lustrefs   23G   46M   22G   1% &#x2F;mnt&#x2F;lustrefs</span><br></pre></td></tr></table></figure>
+[<span class="hljs-symbol">root@</span>CentOS1 x86_64]# reboot
+[<span class="hljs-symbol">root@</span>CentOS1 x86_64]# modprobe  zfs
+[<span class="hljs-symbol">root@</span>CentOS1 x86_64]# lsmod  |grep zfs
+zfs                  <span class="hljs-number">3564425</span>  <span class="hljs-number">3</span> 
+zunicode              <span class="hljs-number">331170</span>  <span class="hljs-number">1</span> zfs
+zavl                   <span class="hljs-number">15236</span>  <span class="hljs-number">1</span> zfs
+icp                   <span class="hljs-number">270148</span>  <span class="hljs-number">1</span> zfs
+zcommon                <span class="hljs-number">73440</span>  <span class="hljs-number">1</span> zfs
+znvpair                <span class="hljs-number">89131</span>  <span class="hljs-number">2</span> zfs,zcommon
+spl                   <span class="hljs-number">102412</span>  <span class="hljs-number">4</span> icp,zfs,zcommon,znvpair</code></pre>
+<h3 id="6-安装lustre-server-核心包"><a href="#6-安装lustre-server-核心包" class="headerlink" title="6.安装lustre server 核心包"></a>6.安装lustre server 核心包</h3><pre><code class="hljs angelscript">[<span class="hljs-symbol">root@</span>CentOS1 ~] yum --nogpgcheck --disablerepo=*  --enablerepo=lustre-server install kmod-lustre<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm kmod-lustre-osd-ldiskfs<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm lustre<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm lustre-osd-ldiskfs-mount<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm lustre-osd-zfs-mount<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm lustre-resource-agents<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm
 
-<h2 id="chapter-2-lustre-process"><a href="#chapter-2-lustre-process" class="headerlink" title="chapter 2. lustre process"></a>chapter 2. lustre process</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;show luste mgs info</span><br><span class="line">[root@CentOS1 ~]# ps -ef|grep mgs</span><br><span class="line">root      2275     2  0 13:29 ?        00:00:00 [mgs_params_noti]</span><br><span class="line">root      2276     2  0 13:29 ?        00:00:00 [ll_mgs_0000]</span><br><span class="line">root      2277     2  0 13:29 ?        00:00:00 [ll_mgs_0001]</span><br><span class="line">root      2278     2  0 13:29 ?        00:00:00 [ll_mgs_0002]</span><br><span class="line">root      2375     2  0 13:31 ?        00:00:00 [mgs_lustrefs_no]</span><br><span class="line">root      2548  2105  0 13:49 pts&#x2F;0    00:00:00 grep --color&#x3D;auto mgs</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;show lustre mdt process</span><br><span class="line">[root@CentOS1 ~]# ps -ef|grep mdt</span><br><span class="line">root      2357     2  0 13:31 ?        00:00:00 [mdt00_000]</span><br><span class="line">root      2358     2  0 13:31 ?        00:00:00 [mdt00_001]</span><br><span class="line">root      2359     2  0 13:31 ?        00:00:01 [mdt00_002]</span><br><span class="line">root      2360     2  0 13:31 ?        00:00:00 [mdt_rdpg00_000]</span><br><span class="line">root      2361     2  0 13:31 ?        00:00:00 [mdt_rdpg00_001]</span><br><span class="line">root      2362     2  0 13:31 ?        00:00:00 [mdt_attr00_000]</span><br><span class="line">root      2363     2  0 13:31 ?        00:00:00 [mdt_attr00_001]</span><br><span class="line">root      2364     2  0 13:31 ?        00:00:00 [mdt_out00_000]</span><br><span class="line">root      2365     2  0 13:31 ?        00:00:00 [mdt_out00_001]</span><br><span class="line">root      2366     2  0 13:31 ?        00:00:00 [mdt_seqs_0000]</span><br><span class="line">root      2367     2  0 13:31 ?        00:00:00 [mdt_seqs_0001]</span><br><span class="line">root      2368     2  0 13:31 ?        00:00:00 [mdt_seqm_0000]</span><br><span class="line">root      2369     2  0 13:31 ?        00:00:00 [mdt_seqm_0001]</span><br><span class="line">root      2370     2  0 13:31 ?        00:00:00 [mdt_fld_0000]</span><br><span class="line">root      2371     2  0 13:31 ?        00:00:00 [mdt_fld_0001]</span><br><span class="line">root      2372     2  0 13:31 ?        00:00:00 [mdt_io00_000]</span><br><span class="line">root      2373     2  0 13:31 ?        00:00:00 [mdt_io00_001]</span><br><span class="line">root      2374     2  0 13:31 ?        00:00:00 [mdt_io00_002]</span><br><span class="line">root      2540     2  0 13:48 ?        00:00:00 [mdt00_003]</span><br><span class="line">root      2552  2105  0 13:49 pts&#x2F;0    00:00:00 grep --color&#x3D;auto mdt</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;show ost process</span><br><span class="line">[root@CentOS2 ~]# ps -ef|grep ost</span><br><span class="line">root      1854     1  0 13:09 ?        00:00:00 &#x2F;usr&#x2F;libexec&#x2F;postfix&#x2F;master -w</span><br><span class="line">postfix   1859  1854  0 13:09 ?        00:00:00 pickup -l -t unix -u</span><br><span class="line">postfix   1860  1854  0 13:09 ?        00:00:00 qmgr -l -t unix -u</span><br><span class="line">root      2431     2  0 13:47 ?        00:00:00 [ll_ost00_000]</span><br><span class="line">root      2432     2  0 13:47 ?        00:00:00 [ll_ost00_001]</span><br><span class="line">root      2433     2  0 13:47 ?        00:00:00 [ll_ost00_002]</span><br><span class="line">root      2434     2  0 13:47 ?        00:00:00 [ll_ost_create00]</span><br><span class="line">root      2435     2  0 13:47 ?        00:00:00 [ll_ost_create00]</span><br><span class="line">root      2436     2  0 13:47 ?        00:00:00 [ll_ost_io00_000]</span><br><span class="line">root      2437     2  0 13:47 ?        00:00:00 [ll_ost_io00_001]</span><br><span class="line">root      2438     2  0 13:47 ?        00:00:00 [ll_ost_io00_002]</span><br><span class="line">root      2439     2  0 13:47 ?        00:00:00 [ll_ost_seq00_00]</span><br><span class="line">root      2440     2  0 13:47 ?        00:00:00 [ll_ost_seq00_00]</span><br><span class="line">root      2441     2  0 13:47 ?        00:00:00 [ll_ost_out00_00]</span><br><span class="line">root      2442     2  0 13:47 ?        00:00:00 [ll_ost_out00_00]</span><br><span class="line">root      2473  2111  0 13:49 pts&#x2F;0    00:00:00 grep --color&#x3D;auto ost</span><br></pre></td></tr></table></figure>
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# reboot
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# modprobe  lustre
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# lsmod  |grep lustre
+lustre                <span class="hljs-number">875887</span>  <span class="hljs-number">0</span> 
+lmv                   <span class="hljs-number">191957</span>  <span class="hljs-number">1</span> lustre
+mdc                   <span class="hljs-number">247683</span>  <span class="hljs-number">1</span> lustre
+lov                   <span class="hljs-number">320485</span>  <span class="hljs-number">1</span> lustre
+ptlrpc               <span class="hljs-number">2287996</span>  <span class="hljs-number">7</span> fid,fld,lmv,mdc,lov,osc,lustre
+obdclass             <span class="hljs-number">2649116</span>  <span class="hljs-number">8</span> fid,fld,lmv,mdc,lov,osc,lustre,ptlrpc
+lnet                  <span class="hljs-number">595547</span>  <span class="hljs-number">6</span> lmv,osc,lustre,obdclass,ptlrpc,ksocklnd
+libcfs                <span class="hljs-number">388506</span>  <span class="hljs-number">11</span> fid,fld,lmv,mdc,lov,osc,lnet,lustre,obdclass,ptlrpc,ksocklnd
+
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# modprobe  lnet
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# lsmod  |grep lnet
+lnet                  <span class="hljs-number">595547</span>  <span class="hljs-number">6</span> lmv,osc,lustre,obdclass,ptlrpc,ksocklnd
+libcfs                <span class="hljs-number">388506</span>  <span class="hljs-number">11</span> fid,fld,lmv,mdc,lov,osc,lnet,lustre,obdclass,ptlrpc,ksocklnd</code></pre>
+
+<h3 id="7-安装lustre-client核心包-客户端节点"><a href="#7-安装lustre-client核心包-客户端节点" class="headerlink" title="7.安装lustre client核心包(客户端节点)"></a>7.安装lustre client核心包(客户端节点)</h3><pre><code class="hljs angelscript"><span class="hljs-comment">//lustre server和lustre client版本版本冲突，客户端必须在其他节点安装</span>
+[<span class="hljs-symbol">root@</span>CentOS3 ~]# yum install epel-release -y
+[<span class="hljs-symbol">root@</span>CentOS3 ~]# yum install dkms -y
+[<span class="hljs-symbol">root@</span>CentOS3 ~]# cd lustre/
+[<span class="hljs-symbol">root@</span>CentOS3 lustre]# cd lustre-client/RPMS/x86_64/
+[<span class="hljs-symbol">root@</span>CentOS3 x86_64]# ls
+kmod-lustre-client<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm        lustre-client-debuginfo<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm  lustre-iokit<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm
+kmod-lustre-client-tests<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm  lustre-client-dkms<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.noarch.rpm
+lustre-client<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm             lustre-client-tests<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm
+[<span class="hljs-symbol">root@</span>CentOS3 x86_64]# yum --nogpgcheck --disablerepo=*  --enablerepo=lustre-client install  kmod-lustre-client<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm  lustre-client<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.x86_64.rpm  lustre-client-dkms<span class="hljs-number">-2.13</span><span class="hljs-number">.0</span><span class="hljs-number">-1.</span>el7.noarch.rpm</code></pre>
+
+
+<h3 id="8-deploy-msg-mst"><a href="#8-deploy-msg-mst" class="headerlink" title="8.deploy msg/mst"></a>8.deploy msg/mst</h3><pre><code class="hljs angelscript">[<span class="hljs-symbol">root@</span>CentOS1 ~]# fdisk -l|grep sd
+Disk /dev/sda: <span class="hljs-number">68.7</span> GB, <span class="hljs-number">68719476736</span> bytes, <span class="hljs-number">134217728</span> sectors
+/dev/sda1   *        <span class="hljs-number">2048</span>     <span class="hljs-number">2099199</span>     <span class="hljs-number">1048576</span>   <span class="hljs-number">83</span>  Linux
+/dev/sda2         <span class="hljs-number">2099200</span>   <span class="hljs-number">134217727</span>    <span class="hljs-number">66059264</span>   <span class="hljs-number">8</span>e  Linux LVM
+Disk /dev/sdc: <span class="hljs-number">25.8</span> GB, <span class="hljs-number">25769803776</span> bytes, <span class="hljs-number">50331648</span> sectors
+Disk /dev/sdb: <span class="hljs-number">25.8</span> GB, <span class="hljs-number">25769803776</span> bytes, <span class="hljs-number">50331648</span> sectors
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# mkfs.lustre --mgs  /dev/sdb
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# mkdir /mgt
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# mount.lustre  /dev/sdb /mgt/
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# df -h
+Filesystem               Size  Used Avail Use% Mounted on
+devtmpfs                 <span class="hljs-number">905</span>M     <span class="hljs-number">0</span>  <span class="hljs-number">905</span>M   <span class="hljs-number">0</span>% /dev
+tmpfs                    <span class="hljs-number">917</span>M     <span class="hljs-number">0</span>  <span class="hljs-number">917</span>M   <span class="hljs-number">0</span>% /dev/shm
+tmpfs                    <span class="hljs-number">917</span>M  <span class="hljs-number">9.0</span>M  <span class="hljs-number">908</span>M   <span class="hljs-number">1</span>% /run
+tmpfs                    <span class="hljs-number">917</span>M     <span class="hljs-number">0</span>  <span class="hljs-number">917</span>M   <span class="hljs-number">0</span>% /sys/fs/cgroup
+/dev/mapper/centos-root   <span class="hljs-number">41</span>G  <span class="hljs-number">2.9</span>G   <span class="hljs-number">39</span>G   <span class="hljs-number">7</span>% /
+/dev/sda1               <span class="hljs-number">1014</span>M  <span class="hljs-number">193</span>M  <span class="hljs-number">822</span>M  <span class="hljs-number">20</span>% /boot
+/dev/mapper/centos-home   <span class="hljs-number">20</span>G   <span class="hljs-number">33</span>M   <span class="hljs-number">20</span>G   <span class="hljs-number">1</span>% /home
+tmpfs                    <span class="hljs-number">184</span>M     <span class="hljs-number">0</span>  <span class="hljs-number">184</span>M   <span class="hljs-number">0</span>% /run/user/<span class="hljs-number">0</span>
+/dev/sdb                  <span class="hljs-number">24</span>G   <span class="hljs-number">46</span>M   <span class="hljs-number">23</span>G   <span class="hljs-number">1</span>% /mgt</code></pre>
+<h3 id="9-deploy-mds-mdt"><a href="#9-deploy-mds-mdt" class="headerlink" title="9.deploy mds/mdt"></a>9.deploy mds/mdt</h3><pre><code class="hljs angelscript"><span class="hljs-comment">//mkfs.lustre --fsname=lustrefs --mgsnode=msg_node@tcp0  --mdt --index=0 /dev/sdc</span>
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# mkfs.lustre --fsname=lustrefs --mgsnode=<span class="hljs-number">10.211</span><span class="hljs-number">.55</span><span class="hljs-number">.3</span>@tcp0  --mdt --index=<span class="hljs-number">0</span> /dev/sdc
+
+   Permanent disk data:
+Target:     lustrefs:MDT0000
+Index:      <span class="hljs-number">0</span>
+Lustre FS:  lustrefs
+Mount type: ldiskfs
+Flags:      <span class="hljs-number">0x61</span>
+              (MDT first_time update )
+Persistent mount opts: user_xattr,errors=remount-ro
+Parameters: mgsnode=<span class="hljs-number">10.211</span><span class="hljs-number">.55</span><span class="hljs-number">.3</span>@tcp
+
+checking <span class="hljs-keyword">for</span> existing Lustre data: <span class="hljs-keyword">not</span> found
+device size = <span class="hljs-number">24576</span>MB
+formatting backing filesystem ldiskfs on /dev/sdc
+        target name   lustrefs:MDT0000
+        kilobytes     <span class="hljs-number">25165824</span>
+        options        -J size=<span class="hljs-number">983</span> -I <span class="hljs-number">1024</span> -i <span class="hljs-number">2560</span> -q -O dirdata,uninit_bg,^extents,dir_nlink,quota,huge_file,ea_inode,flex_bg -E lazy_journal_init -F
+mkfs_cmd = mke2fs -j -b <span class="hljs-number">4096</span> -L lustrefs:MDT0000  -J size=<span class="hljs-number">983</span> -I <span class="hljs-number">1024</span> -i <span class="hljs-number">2560</span> -q -O dirdata,uninit_bg,^extents,dir_nlink,quota,huge_file,ea_inode,flex_bg -E lazy_journal_init -F /dev/sdc <span class="hljs-number">25165824</span>k
+Writing CONFIGS/mountdata
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# mkdir /mdt
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# mount.lustre /dev/sdc  /mdt</code></pre>
+
+<h3 id="10-deploy-oss-ost"><a href="#10-deploy-oss-ost" class="headerlink" title="10.deploy oss/ost"></a>10.deploy oss/ost</h3><pre><code class="hljs angelscript"><span class="hljs-comment">//mkfs.lustre --ost --fsname=lustrefs --mgsnode=mgs_node@tcp0 --index=1 /dev/sdb</span>
+
+[<span class="hljs-symbol">root@</span>CentOS2 ~]# mkfs.lustre --ost --fsname=lustrefs --mgsnode=<span class="hljs-number">10.211</span><span class="hljs-number">.55</span><span class="hljs-number">.3</span>@tcp0 --index=<span class="hljs-number">1</span> /dev/sdb
+
+   Permanent disk data:
+Target:     lustrefs:OST0001
+Index:      <span class="hljs-number">1</span>
+Lustre FS:  lustrefs
+Mount type: ldiskfs
+Flags:      <span class="hljs-number">0x62</span>
+              (OST first_time update )
+Persistent mount opts: ,errors=remount-ro
+Parameters: mgsnode=<span class="hljs-number">10.211</span><span class="hljs-number">.55</span><span class="hljs-number">.3</span>@tcp
+
+checking <span class="hljs-keyword">for</span> existing Lustre data: <span class="hljs-keyword">not</span> found
+device size = <span class="hljs-number">24576</span>MB
+formatting backing filesystem ldiskfs on /dev/sdb
+        target name   lustrefs:OST0001
+        kilobytes     <span class="hljs-number">25165824</span>
+        options        -J size=<span class="hljs-number">983</span> -I <span class="hljs-number">512</span> -i <span class="hljs-number">69905</span> -q -O extents,uninit_bg,dir_nlink,quota,huge_file,flex_bg -G <span class="hljs-number">256</span> -E resize=<span class="hljs-string">"4290772992"</span>,lazy_journal_init -F
+mkfs_cmd = mke2fs -j -b <span class="hljs-number">4096</span> -L lustrefs:OST0001  -J size=<span class="hljs-number">983</span> -I <span class="hljs-number">512</span> -i <span class="hljs-number">69905</span> -q -O extents,uninit_bg,dir_nlink,quota,huge_file,flex_bg -G <span class="hljs-number">256</span> -E resize=<span class="hljs-string">"4290772992"</span>,lazy_journal_init -F /dev/sdb <span class="hljs-number">25165824</span>k
+Writing CONFIGS/mountdata
+[<span class="hljs-symbol">root@</span>CentOS2 ~]# mkdir /ost
+[<span class="hljs-symbol">root@</span>CentOS2 ~]# mount.lustre  /dev/sdb /ost/</code></pre>
+
+<h3 id="11-mount-on-client-node"><a href="#11-mount-on-client-node" class="headerlink" title="11.mount on client node"></a>11.mount on client node</h3><pre><code class="hljs angelscript">[<span class="hljs-symbol">root@</span>CentOS3 ~]# mkdir /mnt/lustrefs
+[<span class="hljs-symbol">root@</span>CentOS3 ~]# mount -t lustre <span class="hljs-number">10.211</span><span class="hljs-number">.55</span><span class="hljs-number">.3</span>@tcp0:/lustrefs /mnt/lustrefs
+[<span class="hljs-symbol">root@</span>CentOS3 ~]# df -h
+Filesystem                 Size  Used Avail Use% Mounted on
+devtmpfs                   <span class="hljs-number">906</span>M     <span class="hljs-number">0</span>  <span class="hljs-number">906</span>M   <span class="hljs-number">0</span>% /dev
+tmpfs                      <span class="hljs-number">917</span>M     <span class="hljs-number">0</span>  <span class="hljs-number">917</span>M   <span class="hljs-number">0</span>% /dev/shm
+tmpfs                      <span class="hljs-number">917</span>M  <span class="hljs-number">9.0</span>M  <span class="hljs-number">908</span>M   <span class="hljs-number">1</span>% /run
+tmpfs                      <span class="hljs-number">917</span>M     <span class="hljs-number">0</span>  <span class="hljs-number">917</span>M   <span class="hljs-number">0</span>% /sys/fs/cgroup
+/dev/mapper/centos-root     <span class="hljs-number">41</span>G  <span class="hljs-number">2.8</span>G   <span class="hljs-number">39</span>G   <span class="hljs-number">7</span>% /
+/dev/sda1                 <span class="hljs-number">1014</span>M  <span class="hljs-number">149</span>M  <span class="hljs-number">866</span>M  <span class="hljs-number">15</span>% /boot
+/dev/mapper/centos-home     <span class="hljs-number">20</span>G   <span class="hljs-number">33</span>M   <span class="hljs-number">20</span>G   <span class="hljs-number">1</span>% /home
+tmpfs                      <span class="hljs-number">184</span>M     <span class="hljs-number">0</span>  <span class="hljs-number">184</span>M   <span class="hljs-number">0</span>% /run/user/<span class="hljs-number">0</span>
+<span class="hljs-number">10.211</span><span class="hljs-number">.55</span><span class="hljs-number">.3</span>@tcp:/lustrefs   <span class="hljs-number">23</span>G   <span class="hljs-number">46</span>M   <span class="hljs-number">22</span>G   <span class="hljs-number">1</span>% /mnt/lustrefs</code></pre>
+
+<h2 id="chapter-2-lustre-process"><a href="#chapter-2-lustre-process" class="headerlink" title="chapter 2. lustre process"></a>chapter 2. lustre process</h2><pre><code class="hljs angelscript"><span class="hljs-comment">//show luste mgs info</span>
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# ps -ef|grep mgs
+root      <span class="hljs-number">2275</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">29</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mgs_params_noti]
+root      <span class="hljs-number">2276</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">29</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_mgs_0000]
+root      <span class="hljs-number">2277</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">29</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_mgs_0001]
+root      <span class="hljs-number">2278</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">29</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_mgs_0002]
+root      <span class="hljs-number">2375</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mgs_lustrefs_no]
+root      <span class="hljs-number">2548</span>  <span class="hljs-number">2105</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">49</span> pts/<span class="hljs-number">0</span>    <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> grep --color=<span class="hljs-built_in">auto</span> mgs
+
+<span class="hljs-comment">//show lustre mdt process</span>
+[<span class="hljs-symbol">root@</span>CentOS1 ~]# ps -ef|grep mdt
+root      <span class="hljs-number">2357</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt00_000]
+root      <span class="hljs-number">2358</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt00_001]
+root      <span class="hljs-number">2359</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">01</span> [mdt00_002]
+root      <span class="hljs-number">2360</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_rdpg00_000]
+root      <span class="hljs-number">2361</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_rdpg00_001]
+root      <span class="hljs-number">2362</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_attr00_000]
+root      <span class="hljs-number">2363</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_attr00_001]
+root      <span class="hljs-number">2364</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_out00_000]
+root      <span class="hljs-number">2365</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_out00_001]
+root      <span class="hljs-number">2366</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_seqs_0000]
+root      <span class="hljs-number">2367</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_seqs_0001]
+root      <span class="hljs-number">2368</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_seqm_0000]
+root      <span class="hljs-number">2369</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_seqm_0001]
+root      <span class="hljs-number">2370</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_fld_0000]
+root      <span class="hljs-number">2371</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_fld_0001]
+root      <span class="hljs-number">2372</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_io00_000]
+root      <span class="hljs-number">2373</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_io00_001]
+root      <span class="hljs-number">2374</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">31</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt_io00_002]
+root      <span class="hljs-number">2540</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">48</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [mdt00_003]
+root      <span class="hljs-number">2552</span>  <span class="hljs-number">2105</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">49</span> pts/<span class="hljs-number">0</span>    <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> grep --color=<span class="hljs-built_in">auto</span> mdt
+
+<span class="hljs-comment">//show ost process</span>
+[<span class="hljs-symbol">root@</span>CentOS2 ~]# ps -ef|grep ost
+root      <span class="hljs-number">1854</span>     <span class="hljs-number">1</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">09</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> /usr/libexec/postfix/master -w
+postfix   <span class="hljs-number">1859</span>  <span class="hljs-number">1854</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">09</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> pickup -l -t unix -u
+postfix   <span class="hljs-number">1860</span>  <span class="hljs-number">1854</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">09</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> qmgr -l -t unix -u
+root      <span class="hljs-number">2431</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost00_000]
+root      <span class="hljs-number">2432</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost00_001]
+root      <span class="hljs-number">2433</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost00_002]
+root      <span class="hljs-number">2434</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost_create00]
+root      <span class="hljs-number">2435</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost_create00]
+root      <span class="hljs-number">2436</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost_io00_000]
+root      <span class="hljs-number">2437</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost_io00_001]
+root      <span class="hljs-number">2438</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost_io00_002]
+root      <span class="hljs-number">2439</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost_seq00_00]
+root      <span class="hljs-number">2440</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost_seq00_00]
+root      <span class="hljs-number">2441</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost_out00_00]
+root      <span class="hljs-number">2442</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">47</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [ll_ost_out00_00]
+root      <span class="hljs-number">2473</span>  <span class="hljs-number">2111</span>  <span class="hljs-number">0</span> <span class="hljs-number">13</span>:<span class="hljs-number">49</span> pts/<span class="hljs-number">0</span>    <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> grep --color=<span class="hljs-built_in">auto</span> ost</code></pre>
 
 <h2 id="chapter-3-script"><a href="#chapter-3-script" class="headerlink" title="chapter 3.script"></a>chapter 3.script</h2><ul>
 <li>start mgs/mdt</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">modprobe  zfs</span><br><span class="line">modprobe  lustre</span><br><span class="line">modprobe  lnet</span><br><span class="line">&#x2F;&#x2F;execute on mgs&#x2F;mdt node</span><br><span class="line">mount.lustre &#x2F;dev&#x2F;sdc  &#x2F;mdt</span><br><span class="line">mount.lustre  &#x2F;dev&#x2F;sdb &#x2F;mgt&#x2F;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs jboss-cli">modprobe  zfs
+modprobe  lustre
+modprobe  lnet
+<span class="hljs-string">//execute</span> on mgs/mdt node
+mount.lustre <span class="hljs-string">/dev/sdc</span>  <span class="hljs-string">/mdt</span>
+mount.lustre  <span class="hljs-string">/dev/sdb</span> <span class="hljs-string">/mgt/</span></code></pre>
 <ul>
 <li>start ost</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">modprobe  zfs</span><br><span class="line">modprobe  lustre</span><br><span class="line">modprobe  lnet</span><br><span class="line">mount.lustre  &#x2F;dev&#x2F;sdb &#x2F;ost&#x2F;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs properties"><span class="hljs-attr">modprobe</span>  <span class="hljs-string">zfs</span>
+<span class="hljs-attr">modprobe</span>  <span class="hljs-string">lustre</span>
+<span class="hljs-attr">modprobe</span>  <span class="hljs-string">lnet</span>
+<span class="hljs-meta">mount.lustre</span>  <span class="hljs-string">/dev/sdb /ost/</span></code></pre>
 <ul>
 <li>mount </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount -t lustre 10.211.55.3@tcp0:&#x2F;lustrefs &#x2F;mnt&#x2F;lustrefs</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs angelscript">mount -t lustre <span class="hljs-number">10.211</span><span class="hljs-number">.55</span><span class="hljs-number">.3</span>@tcp0:/lustrefs /mnt/lustrefs</code></pre>
 
-    </div>
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/05/14/OpenCAS-%E6%B6%88%E8%80%97%E8%BF%87%E5%A4%9A%E5%86%85%E5%AD%98%E9%97%AE%E9%A2%98/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OpenCAS 消耗过多内存问题</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2020/04/21/glusterfs%E9%9B%86%E7%BE%A4glusterd%E6%98%BE%E7%A4%BADisconnect%E7%8A%B6%E6%80%81%E5%AF%BC%E8%87%B4%E9%9B%86%E7%BE%A4IO%E8%AF%B7%E6%B1%82%E5%8F%98%E6%85%A2/">
+                        <span class="hidden-mobile">glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
 
-    
-    
-    
-
-      <footer class="post-footer">
-
-        
-
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2020/04/21/glusterfs%E9%9B%86%E7%BE%A4glusterd%E6%98%BE%E7%A4%BADisconnect%E7%8A%B6%E6%80%81%E5%AF%BC%E8%87%B4%E9%9B%86%E7%BE%A4IO%E8%AF%B7%E6%B1%82%E5%8F%98%E6%85%A2/" rel="prev" title="glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢">
-      <i class="fa fa-chevron-left"></i> glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/05/14/OpenCAS-%E6%B6%88%E8%80%97%E8%BF%87%E5%A4%9A%E5%86%85%E5%AD%98%E9%97%AE%E9%A2%98/" rel="next" title="OpenCAS 消耗过多内存问题">
-      OpenCAS 消耗过多内存问题 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
-  </article>
-  
-  
-  
-
-
-
+            
           </div>
-          
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
         </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          Table of Contents
-        </li>
-        <li class="sidebar-nav-overview">
-          Overview
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#chapter-1-lustre部署"><span class="nav-number">1.</span> <span class="nav-text">chapter 1.lustre部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-节点信息"><span class="nav-number">1.1.</span> <span class="nav-text">0.节点信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-kernel版本信息"><span class="nav-number">1.2.</span> <span class="nav-text">1.kernel版本信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-配置离线lustre-安装包安装源"><span class="nav-number">1.3.</span> <span class="nav-text">2.配置离线lustre 安装包安装源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-下载lustre安装包到本地"><span class="nav-number">1.4.</span> <span class="nav-text">3.下载lustre安装包到本地</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-安装lustre版本kernel"><span class="nav-number">1.5.</span> <span class="nav-text">4.安装lustre版本kernel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-安装zfs"><span class="nav-number">1.6.</span> <span class="nav-text">5.安装zfs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-安装lustre-server-核心包"><span class="nav-number">1.7.</span> <span class="nav-text">6.安装lustre server 核心包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-安装lustre-client核心包-客户端节点"><span class="nav-number">1.8.</span> <span class="nav-text">7.安装lustre client核心包(客户端节点)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-deploy-msg-mst"><span class="nav-number">1.9.</span> <span class="nav-text">8.deploy msg&#x2F;mst</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-deploy-mds-mdt"><span class="nav-number">1.10.</span> <span class="nav-text">9.deploy mds&#x2F;mdt</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-deploy-oss-ost"><span class="nav-number">1.11.</span> <span class="nav-text">10.deploy oss&#x2F;ost</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-mount-on-client-node"><span class="nav-number">1.12.</span> <span class="nav-text">11.mount on client node</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#chapter-2-lustre-process"><span class="nav-number">2.</span> <span class="nav-text">chapter 2. lustre process</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#chapter-3-script"><span class="nav-number">3.</span> <span class="nav-text">chapter 3.script</span></a></li></ol></div>
       </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">perrynzhou</p>
-  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">38</span>
-          <span class="site-state-item-name">posts</span>
-        </a>
-      </div>
-  </nav>
-</div>
-
-
-
-      </div>
-
     </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-
-
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2020</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
-  </div>
-
-        
-
-
-
-
-
-
-
 
       </div>
-    </footer>
+    
   </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
 
   
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
   
 
   
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "lustre-2.13部署&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>
