@@ -168,6 +168,39 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/05/14/OpenCAS-%E6%B6%88%E8%80%97%E8%BF%87%E5%A4%9A%E5%86%85%E5%AD%98%E9%97%AE%E9%A2%98/">OpenCAS 消耗过多内存问题</a>
+
+      <a href="/2020/05/14/OpenCAS-%E6%B6%88%E8%80%97%E8%BF%87%E5%A4%9A%E5%86%85%E5%AD%98%E9%97%AE%E9%A2%98/" class="index-excerpt">
+        
+        
+          
+        
+        <div>OpenCase 内存耗尽的问题1.现象
+使用3.5T  SSD 初始化opencas初始化，宿主机内存为120G，初始化成功后，运行一段时间出现内存全部消耗完。
+
+2.opencas 版本信息opencas version:19.9
+Linux kernel: 3.10.0-957.el7.x86_64
+CentOS Linux release 7.6.1810 (Core)
+
+3.openca</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-05-14
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/05/05/lustre-2-13%E9%83%A8%E7%BD%B2/">lustre-2.13部署</a>
 
       <a href="/2020/05/05/lustre-2-13%E9%83%A8%E7%BD%B2/" class="index-excerpt">
@@ -456,33 +489,6 @@ if (aeCreateTimeEvent(server.el, 1, serverCron, NULL, NULL) == AE_ERR) &#</div>
         <div>dup
 函数原型是 int dup(old_fd),把old_fd下标中的内容拷贝到当前进程文件描述符表中最小的可用位置下标空间中，open系统调用会默认返回当前进程描述符表中最小的下标作为文件描述符.dup系统调用不是原子的dup2
 函数原型是 int dup2(new_fd,old_fd),这个操作是原子的。如果old_fd已经存在就close(old_fd),然后调用dup(new_fd),</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-16
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/16/fork%E4%B9%8B%E5%89%8D%E7%9A%84%E7%BC%93%E5%86%B2%E5%8C%BA%E9%97%AE%E9%A2%98/">fork之前的缓冲区问题</a>
-
-      <a href="/2020/04/16/fork%E4%B9%8B%E5%89%8D%E7%9A%84%E7%BC%93%E5%86%B2%E5%8C%BA%E9%97%AE%E9%A2%98/" class="index-excerpt">
-        
-        
-          
-        
-        <div>fork 系统调用Description
-fork()  creates  a  new process by duplicating the calling process.  The new process, referred to as the child, is an exact duplicate of the calling process代码例子/******************</div>
       </a>
 
       <div class="index-btm post-metas">
