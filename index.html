@@ -177,7 +177,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-06-24 11:08:14 / Modified: 11:18:35" itemprop="dateCreated datePublished" datetime="2020-06-24T11:08:14+08:00">2020-06-24</time>
+              <time title="Created: 2020-06-24 11:08:14 / Modified: 14:53:22" itemprop="dateCreated datePublished" datetime="2020-06-24T11:08:14+08:00">2020-06-24</time>
             </span>
 
           
@@ -204,6 +204,9 @@
 <h4 id="nginx-应用场景有哪些？"><a href="#nginx-应用场景有哪些？" class="headerlink" title="nginx 应用场景有哪些？"></a>nginx 应用场景有哪些？</h4><p><img src="/2020/06/24/nginx-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/nginx%E5%9C%BA%E6%99%AF.png" alt></p>
 <ul>
 <li>静态资源:访问的资源和nginx部署的节点是在同一个服务器上。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 路径为:&#x2F;home&#x2F;perrynzhou&#x2F;images下面有2张png图片</span><br><span class="line">&#x2F;&#x2F;修改配置文件nginx.conf</span><br><span class="line">   server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  localhost;</span><br><span class="line"></span><br><span class="line">        #charset koi8-r;</span><br><span class="line"></span><br><span class="line">        #access_log  logs&#x2F;host.access.log  main;</span><br><span class="line"></span><br><span class="line">        location &#x2F; &#123;</span><br><span class="line">            root   &#x2F;home&#x2F;perrynzhou&#x2F;images&#x2F;;</span><br><span class="line">            index  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line"> &#x2F;&#x2F; nginx -s reload</span><br><span class="line"> &#x2F;&#x2F; http:&#x2F;&#x2F;172.25.14.71&#x2F;2.png 即可访问图片</span><br></pre></td></tr></table></figure>
+<ul>
 <li>API服务：代理后端API服务，比如代理redis api服务</li>
 <li>反向代理: 代理后端服务器</li>
 <li>缓存加速：nginx能否缓存请求的资源</li>
@@ -215,6 +218,15 @@
 <li>lvs: 软件层的负载均衡，工作在网络层(IP层)，基于IP地址的负载均衡。</li>
 <li>haproxy:工作在传输层，基于tcp/ip的聚在均衡器</li>
 <li>nginx:工作在应用层的HTTP协议，基于http的聚在负载均衡器。</li>
+</ul>
+<h4 id="nginx-进程结构"><a href="#nginx-进程结构" class="headerlink" title="nginx 进程结构"></a>nginx 进程结构</h4><p><img src="/2020/06/24/nginx-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/nginx%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84.jpg" alt></p>
+<ul>
+<li><p>nginx进程结构分为master和worker进程，master进程和worker进程是1对多的关系。</p>
+</li>
+<li><p>master进程：主要用来管理worker进程，接收来自外界的信号，向各个worker进程发送信号，监控worker进程的运行状态当worker进程退出后，会自动情动新的worker进程,master进程扮演用户和worker进程的交互接口角色，同时对进程进行监护，他不需要处理网络事件，不负责业务执行，只会通过worker进程来实现重启服务，平滑升级，更换日志文件，配置文件生效等功能</p>
+</li>
+<li><p>worker进程 ： worker进程相互之间隔离和对等的，具有相同的几率去处理请求，所有的worker进程都是从master进程fork出来的,所有worker进程的listenfd会在新连接到来时变得可读，为保证只有一个进程处理该连接，所有worker进程在注册listenfd读事件前抢accept_mutex，抢到互斥锁的那个进程注册listenfd读事件，在读事件里调用accept接受该连接。当一个worker进程在accept这个连接之后，就开始读取请求，解析请求，处理请求，产生数据后，再返回给客户端，最后才断开连接，这样一个完整的请求就是这样的了。一个请求，完全由worker进程来处理，而且只在一个worker进程中处理。</p>
+</li>
 </ul>
 <h4 id="nginx的核心模块"><a href="#nginx的核心模块" class="headerlink" title="nginx的核心模块"></a>nginx的核心模块</h4><ul>
 <li><p>nginx 采用的模块方式组装整个nginx的功能，在编译阶段会产生一个ngx_modules.c的文件，该文件中定义了所有nginx的处理模块,其中有一个ngx_modules的数组。</p>
