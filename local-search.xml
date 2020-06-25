@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>start kernel plan</title>
+    <link href="/2020/06/25/start-kernel-plan/"/>
+    <url>/2020/06/25/start-kernel-plan/</url>
+    
+    <content type="html"><![CDATA[<p> <img src="/2020/06/25/start-kernel-plan/kernel-plan.png" srcset="/img/loading.gif" alt></p>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>epoll中惊群效应解决方法</title>
     <link href="/2020/06/25/epoll%E4%B8%AD%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/"/>
     <url>/2020/06/25/epoll%E4%B8%AD%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>

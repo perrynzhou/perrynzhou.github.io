@@ -168,6 +168,38 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/16/Redis%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B/">Redis复制过程</a>
+
+      <a href="/2020/04/16/Redis%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B/" class="index-excerpt">
+        
+        
+          
+        
+        <div>how redis do replication
+
+step 1:add callback for server cron job
+
+//location:server.c
+//fucntion:setting callback for timeout
+if (aeCreateTimeEvent(server.el, 1, serverCron, NULL, NULL) == AE_ERR) &#</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-16
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/04/16/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8dup%E5%92%8Cdup2%E5%8C%BA%E5%88%AB/">Linux系统调用dup和dup2区别</a>
 
       <a href="/2020/04/16/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8dup%E5%92%8Cdup2%E5%8C%BA%E5%88%AB/" class="index-excerpt">
@@ -427,39 +459,11 @@ Standard IO 是是指使用stdio中的FILE中的fopen/fclose/fread/fwrite/fseek�
     </div>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/15/zombies-%E5%92%8C-init-process/">zombies 和 init process</a>
-
-      <a href="/2020/04/15/zombies-%E5%92%8C-init-process/" class="index-excerpt">
-        
-        
-          
-        
-        <div>进程关系zombies进程
-linux中的pid号和file的fd号的规则不同，pid的增长是逐次递增使用，如果达到上限再来一次从小到大的周期，寻找可用的pid号。如果没有就会出现系统错误。
-linux fork后子进程先于父进程退出，这个进程子进程就是zombies的进程，zombies的进程占用的是pcb块资源以及pid资源，zombies的进程最终由1号(init process接管),统一</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/2/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/2/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/4/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   
