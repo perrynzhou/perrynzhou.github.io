@@ -168,6 +168,32 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/">glusterfs客户端挂载init流程</a>
+
+      <a href="/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/" class="index-excerpt">
+        
+        
+          
+        
+        <div>Glusterfs 原理Glusterfs 基本原理    Glusterfs 是基于fuse的分布式存储，功能上支持分布式/3副本/EC三种存储方式。Glusterfs采用堆栈式的架构设计，服务端和客户端采用translator.    GlusterFS概念中，由一系列translator构成的完整功能栈称之为Volume，分配给一个volume的本地文件系统称为brick，被至少一个tran</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-05-26
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/05/14/OpenCAS-%E6%B6%88%E8%80%97%E8%BF%87%E5%A4%9A%E5%86%85%E5%AD%98%E9%97%AE%E9%A2%98/">OpenCAS 消耗过多内存问题</a>
 
       <a href="/2020/05/14/OpenCAS-%E6%B6%88%E8%80%97%E8%BF%87%E5%A4%9A%E5%86%85%E5%AD%98%E9%97%AE%E9%A2%98/" class="index-excerpt">
@@ -461,34 +487,6 @@ step 1:add callback for server cron job
 //location:server.c
 //fucntion:setting callback for timeout
 if (aeCreateTimeEvent(server.el, 1, serverCron, NULL, NULL) == AE_ERR) &#</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-16
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/16/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8dup%E5%92%8Cdup2%E5%8C%BA%E5%88%AB/">Linux系统调用dup和dup2区别</a>
-
-      <a href="/2020/04/16/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8dup%E5%92%8Cdup2%E5%8C%BA%E5%88%AB/" class="index-excerpt">
-        
-        
-          
-        
-        <div>dup
-函数原型是 int dup(old_fd),把old_fd下标中的内容拷贝到当前进程文件描述符表中最小的可用位置下标空间中，open系统调用会默认返回当前进程描述符表中最小的下标作为文件描述符.dup系统调用不是原子的dup2
-函数原型是 int dup2(new_fd,old_fd),这个操作是原子的。如果old_fd已经存在就close(old_fd),然后调用dup(new_fd),</div>
       </a>
 
       <div class="index-btm post-metas">

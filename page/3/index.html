@@ -168,6 +168,34 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/16/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8dup%E5%92%8Cdup2%E5%8C%BA%E5%88%AB/">Linux系统调用dup和dup2区别</a>
+
+      <a href="/2020/04/16/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8dup%E5%92%8Cdup2%E5%8C%BA%E5%88%AB/" class="index-excerpt">
+        
+        
+          
+        
+        <div>dup
+函数原型是 int dup(old_fd),把old_fd下标中的内容拷贝到当前进程文件描述符表中最小的可用位置下标空间中，open系统调用会默认返回当前进程描述符表中最小的下标作为文件描述符.dup系统调用不是原子的dup2
+函数原型是 int dup2(new_fd,old_fd),这个操作是原子的。如果old_fd已经存在就close(old_fd),然后调用dup(new_fd),</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-16
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/04/16/fork%E4%B9%8B%E5%89%8D%E7%9A%84%E7%BC%93%E5%86%B2%E5%8C%BA%E9%97%AE%E9%A2%98/">fork之前的缓冲区问题</a>
 
       <a href="/2020/04/16/fork%E4%B9%8B%E5%89%8D%E7%9A%84%E7%BC%93%E5%86%B2%E5%8C%BA%E9%97%AE%E9%A2%98/" class="index-excerpt">
@@ -413,70 +441,6 @@ Standard IO 是是指使用stdio中的FILE中的fopen/fclose/fread/fwrite/fseek�
         <div>进程关系zombies进程
 linux中的pid号和file的fd号的规则不同，pid的增长是逐次递增使用，如果达到上限再来一次从小到大的周期，寻找可用的pid号。如果没有就会出现系统错误。
 linux fork后子进程先于父进程退出，这个进程子进程就是zombies的进程，zombies的进程占用的是pcb块资源以及pid资源，zombies的进程最终由1号(init process接管),统一</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/">理解简单汇编程序</a>
-
-      <a href="/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/" class="index-excerpt">
-        
-        
-          
-        
-        <div>
-寄存器以及中断号对应表
-
-
-
-
-eax(系统调用号)
-系统调用
-ebx(系统调用参数1)
-ecx(系统调用参数2)
-ecx(系统调用参数3)
-edx(系统调用参数4 )
-esx(系统调用参数5)
-edi（系统调用参数6）
-
-
-
-1
-sys_exit
-int
-无
-无
-无
-无
-无
-
-
-4
-sys_write
-unsigned int
-const char *
-size_t
-无
-无
-无
-
-
-
-hell</div>
       </a>
 
       <div class="index-btm post-metas">

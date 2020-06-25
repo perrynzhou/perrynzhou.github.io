@@ -17,7 +17,7 @@
   <meta name="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
   <meta name="author" content="perrynzhou">
   <meta name="keywords" content="C, Go, nginx,glusterfs,redis">
-  <title>new/mallc/delete/free的区别 - perrynzhou</title>
+  <title>epoll中惊群效应解决方法 - perrynzhou</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,8 +152,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-06-24 18:02">
-      2020年6月24日 晚上
+    <time datetime="2020-06-25 08:57">
+      2020年6月25日 早上
     </time>
   </div>
 
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      431 字
+      470 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      6
+      5
        分钟
     </span>
   
@@ -204,71 +204,36 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <p><strong>在使用C/C++开发使用，很多对于mallc和new、free和delete搞不清楚的，这里能简单说下区别</strong></p>
-<ul>
-<li>1.malloc和free是库函数;new和delete是C++的关键字</li>
-<li>2.malloc是以字节来申请堆内存;new是以类型申请堆空间</li>
-<li>3.malloc和free是单纯的申请内存和释放内存</li>
-<li>4.new和delete分别负责申请内存调用calss的构造函数初始化和调用析构函数释放资源</li>
-<li>5.new申请的内存使用free释放，是不会触发调用析构函数的，一般会造成资源泄露</li>
+              <h2 id="epoll中惊群效应解决方法"><a href="#epoll中惊群效应解决方法" class="headerlink" title="epoll中惊群效应解决方法"></a>epoll中惊群效应解决方法</h2><h3 id="epoll惊群效应复现"><a href="#epoll惊群效应复现" class="headerlink" title="epoll惊群效应复现"></a>epoll惊群效应复现</h3><ul>
+<li><p>创建5个进程，父进程负责fork所有的子进程，然后等待子进程退出，每个子进程监听监听同一个端口，接受来自客户单请求</p>
+<p><img src="/2020/06/25/epoll%E4%B8%AD%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/%E7%88%B6%E8%BF%9B%E7%A8%8B%E5%90%AF%E5%8A%A8.png" srcset="/img/loading.gif" alt></p>
+</li>
+<li><p>客户端连接服务端的同一个端口，服务端只有一个子进程响应该请求</p>
+<p><img src="/2020/06/25/epoll%E4%B8%AD%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82.png" srcset="/img/loading.gif" alt></p>
+</li>
+<li><p>strace每个子进程的系统调用，可以发现客户端的请求仅仅只有一个子进程响应，其他的子进程都做了无效的系统调用，这种现象叫做惊群效应，假设在10W个并发链接的情况下，这种无效的系统调用非常影响请求处理的吞吐量和处理性能。子进程10012、10014、10015，出现了“accept(3, 0x7fff66a88dc0, [16])         = -1 EAGAIN (Resource temporarily unavailable)”，接受客户端请求失败，仅仅是10013接受客户端请求成功，并且处理了客户端请求。<br><img src="/2020/06/25/epoll%E4%B8%AD%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/strace1.png" srcset="/img/loading.gif" alt></p>
+<p><img src="/2020/06/25/epoll%E4%B8%AD%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/strace2.png" srcset="/img/loading.gif" alt></p>
+<p><img src="/2020/06/25/epoll%E4%B8%AD%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/strace3.png" srcset="/img/loading.gif" alt></p>
+<p><img src="/2020/06/25/epoll%E4%B8%AD%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/strace4.png" srcset="/img/loading.gif" alt></p>
+</li>
 </ul>
-<p><strong>代码示例</strong></p>
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><ul>
+<li><p>linux 内核中accept惊群问题：linux 内核accept之所以阻塞是因为条件等待，这种现象和线程池的惊群效应是一致的，2.6内核之前是通过广播方式通知,2.6内核之后采用了发送信号量，解决了accept的惊群问题。</p>
+</li>
+<li><p>epoll的惊群问题：</p>
 <ul>
-<li>代码<pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;new&gt;</span></span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;cstdlib&gt;</span></span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;iostream&gt;</span></span>
-<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">T</span> &#123;</span>
-        <span class="hljs-keyword">public</span>:
-                T()&#123;<span class="hljs-built_in">cout</span>&lt;&lt;<span class="hljs-string">"Call T()"</span>&lt;&lt;<span class="hljs-built_in">endl</span>;iv = <span class="hljs-number">100</span>;&#125;;
-                ~T()&#123;<span class="hljs-built_in">cout</span>&lt;&lt;<span class="hljs-string">"Call ~T()"</span>&lt;&lt;<span class="hljs-built_in">endl</span>;&#125;
-                <span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">GetIv</span><span class="hljs-params">()</span></span>&#123;<span class="hljs-keyword">return</span> iv;&#125;
-        <span class="hljs-keyword">private</span>:
-                <span class="hljs-keyword">int</span> iv;
-&#125;;
-<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">func</span><span class="hljs-params">()</span></span>
-<span class="hljs-function"></span>&#123;
-        <span class="hljs-keyword">int</span> *t1 = <span class="hljs-keyword">static_cast</span>&lt;<span class="hljs-keyword">int</span> *&gt;(<span class="hljs-built_in">malloc</span>(<span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">int</span>)));
-        <span class="hljs-keyword">int</span> *t2 = <span class="hljs-keyword">new</span> <span class="hljs-keyword">int</span>(<span class="hljs-number">10</span>);<span class="hljs-comment">//new 可以申请内存同时也可以赋值</span>
-        *t1 = <span class="hljs-number">88</span>;<span class="hljs-comment">//malloc则不行</span>
-        <span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">"begin :*t1"</span>&lt;&lt;*t1&lt;&lt;<span class="hljs-string">",*t2="</span>&lt;&lt;*t2&lt;&lt;<span class="hljs-built_in">endl</span>;
-        <span class="hljs-built_in">free</span>(t1);
-        <span class="hljs-keyword">delete</span> t2;
-        <span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">"end :t1"</span>&lt;&lt;t1&lt;&lt;<span class="hljs-string">",t2="</span>&lt;&lt;t2&lt;&lt;<span class="hljs-built_in">endl</span>;
- 
-&#125;
-<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
-<span class="hljs-function"></span>&#123;
-        <span class="hljs-comment">//func();</span>
-        T *t1 = <span class="hljs-keyword">new</span> T();<span class="hljs-comment">//她会调用构造函数，以类型申请堆空间</span>
-        T *t2 = <span class="hljs-keyword">static_cast</span>&lt;T *&gt;(<span class="hljs-built_in">malloc</span>(<span class="hljs-keyword">sizeof</span>(T))); <span class="hljs-comment">//不会调用构造和析构函数，以字节申请堆空间</span>
-        <span class="hljs-built_in">cout</span>&lt;&lt;<span class="hljs-string">"t1.iv = "</span>&lt;&lt;t1-&gt;GetIv()&lt;&lt;<span class="hljs-built_in">endl</span>;
-        
-        <span class="hljs-keyword">delete</span> t2;<span class="hljs-comment">//触发析构函数，析构函数用于释放资源</span>
-        <span class="hljs-built_in">cout</span>&lt;&lt;<span class="hljs-string">"t2.iv = "</span>&lt;&lt;t2-&gt;GetIv()&lt;&lt;<span class="hljs-built_in">endl</span>;
-	<span class="hljs-built_in">free</span>(t1);<span class="hljs-comment">//如果new申请的空间，用free释放，析构函数是不会调用，会造成资源泄露 </span>
-	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
-&#125;</code></pre></li>
-<li>运行</li>
+<li>互斥锁：在epoll_wait前后加互斥锁会导致线程或者进程挂起，在高并发的情况下，严重影响请求处理的图屯粮，这种性能损耗基本无法接受。</li>
+<li>自旋锁: 在epoll_wait前后加spinlock，spinlock是独占的，虽然不会导致线程切换，但是会导致其他的监听进程或者线程饿死，这种情况也是无法接受的。</li>
+<li>原子操作/CAS：惊群问题通用解决方法是通过原子操作，原子操作通过汇编实现。</li>
 </ul>
-<pre><code class="hljs elixir">perryn@<span class="hljs-symbol">:/data/source/Cpp/demo</span><span class="hljs-symbol">:</span>./a.out
-Call T()
-t1.iv = <span class="hljs-number">100</span>
-t2.iv = 0
-Call <span class="hljs-string">~T()</span></code></pre>
+</li>
+</ul>
 
             </article>
             <hr>
             <div>
               <div class="post-metas mb-3">
                 
-                
-                  <div class="post-meta">
-                    <i class="iconfont icon-tags"></i>
-                    
-                      <a class="hover-with-bg" href="/tags/c-c/">c/c++</a>
-                    
-                  </div>
                 
               </div>
               
@@ -279,18 +244,12 @@ Call <span class="hljs-string">~T()</span></code></pre>
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/2020/06/25/epoll%E4%B8%AD%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">epoll中惊群效应解决方法</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2020/06/24/nginx-%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/">
-                        <span class="hidden-mobile">nginx 简单介绍</span>
+                      <a href="/2020/06/24/new-mallc-delete-free%E7%9A%84%E5%8C%BA%E5%88%AB/">
+                        <span class="hidden-mobile">new/mallc/delete/free的区别</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -455,7 +414,7 @@ Call <span class="hljs-string">~T()</span></code></pre>
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "new/mallc/delete/free的区别&nbsp;",
+        "epoll中惊群效应解决方法&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,
