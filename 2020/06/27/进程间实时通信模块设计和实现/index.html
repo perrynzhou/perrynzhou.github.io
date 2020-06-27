@@ -204,17 +204,17 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h2 id="进程间实时通信模块设计和实现"><a href="#进程间实时通信模块设计和实现" class="headerlink" title="进程间实时通信模块设计和实现"></a>进程间实时通信模块设计和实现</h2><h4 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h4><ul>
+              <h2 id="进程间实时通信模块设计和实现"><a href="#进程间实时通信模块设计和实现" class="headerlink" title="进程间实时通信模块设计和实现"></a>进程间实时通信模块设计和实现</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><ul>
 <li>基于设备文件作为数据传输介质，一切皆文件</li>
 <li>设备文件必须可以读可以写</li>
 <li>通过linux kernel的file_operations来实现设备的读写</li>
 </ul>
-<h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p><img src="/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1.png" srcset="/img/loading.gif" alt></p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p><img src="/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1.png" srcset="/img/loading.gif" alt></p>
 <ul>
 <li>设计一个内核模块，客户端A写数据客户端B，客户端A到某个字符设备，然后通过设计的内核模块主动推送客户端B，这样就能达到进程间实时通信的效果.</li>
 <li>设备文件也是文件，通过绑定内核的file_operations的函数实现设备的open/release/read/write/mmap等接口，客户端当open/read/write时候会对应调用内核模块的open/read/write函数</li>
 </ul>
-<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><ul>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><ul>
 <li>进程A写数据</li>
 </ul>
 <pre><code class="hljs jboss-cli"><span class="hljs-keyword">echo</span> <span class="hljs-string">"aaaa"</span> &gt; <span class="hljs-string">/dev/memchan</span></code></pre>
