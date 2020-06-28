@@ -168,6 +168,36 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/">glusterfs global-threading挂载选项</a>
+
+      <a href="/2020/04/15/glusterfs-global-threading%E6%8C%82%E8%BD%BD%E9%80%89%E9%A1%B9/" class="index-excerpt">
+        
+        
+          
+        
+        <div>core: implement a global thread pool
+
+This patch implements a thread pool that is wait-free for adding jobs to
+the queue and uses a very small locked region to get jobs. This makes it
+possible to decr</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/">go pipeline样例</a>
 
       <a href="/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/" class="index-excerpt">
@@ -471,34 +501,6 @@ Option: performance.readd</div>
 在write-back模式中，所有数据同步写入open cas的ssd中，然后异步刷新到HDD中。
 
 open cas 缓存满后，采用open cas的淘汰算</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-14
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/">glusterfs and opencas issue列表</a>
-
-      <a href="/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/" class="index-excerpt">
-        
-        
-          
-        
-        <div>issue 列表
-1.glusterfsd crash due to health-check failed, going down ,system call errorno not returnhttps://github.com/gluster/glusterfs/issues/1168
-2.glusterfsd memory leak killed by os #1166https://gi</div>
       </a>
 
       <div class="index-btm post-metas">
