@@ -168,6 +168,46 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/06/28/nginx-%E7%9A%84worker-process/">nginx 的worker_process</a>
+
+      <a href="/2020/06/28/nginx-%E7%9A%84worker-process/" class="index-excerpt">
+        
+        
+          
+        
+        <div>nginx 的worker_processnginx的配置worker_process[perrynzhou@perrynzhou-ubuntu ~/Debug/nginx-1.19.0/conf]$ cat nginx.conf 
+
+#user  nobody;
+worker_processes  1;
+
+events &#123;
+    worker_connections  1024;
+&</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-28
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/nginx-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">nginx 源码分析</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/">进程间实时通信模块设计和实现</a>
 
       <a href="/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/" class="index-excerpt">
@@ -453,32 +493,6 @@ Volume ID: 73360fc2-e105-4fd4-9b92-b5fa333ba75d
 Status: Started
 Snapshot Count: 0
 Number of Br</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-10
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/06/10/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%A6%82%E4%BD%95cp%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6/">glusterfs客户端如何cp一个文件?</a>
-
-      <a href="/2020/06/10/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%A6%82%E4%BD%95cp%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6/" class="index-excerpt">
-        
-        
-          
-        
-        <div>glusterfs fuse简单介绍xlator是glusterfs核心的概念，每个xlator对用一系列函数处理对应的文件操作,glusterfs/glusterfsd/glusterd的三个二进制的入口都是相同的(glusterfs/src/glusterfsd.c)，但是在不同模块的逻辑上处理会加载不同的xlator来完成对应模块功能的操作。glusterfs客户端实现是基于fuse实现了自</div>
       </a>
 
       <div class="index-btm post-metas">

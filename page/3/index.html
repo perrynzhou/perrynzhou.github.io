@@ -168,6 +168,38 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/04/16/%E5%85%B3%E4%BA%8ECPU%E5%AD%97%E8%8A%82%E5%BA%8F%E7%9A%84%E7%90%86%E8%A7%A3/">关于CPU字节序的理解</a>
+
+      <a href="/2020/04/16/%E5%85%B3%E4%BA%8ECPU%E5%AD%97%E8%8A%82%E5%BA%8F%E7%9A%84%E7%90%86%E8%A7%A3/" class="index-excerpt">
+        
+        
+          
+        
+        <div>为什么会有字节序这一说法
+对于单字节处理器不存在字节序，对于大于1个字节的位数的CPU，其寄存器的宽度也大于1个字节，所以存储字节排序的问题
+
+大端字节序排序
+大端：高字节位在低地址存储，低字节位在高地址存储
+小端: 高字节位存储在高地址，低字节位存储在低地址 例如 int  x = 0x0001,假设是在64位的CPU上，它的地址空间为：0xff13,其字节排序可能有两种可能：
+  oxff13</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-04-16
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/04/16/glusterfs%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/">glusterfs参数说明</a>
 
       <a href="/2020/04/16/glusterfs%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/" class="index-excerpt">
@@ -419,43 +451,6 @@ Maintain replication co</div>
 This patch implements a thread pool that is wait-free for adding jobs to
 the queue and uses a very small locked region to get jobs. This makes it
 possible to decr</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/">go pipeline样例</a>
-
-      <a href="/2020/04/15/go-pipeline%E6%A0%B7%E4%BE%8B/" class="index-excerpt">
-        
-        
-          
-        
-        <div>workflow for pipeline
-runing resultenter contrl+c  to stop pipeline program
-
-code examplepackage main
-
-import (
-        "log"
-        "math/rand"
-        "os"
-        "os/signal"
-        "syscall"
-   </div>
       </a>
 
       <div class="index-btm post-metas">
