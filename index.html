@@ -168,6 +168,40 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/06/30/nginx-%E5%A6%82%E4%BD%95worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">nginx 如何worker进程的请求处理的负载均衡</a>
+
+      <a href="/2020/06/30/nginx-%E5%A6%82%E4%BD%95worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="index-excerpt">
+        
+        
+          
+        
+        <div>nginx 如何worker进程的请求处理的负载均衡
+nginx 自身实现避免了进群效应，每一个请求上来仅仅只会有一个worker_process处理，nginx 作为静态资源服务器，最大请求连接数为:worker_process * connections；如果作为反向代理，则支撑的最大连接数为worker_process * conenctions/2,因为反向代理需要连接后端的服务，同时也会</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-30
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/nginx-%E8%BF%9B%E7%A8%8B%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">nginx 进程请求处理 负载均衡</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/06/28/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E7%94%A8%E6%88%B7%E6%8E%A5%E5%8F%A3%E7%AF%87/">操作系统-用户接口篇</a>
 
       <a href="/2020/06/28/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E7%94%A8%E6%88%B7%E6%8E%A5%E5%8F%A3%E7%AF%87/" class="index-excerpt">
@@ -474,36 +508,6 @@ pthread_spinlock_t:多线程情况下，不</div>
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>&nbsp;2020-06-22
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/06/20/tcp-ip-%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B/">tcp/ip 三次握手</a>
-
-      <a href="/2020/06/20/tcp-ip-%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B/" class="index-excerpt">
-        
-        
-          
-        
-        <div>tcp/ip 三次握手
-
-tcp/ip和系统api有啥关系
-tcp/ip基于ip层来提供稳定的有连接的服务。tcp/ip编程中的socket是有几个元素组成，分别是:（文件描述符:源端IP、源端端口、目标端IP、目标端端口、协议）组成
-tcp/ip中的发起第一次和服务端握手，体现在api中的connect是发起连接，第二次和第三次握手都是在网络协议栈中完成，其中服务端的api 中的accept完成</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-20
           </div>
         
         

@@ -17,7 +17,7 @@
   <meta name="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
   <meta name="author" content="perrynzhou">
   <meta name="keywords" content="C, Go, nginx,glusterfs,redis">
-  <title>操作系统-用户接口篇 - perrynzhou</title>
+  <title>nginx 如何worker进程的请求处理的负载均衡 - perrynzhou</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,8 +152,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-06-28 19:35">
-      2020年6月28日 晚上
+    <time datetime="2020-06-30 18:05">
+      2020年6月30日 晚上
     </time>
   </div>
 
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      639 字
+      483 字
     </span>
   
 
@@ -204,31 +204,82 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h3 id="操作系统-用户接口篇"><a href="#操作系统-用户接口篇" class="headerlink" title="操作系统-用户接口篇"></a>操作系统-用户接口篇</h3><h4 id="用户接口"><a href="#用户接口" class="headerlink" title="用户接口"></a>用户接口</h4><ul>
-<li>为了方便用户使用计算机系同，操作系统向用户提供了直接使用计算系统的手段，这个就叫做用户接口</li>
+              <h3 id="nginx-如何worker进程的请求处理的负载均衡"><a href="#nginx-如何worker进程的请求处理的负载均衡" class="headerlink" title="nginx 如何worker进程的请求处理的负载均衡"></a>nginx 如何worker进程的请求处理的负载均衡</h3><ul>
+<li>nginx 自身实现避免了进群效应，每一个请求上来仅仅只会有一个worker_process处理，nginx 作为静态资源服务器，最大请求连接数为:worker_process * connections；如果作为反向代理，则支撑的最大连接数为worker_process * conenctions/2,因为反向代理需要连接后端的服务，同时也会连接前端请求的。那nginx如何做到请求处理的负载均衡？</li>
 </ul>
-<h4 id="接口类型"><a href="#接口类型" class="headerlink" title="接口类型"></a>接口类型</h4><ul>
-<li>交互接口:用户提供各种命令控制界面，用户利用这些操作命令来阻止和控制程序的执行或者管理计算机系统，经典的实现有linux shell</li>
-<li>程序接口：编程人员在程序中通过程序接口来请求操作系统的提供服务</li>
+<ul>
+<li>nginx 核心逻辑调试</li>
 </ul>
-<h4 id="程序接口"><a href="#程序接口" class="headerlink" title="程序接口"></a>程序接口</h4><h5 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h5><ul>
-<li>程序接口用于在程序和系统资源以及系统服务之间实现交互的作用，而为了保证系统的安全行，系统提供了若干系统调用（system call）来实现用户程序和内核的交互，因此，系统调用是操作系统为编程人员提供唯一的程序接口。</li>
+<pre><code class="hljs delphi">$ ./configure --<span class="hljs-keyword">with</span>-debug --<span class="hljs-keyword">with</span>-cc-opt=<span class="hljs-string">'-g -O0'</span> --prefix=/usr/<span class="hljs-keyword">local</span>/nginx
+$ make -j4
+$ make install
+
+<span class="hljs-comment">//在配置文件中添加调试配置</span>
+daemon off;
+master_process off;</code></pre>
+<ul>
+<li>ngx_worker_process_cycle是每个worker进程核心执行的函数，所有的请求处理都是通过这个函数入口进行<pre><code class="hljs reasonml">
+static void
+ngx<span class="hljs-constructor">_worker_process_cycle(<span class="hljs-params">ngx_cycle_t</span> <span class="hljs-operator">*</span><span class="hljs-params">cycle</span>, <span class="hljs-params">void</span> <span class="hljs-operator">*</span><span class="hljs-params">data</span>)</span>
+&#123;
+	ngx<span class="hljs-constructor">_worker_process_init(<span class="hljs-params">cycle</span>, <span class="hljs-params">worker</span>)</span>;
+	for ( ;; ) &#123;
+	        ngx<span class="hljs-constructor">_process_events_and_timers(<span class="hljs-params">cycle</span>)</span>;
+	&#125;
+&#125;</code></pre></li>
+<li>ngx_process_events_and_timers是接受客户请求的函数</li>
 </ul>
-<h5 id="一般函数和系统调用区别"><a href="#一般函数和系统调用区别" class="headerlink" title="一般函数和系统调用区别"></a>一般函数和系统调用区别</h5><ul>
-<li>运行在不同系统状态，一般函数调用运行于用户态，而系统调用运行于内核态</li>
-<li>系统调用通过软中断进入，一般的函数调用不涉及软中断，不涉及系统状态的转换；运行系统调用时候，由于调用程序和被调用程序处于不同的系统状态，因此不允许由调用程序直接转向被调用程序，通常是通过软中断机制，先由用户态转换内核态，在转向相应的中断处理子程序。</li>
+<pre><code class="hljs reasonml">void
+ngx<span class="hljs-constructor">_process_events_and_timers(<span class="hljs-params">ngx_cycle_t</span> <span class="hljs-operator">*</span><span class="hljs-params">cycle</span>)</span>
+&#123;
+   <span class="hljs-keyword">if</span> (ngx_use_accept_mutex) &#123;
+        <span class="hljs-keyword">if</span> (ngx_accept_disabled &gt; <span class="hljs-number">0</span>) &#123;
+            ngx_accept_disabled--;
+
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">if</span> (ngx<span class="hljs-constructor">_trylock_accept_mutex(<span class="hljs-params">cycle</span>)</span><span class="hljs-operator"> == </span>NGX_ERROR) &#123;
+                return;
+            &#125;
+      &#125;
+      <span class="hljs-comment">//这里ngx_process_events宏定义的是ngx_epoll_process_events函数</span>
+       (void) ngx<span class="hljs-constructor">_process_events(<span class="hljs-params">cycle</span>, <span class="hljs-params">timer</span>, <span class="hljs-params">flags</span>)</span>;
+&#125;</code></pre>
+
+<ul>
+<li>ngx_epoll_process_events 通过多层次的请求最终函数调用会落在ngx_event_accept，最终处理来自客户端的请求</li>
 </ul>
-<h5 id="系统调用类型"><a href="#系统调用类型" class="headerlink" title="系统调用类型"></a>系统调用类型</h5><ul>
-<li>设备管理:用来请求和释放有关设备以及启动设备的操作</li>
-<li>文件管理:文件的读、写、创建、删除等操作</li>
-<li>进程控制:进程的创建、进程执行、进程等待、进程撤销、进程优先级等操作</li>
-<li>进程通信：进程之间的传递消息或者信号</li>
-<li>内存管理：内存的相关操作</li>
-</ul>
-<h5 id="系统调用处理过程"><a href="#系统调用处理过程" class="headerlink" title="系统调用处理过程"></a>系统调用处理过程</h5><ul>
-<li>保护进程的现场，这里也叫上下文，系统发生陷入终端时候，需要把当前进程的状态保存起来，才能切换到目标进程的执行状态，这些上下文保存在寄存器中</li>
-<li>取得系统调用号并转入相应的处理程序，系统中配置了一个系统调用号和处理子程序的入口地址</li>
-<li>返回，在系统调用结束之后，陷入处理还要恢复处理机现场</li>
+<pre><code class="hljs arduino"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">ngx_int_t</span> <span class="hljs-title">ngx_epoll_process_events</span><span class="hljs-params">(<span class="hljs-keyword">ngx_cycle_t</span> *cycle, <span class="hljs-keyword">ngx_msec_t</span> timer, <span class="hljs-keyword">ngx_uint_t</span> flags)</span></span>
+<span class="hljs-function"></span>&#123;
+	 events = epoll_wait(ep, event_list, (<span class="hljs-keyword">int</span>) nevents, timer);
+	   <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; events; i++) &#123;
+        c = event_list[i].data.ptr;
+
+        instance = (<span class="hljs-keyword">uintptr_t</span>) c &amp; <span class="hljs-number">1</span>;
+        c = (<span class="hljs-keyword">ngx_connection_t</span> *) ((<span class="hljs-keyword">uintptr_t</span>) c &amp; (<span class="hljs-keyword">uintptr_t</span>) ~<span class="hljs-number">1</span>);
+
+        rev = c-&gt;<span class="hljs-built_in">read</span>;
+        <span class="hljs-comment">//(gdb) p rev-&gt;handler</span>
+		<span class="hljs-comment">//$3 = (ngx_event_handler_pt) 0x5555555cb7f6 &lt;ngx_http_wait_request_handler&gt;</span>
+         rev-&gt;handler(rev);
+        &#125;
+	
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">ngx_event_accept</span><span class="hljs-params">(<span class="hljs-keyword">ngx_event_t</span> *ev)</span></span>
+<span class="hljs-function"></span>&#123;
+  ngx_accept_disabled = ngx_cycle-&gt;connection_n / <span class="hljs-number">8</span>- ngx_cycle-&gt;free_connection_n;
+    <span class="hljs-keyword">ngx_listening_t</span>   *ls;
+    <span class="hljs-comment">/*</span>
+<span class="hljs-comment">	(gdb) p ls-&gt;handler</span>
+<span class="hljs-comment">	$5 = (ngx_connection_handler_pt) 0x5555555cb32d </span>
+<span class="hljs-comment">	&lt;ngx_http_init_connection&gt;</span>
+<span class="hljs-comment">	*/</span>
+    ls-&gt;handler(c);
+
+&#125;</code></pre>
+
+<ul>
+<li>nginx 通过ngx_accept_disabled来协调当前worker是否应该接受处理来自客户端请求吗，在ngx_event_accept中，设置ngx_accept_disabled为当前worker进程的连接数的1/8 减去当前空间连接，这个ngx_accept_disabled越大，空闲连接就越小，说明当前worker进程比较繁忙，让出请求处理的特权，其他的worker可以去处理。</li>
 </ul>
 
             </article>
@@ -240,7 +291,7 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/system-operation-interface/">system-operation interface</a>
+                      <a class="hover-with-bg" href="/tags/nginx-%E8%BF%9B%E7%A8%8B%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">nginx 进程请求处理 负载均衡</a>
                     
                   </div>
                 
@@ -253,18 +304,12 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/2020/06/30/nginx-%E5%A6%82%E4%BD%95worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">nginx 如何worker进程的请求处理的负载均衡</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2020/06/28/nginx-%E7%9A%84worker-process/">
-                        <span class="hidden-mobile">nginx 的worker_process</span>
+                      <a href="/2020/06/28/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E7%94%A8%E6%88%B7%E6%8E%A5%E5%8F%A3%E7%AF%87/">
+                        <span class="hidden-mobile">操作系统-用户接口篇</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -429,7 +474,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "操作系统-用户接口篇&nbsp;",
+        "nginx 如何worker进程的请求处理的负载均衡&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,
