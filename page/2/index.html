@@ -168,6 +168,39 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/06/22/linux-%E9%94%81/"> linux 锁</a>
+
+      <a href="/2020/06/22/linux-%E9%94%81/" class="index-excerpt">
+        
+        
+          
+        
+        <div>linux 锁linux中有哪几种临界资源访问保护机制
+互斥锁:核心以pthread_mutex_t为核心
+自旋锁:核心以pthread_spinlock_t为核心
+原子操作:自定义C函数封装汇编
+
+各种临界资源保护机制的用法
+pthread_t :在多线程情况下,线程会切换，但是某个线程方法进入以pthread_mutex_t加锁的临界资源
+pthread_spinlock_t:多线程情况下，不</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-22
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/06/20/tcp-ip-%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B/">tcp/ip 三次握手</a>
 
       <a href="/2020/06/20/tcp-ip-%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B/" class="index-excerpt">
@@ -443,36 +476,6 @@ CentOS Linux r</div>
 [root@szdpl1491 ~]# gluster pool list
 UUID                                    Hostname        State
 bde7b9e2-af2a-419e-8242-6a8f8e18bb8a </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-21
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/21/%E5%AE%89%E8%A3%85glusterfs%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC/">安装glusterfs指定版本</a>
-
-      <a href="/2020/04/21/%E5%AE%89%E8%A3%85glusterfs%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC/" class="index-excerpt">
-        
-        
-          
-        
-        <div>1.glusterfs7 repo源
-添加此源到/etc/yum.repo.d/glusterfs.repo中[centos-gluster7]
-gpgcheck = 0
-mirrorlist = http://mirrorlist.centos.org?arch=$basearch&amp;release=$releasever&amp;repo=storage-gluster-7
-name =</div>
       </a>
 
       <div class="index-btm post-metas">

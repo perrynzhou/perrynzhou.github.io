@@ -168,6 +168,44 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/07/02/Linux%E7%BD%91%E7%BB%9C%E5%86%85%E6%A0%B8%E6%A6%82%E8%BF%B0/">Linux网络内核概述</a>
+
+      <a href="/2020/07/02/Linux%E7%BD%91%E7%BB%9C%E5%86%85%E6%A0%B8%E6%A6%82%E8%BF%B0/" class="index-excerpt">
+        
+        
+          
+        
+        <div>Linux网络内核概述Linux网络栈
+物理层(L1)：提供电信号和一些底层细节
+数据链路层(L2)：处理端点间的数据传输，最常见的数据链层的标准是以太网，Linux以太网设备驱动运行在这一层
+网络层(L3)：负责数据包转发和主机编址，Linux内核网络子系统中最常用的是IPv4和IPv6协议
+传输层(L4): 完成节点间的数据发送，TCP和UDP是最常见的网络协议
+应用层：应用层协议，比如htt</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-02
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE%E6%A0%88-kernel/">网络协议栈 kernel</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/06/30/nginx-%E5%A6%82%E4%BD%95worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">nginx 如何worker进程的请求处理的负载均衡</a>
 
       <a href="/2020/06/30/nginx-%E5%A6%82%E4%BD%95worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="index-excerpt">
@@ -475,39 +513,6 @@ nginx 是一款web服务器，类似的产品还有apachenginx 能做什么？
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>&nbsp;2020-06-23
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/06/22/linux-%E9%94%81/"> linux 锁</a>
-
-      <a href="/2020/06/22/linux-%E9%94%81/" class="index-excerpt">
-        
-        
-          
-        
-        <div>linux 锁linux中有哪几种临界资源访问保护机制
-互斥锁:核心以pthread_mutex_t为核心
-自旋锁:核心以pthread_spinlock_t为核心
-原子操作:自定义C函数封装汇编
-
-各种临界资源保护机制的用法
-pthread_t :在多线程情况下,线程会切换，但是某个线程方法进入以pthread_mutex_t加锁的临界资源
-pthread_spinlock_t:多线程情况下，不</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-22
           </div>
         
         

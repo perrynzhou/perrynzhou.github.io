@@ -17,7 +17,7 @@
   <meta name="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
   <meta name="author" content="perrynzhou">
   <meta name="keywords" content="C, Go, nginx,glusterfs,redis">
-  <title>perrynzhou</title>
+  <title>标签 - 网络协议栈 kernel - perrynzhou</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -42,7 +42,7 @@
 
 
 <body>
-  <header style="height: 100vh;">
+  <header style="height: 80vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand"
@@ -143,10 +143,6 @@
           </div>
 
           
-            <div class="scroll-down-bar">
-              <i class="iconfont icon-arrowdown"></i>
-            </div>
-          
         </div>
       </div>
     </div>
@@ -156,220 +152,27 @@
     
       <div class="container nopadding-md">
         <div class="py-5" id="board"
-          style=margin-top:0>
+          >
           
           <div class="container">
             <div class="row">
               <div class="col-12 col-md-10 m-auto">
                 
 
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/15/glusterfs%E5%B0%8F%E6%96%87%E4%BB%B6%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/">glusterfs小文件调优指南</a>
-
-      <a href="/2020/04/15/glusterfs%E5%B0%8F%E6%96%87%E4%BB%B6%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/" class="index-excerpt">
-        
-        
-          
-        
-        <div>glusterfs 小文件调优指南获取glusterfs参数说明和默认值
-glusterfs获取所有可用参数
-# gluster volume set help
-获取指定参数
-# gluster volume set help|grep "cache-min-file-size" -A7
-glusterfs volume调优参数
-1.目录操作性能
-Option: performance.readd</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-15
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/14/%E4%BD%BF%E7%94%A8-Intel-Open-Cas%E5%8A%A0%E9%80%9Fglusterfs/">使用 Intel Open Cas加速glusterfs</a>
-
-      <a href="/2020/04/14/%E4%BD%BF%E7%94%A8-Intel-Open-Cas%E5%8A%A0%E9%80%9Fglusterfs/" class="index-excerpt">
-        
-        
-          
-        
-        <div>Open Cas 架构概览
-数据从HDD盘读取然后拷贝到open cas 的cache中，后续数据读取都是从内存读取，提高读写效率。
-
-在write-through模式，所有的数据都是同步刷新到open cas的ssd和后端hdd硬盘中。
-
-在write-back模式中，所有数据同步写入open cas的ssd中，然后异步刷新到HDD中。
-
-open cas 缓存满后，采用open cas的淘汰算</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-14
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/">glusterfs and opencas issue列表</a>
-
-      <a href="/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/" class="index-excerpt">
-        
-        
-          
-        
-        <div>issue 列表
-1.glusterfsd crash due to health-check failed, going down ,system call errorno not returnhttps://github.com/gluster/glusterfs/issues/1168
-2.glusterfsd memory leak killed by os #1166https://gi</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-14
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/">glusterfs cluster.read-hash-mode的作用</a>
-
-      <a href="/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/" class="index-excerpt">
-        
-        
-          
-        
-        <div>1.官方解释[root@centos-linux ~]$ gluster volume set help|grep read-hash-mode -A7
-Option: cluster.read-hash-mode
-Default Value: 1
-Description: inode-read fops happen only on one of the bricks in replicate.</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-14
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/14/glusterfs-%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%9E%84%E5%BB%BA/">glusterfs 调试环境构建</a>
-
-      <a href="/2020/04/14/glusterfs-%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%9E%84%E5%BB%BA/" class="index-excerpt">
-        
-        
-          
-        
-        <div>Debug GlusterfsDownload source# git clone https://github.com/gluster/glusterfs.git
-
-
-
-Install Deps
-centos7 # yum install autoconf automake bison cmockery2-devel dos2unix flex fuse-devel glib2-devel li</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-14
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/14/glusterfs-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/">glusterfs 参数说明</a>
-
-      <a href="/2020/04/14/glusterfs-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E/" class="index-excerpt">
-        
-        
-          
-        
-        <div>选项说明$ gluster volume set help
-
-
-
-
-选项
-默认值
-说明
-
-
-
-changelog.changelog-barrier-timeout
-120
-After ‘timeout’ seconds since the time ‘barrier’ option was set to “on”, unlink/rmdir/rename operations are no lo</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-14
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-
-
-  <nav aria-label="navigation">
-    <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/4/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
-    </span>
-  </nav>
+<div class="list-group">
+  <p class="h4">共计 1 篇文章</p>
+  <hr>
   
-  <script>
-    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
-      ele.href += '#board';
-    }
-  </script>
+    
+      
+      <p class="h5">2020</p>
+    
+    <a href="/2020/07/02/Linux%E7%BD%91%E7%BB%9C%E5%86%85%E6%A0%B8%E6%A6%82%E8%BF%B0/" class="list-group-item list-group-item-action">
+      <span class="archive-post-title">Linux网络内核概述</span>
+      <span style="float: right;">07-02</span>
+    </a>
+  
+</div>
 
 
 
@@ -488,7 +291,7 @@ After ‘timeout’ seconds since the time ‘barrier’ option was set to “on
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "Welcome To PerrynZhou World&nbsp;",
+        "标签 - 网络协议栈 kernel&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,
