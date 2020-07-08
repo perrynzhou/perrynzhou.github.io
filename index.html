@@ -168,6 +168,47 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/07/08/%E5%AE%B9%E5%99%A8%E4%BA%8C%E5%B1%82%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/">容器二层网络分析</a>
+
+      <a href="/2020/07/08/%E5%AE%B9%E5%99%A8%E4%BA%8C%E5%B1%82%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/" class="index-excerpt">
+        
+        
+          
+        
+        <div>容器二层网络分析特点
+容器IP和节点IP在同一个网段
+二层协议通过ARP广播找到对方mac地址进行通信
+
+基本环境
+物理节点上会有一个虚拟网卡对(veth-pair)、虚拟网桥。虚拟网卡对，一个在容器内(veth0),另外一个虚拟网卡(veth1)在物理节点的连接虚拟网桥上的veth1.
+contain1的ip和node1的IP是同一个网段的
+container1的默认网关是node1的IP地址
+</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-07-08
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/network-docker/">network docker</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/07/02/Linux%E7%BD%91%E7%BB%9C%E5%86%85%E6%A0%B8%E6%A6%82%E8%BF%B0/">Linux网络内核概述</a>
 
       <a href="/2020/07/02/Linux%E7%BD%91%E7%BB%9C%E5%86%85%E6%A0%B8%E6%A6%82%E8%BF%B0/" class="index-excerpt">
@@ -482,37 +523,6 @@ nginx 是一款web服务器，类似的产品还有apachenginx 能做什么？
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>&nbsp;2020-06-24
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/">epoll中的惊群效应</a>
-
-      <a href="/2020/06/23/epoll%E4%B8%AD%E7%9A%84%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94/" class="index-excerpt">
-        
-        
-          
-        
-        <div>多进程(使用epoll/select/poll)监听同一个端口的惊群效应解决方案1.什么是惊群效应?
-
-多个进程(A、B、C、D的worker进程)使用epoll/poll/select等函数监听同一个端口时候，当有一个TCP请求连接到该端口时候，A、B、C、D进程会被同时唤醒，但是仅仅有一个进程会accept接受来自客户端的连接，其他的进程则会挂起。
-
-
-举个例子，假设你去银行柜台取钱，银行有4</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-23
           </div>
         
         
