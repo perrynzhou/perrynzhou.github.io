@@ -215,7 +215,7 @@
 <li>两个节点之间是二层的交换机，通过ARP广播进行通信</li>
 <li>容器启动时候，会在容器内设置该节点的mac地址</li>
 </ul>
-<h4 id="通信过程"><a href="#通信过程" class="headerlink" title="通信过程"></a>通信过程</h4><p><img src="/2020/07/08/%E5%AE%B9%E5%99%A8%E4%BA%8C%E5%B1%82%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/%E4%BA%8C%E5%B1%82%E7%BD%91%E7%BB%9C.png" srcset="/img/loading.gif" alt></p>
+<h4 id="通信过程"><a href="#通信过程" class="headerlink" title="通信过程"></a>通信过程</h4><p><img src="/2020/07/08/%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/%E4%BA%8C%E5%B1%82%E7%BD%91%E7%BB%9C.png" srcset="/img/loading.gif" alt></p>
 <ul>
 <li>container-1和container-2进行通信，首先container-1的发起ARP广播，因为container-1是默认网关是node-1,container-1通过虚拟网桥把数据包发到了node-1上</li>
 <li>node-1 发现container-1 的目标IP不是自己的IP地址(这里涉及到了netfileter,这个模块是iptables的基础)container-1的目标IP是container-2的IP，在同一个网段可是认为是局域网，但是container-1的目标IP是容器，没有直接连接二层交换机。于是node-1进行ARP广播，询问谁是192.168.1.102,node-2接受到广播，发现不是自己的，node-2不会应答。但是node-2上有一个container-2的容器的IP却是192.168.1.102.</li>
@@ -231,7 +231,7 @@
 <li>容器IP和节点IP在不同网段</li>
 <li>三层协议通过IP层寻找对方节点,大部分基于BGP协议来做，BGP协议就是一个同步路由规则的广播协议</li>
 </ul>
-<h4 id="通信过程-1"><a href="#通信过程-1" class="headerlink" title="通信过程"></a>通信过程</h4><p><img src="/2020/07/08/%E5%AE%B9%E5%99%A8%E4%BA%8C%E5%B1%82%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/%E4%B8%89%E5%B1%82%E7%BD%91%E7%BB%9C.png" srcset="/img/loading.gif" alt></p>
+<h4 id="通信过程-1"><a href="#通信过程-1" class="headerlink" title="通信过程"></a>通信过程</h4><p><img src="/2020/07/08/%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/%E4%B8%89%E5%B1%82%E7%BD%91%E7%BB%9C.png" srcset="/img/loading.gif" alt></p>
 <ul>
 <li>container-1发送数据到容器的默认网关(node-1的IP)，node-1会收到数据包，此时经过netfilter模块。</li>
 <li>此时calico bgp会下发一条理由规则，凡是发送container-2的IP数据包，通过某个网卡(eth0)发往一个网关(网关地址是node-2的IP)，例如：172.138.1.102 –eth0 –&gt;192.168.1.202 ,这样的规则</li>
