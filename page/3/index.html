@@ -168,6 +168,53 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/05/05/lustre-2-13%E9%83%A8%E7%BD%B2/">lustre-2.13部署</a>
+
+      <a href="/2020/05/05/lustre-2-13%E9%83%A8%E7%BD%B2/" class="index-excerpt">
+        
+        
+          
+        
+        <div>chapter 1.lustre部署0.节点信息
+
+
+node
+role
+
+
+
+centos1(mgs_node/mds_node)
+mgs/mds
+
+
+centos2(oss_node)
+oss
+
+
+centos3(client_node)
+client
+
+
+1.kernel版本信息[root@CentOS1 ~]# cat /etc/redhat-release 
+CentOS Linux r</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-05-05
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/04/21/glusterfs%E9%9B%86%E7%BE%A4glusterd%E6%98%BE%E7%A4%BADisconnect%E7%8A%B6%E6%80%81%E5%AF%BC%E8%87%B4%E9%9B%86%E7%BE%A4IO%E8%AF%B7%E6%B1%82%E5%8F%98%E6%85%A2/">glusterfs集群glusterd显示Disconnect状态导致集群IO请求变慢</a>
 
       <a href="/2020/04/21/glusterfs%E9%9B%86%E7%BE%A4glusterd%E6%98%BE%E7%A4%BADisconnect%E7%8A%B6%E6%80%81%E5%AF%BC%E8%87%B4%E9%9B%86%E7%BE%A4IO%E8%AF%B7%E6%B1%82%E5%8F%98%E6%85%A2/" class="index-excerpt">
@@ -436,37 +483,6 @@ if (aeCreateTimeEvent(server.el, 1, serverCron, NULL, NULL) == AE_ERR) &#</div>
         
         <div>fork 系统调用Description
 fork()  creates  a  new process by duplicating the calling process.  The new process, referred to as the child, is an exact duplicate of the calling process代码例子/******************</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-16
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">glusterfsd启动过程</a>
-
-      <a href="/2020/04/16/glusterfsd%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" class="index-excerpt">
-        
-        
-          
-        
-        <div>0.存在的疑惑
-glusterd启动后怎么把glusterfsd的brick进程拉起来？
-glusterfsd启动的参数从哪里获取？
-glusterfsd如何加载的呢？
-glusterfsd和glusterd启动后各自都是什么角色？(后续再讨论)1. glusterfs的入口函数解释
-glusterfsd中main方法加载xlator {name = 0x687dd0 “management”, </div>
       </a>
 
       <div class="index-btm post-metas">
