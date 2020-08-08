@@ -17,7 +17,7 @@
   <meta name="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
   <meta name="author" content="perrynzhou">
   <meta name="keywords" content="C, Go, nginx,glusterfs,redis">
-  <title>nginx内存池实现和分析 - perrynzhou</title>
+  <title>memcached线程模型分析 - perrynzhou</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,8 +152,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-08-06 09:44">
-      2020年8月6日 上午
+    <time datetime="2020-08-08 15:22">
+      2020年8月8日 下午
     </time>
   </div>
 
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      328 字
+      1.2k 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      3
+      15
        分钟
     </span>
   
@@ -204,55 +204,108 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><ul>
-<li>目的是分析nginx的内存池模块，了解内存池相关知识</li>
-<li>nginx为什么要这样设计内存池</li>
-</ul>
-<h3 id="基本数据结构介绍"><a href="#基本数据结构介绍" class="headerlink" title="基本数据结构介绍"></a>基本数据结构介绍</h3><ul>
-<li>ngx_pool_s:nginx的内存池结构，定义如下<pre><code class="hljs arduino"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ngx_pool_s</span> &#123;</span>
-    <span class="hljs-comment">//d:保存可用内存地址信息</span>
-    <span class="hljs-keyword">ngx_pool_data_t</span>       d;
-    <span class="hljs-comment">//max:申请大块的的基本条件是申请大小超过max</span>
-    <span class="hljs-keyword">size_t</span>                <span class="hljs-built_in">max</span>;
-    <span class="hljs-comment">//current：指向当前内存池结构，初始化时候指向它自己</span>
-    <span class="hljs-keyword">ngx_pool_t</span>           *current;
-    <span class="hljs-keyword">ngx_chain_t</span>          *chain;
-    <span class="hljs-comment">//large:表示大块内存，通过单向链表表示</span>
-    <span class="hljs-keyword">ngx_pool_large_t</span>     *large;
-    <span class="hljs-keyword">ngx_pool_cleanup_t</span>   *cleanup;
-    <span class="hljs-keyword">ngx_log_t</span>            *<span class="hljs-built_in">log</span>;
-&#125;;</code></pre></li>
-<li>ngx_pool_data_t：存储内存小于(4k-1)的内存块，其结构定义如下</li>
-</ul>
-<pre><code class="hljs arduino"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span>
-    <span class="hljs-comment">//可用内存的开始地址</span>
-    u_char               *last;
-    <span class="hljs-comment">//可用内存的末尾地址</span>
-    u_char               *<span class="hljs-built_in">end</span>;
-    <span class="hljs-comment">//指向下一个内存pool</span>
-    <span class="hljs-keyword">ngx_pool_t</span>           *next;
-    <span class="hljs-keyword">ngx_uint_t</span>            failed;
-&#125; <span class="hljs-keyword">ngx_pool_data_t</span>;</code></pre>
-
-
-
+              <h3 id="memcached-有几种类型的线程"><a href="#memcached-有几种类型的线程" class="headerlink" title="memcached 有几种类型的线程?"></a>memcached 有几种类型的线程?</h3><p>memcached有2类线程，一类是main线程，一类是worker线程，main线程负责监听listenfd放到main_base中进行监听，一旦listenfd中有IO时间,也就是有新的连接进来，则转发通过dispatch_conn_new函数初始化一个CQ_ITEM，把对应的clientfd封装在CQ_ITEM中，同时把item放到线程的CQ_ITEM队列中，然后写入标记数据到线程的notify_send_fd中，worker线程则是监听工作线程中的notify_recv_fd中的IO事件，根据读取到的标记数据来初始化一个新连接，接着处理这个链接，释放CQ_ITEM</p>
+<h3 id="memcached中工作线程如何和main线程交互的"><a href="#memcached中工作线程如何和main线程交互的" class="headerlink" title="memcached中工作线程如何和main线程交互的"></a>memcached中工作线程如何和main线程交互的</h3><p>工作线程会有一个管道来实现和main线程进行通信的，工作线程通过pipe系统调用初始化一对FD。</p>
 <ul>
-<li>ngx_pool_large_s：存储内存超过(4k-1)字节的内存块,其结构定义如下</li>
+<li>memcached中的工作线程的结构<pre><code class="hljs cpp"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span>
+	<span class="hljs-keyword">pthread_t</span> thread_id;        <span class="hljs-comment">/* 工作线程ID*/</span>
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">event_base</span> *<span class="hljs-title">base</span>;</span>    <span class="hljs-comment">/* libevent的句柄 */</span>
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">event</span> <span class="hljs-title">notify_event</span>;</span>  <span class="hljs-comment">/* listen event */</span>
+	<span class="hljs-keyword">int</span> notify_receive_fd;      <span class="hljs-comment">/* 客户端线程监听这个套接字接受来自服务端通知，比如新连接 */</span>
+	<span class="hljs-keyword">int</span> notify_send_fd;         <span class="hljs-comment">/* 主线程有消息，会往这个fd中进行写入数据 */</span>
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">thread_stats</span> <span class="hljs-title">stats</span>;</span>  <span class="hljs-comment">/* 线程的状态 */</span>
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">conn_queue</span> *<span class="hljs-title">new_conn_queue</span>;</span> <span class="hljs-comment">/* 该队列存储CQ_ITEM把服务端接受到的客户端fd状态为CQ_ITEM，放到这个队列中 */</span>
+	<span class="hljs-keyword">cache_t</span> *resp_cache;        <span class="hljs-comment">/* response objects */</span>
+	<span class="hljs-keyword">cache_t</span> *rbuf_cache;        <span class="hljs-comment">/* static-sized read buffers */</span>
+	<span class="hljs-keyword">cache_t</span> *io_cache;          <span class="hljs-comment">/* IO objects */</span>
+	<span class="hljs-keyword">void</span> *storage;              <span class="hljs-comment">/* data object for storage system */</span>
+	logger *l;                  <span class="hljs-comment">/* logger buffer */</span>
+	<span class="hljs-keyword">void</span> *lru_bump_buf;         <span class="hljs-comment">/* async LRU bump buffer */</span>
+	<span class="hljs-keyword">char</span>   *ssl_wbuf;
+&#125; LIBEVENT_THREAD;</code></pre></li>
+<li>memcached的工作线程的初始化函数<pre><code class="hljs awk">	<span class="hljs-regexp">//m</span>emcached的工作线程的初始化函数
+	void memcached_thread_init(int nthreads, void *arg) &#123;
+	<span class="hljs-regexp">//</span>每个工作线程的初始化
+		threads = calloc(nthreads, sizeof(LIBEVENT_THREAD));
+		<span class="hljs-keyword">if</span> (! threads) &#123;
+	    perror(<span class="hljs-string">"Can't allocate thread descriptors"</span>);
+	    <span class="hljs-keyword">exit</span>(<span class="hljs-number">1</span>);
+		&#125;
+	
+		<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; nthreads; i++) &#123;
+	    	int fds[<span class="hljs-number">2</span>];
+	    	<span class="hljs-keyword">if</span> (pipe(fds)) &#123;
+	        perror(<span class="hljs-string">"Can't create notify pipe"</span>);
+	        <span class="hljs-keyword">exit</span>(<span class="hljs-number">1</span>);
+	    	&#125;
+	    <span class="hljs-regexp">//</span>当有新连接时候，主线程会选择性的写数据到线程的notify_send_fd，然后工作线程在从notify_receive_fd读取数据，然后取出连接开始处理
+			<span class="hljs-regexp">//</span>工作线程从notify_receive_fd读取数据
+	    threads[i].notify_receive_fd = fds[<span class="hljs-number">0</span>];
+		<span class="hljs-regexp">//</span>主线程从notify_send_fd写入数据
+	    threads[i].notify_send_fd = fds[<span class="hljs-number">1</span>];
+		<span class="hljs-regexp">//</span>设置每个线程中event监听notify_receive_fd中的数据
+	    setup_thread(&amp;threads[i]);
+	    <span class="hljs-regexp">/* Reserve three fds for the libevent base, and two for the pipe */</span>
+	    stats_state.reserved_fds += <span class="hljs-number">5</span>;
+	&#125;
+	
+	<span class="hljs-regexp">/* Create threads after we've done all the libevent setup. */</span>
+	<span class="hljs-regexp">//</span>启动每个工作线程,每个线程执行event_base_loop
+	<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; nthreads; i++) &#123;
+	    create_worker(worker_libevent, &amp;threads[i]);
+	&#125;
+&#125;</code></pre>
+
+</li>
 </ul>
-<pre><code class="hljs cpp"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ngx_pool_large_s</span> &#123;</span>
-    <span class="hljs-keyword">ngx_pool_large_t</span>     *next;
-    <span class="hljs-keyword">void</span>                 *alloc;
-&#125;;</code></pre>
-<h3 id="基本函数介绍"><a href="#基本函数介绍" class="headerlink" title="基本函数介绍"></a>基本函数介绍</h3><ul>
-<li>ngx_create_pool:nginx的内存池创建</li>
-<li>ngx_destroy_pool:销毁一个内存池</li>
-<li>ngx_reset_pool:重置一个内存池中的小块内存，同时释放大块内存</li>
-<li>ngx_palloc:通过系统调用函数申请内存</li>
-<li>ngx_pnalloc:从内存池中申请内存</li>
-<li>ngx_pmemalign:按照对齐方式方式申请large结构体内存</li>
-<li>ngx_pfree:释放大块内存</li>
+<h3 id="memcached主线程如何初始化服务端的socket"><a href="#memcached主线程如何初始化服务端的socket" class="headerlink" title="memcached主线程如何初始化服务端的socket?"></a>memcached主线程如何初始化服务端的socket?</h3><p>在这里我们需要大概了解下main函数的执行逻辑前基本介绍全局的数据结构如下：</p>
+<ul>
+<li><p>listen_conn:全局的监听套接字的连接</p>
+</li>
+<li><p>max_fds:默认最大支持的连接数</p>
+</li>
+<li><p>main_base:主线程的libevent的核心结构体</p>
+</li>
+<li><p>conns:全局的连接数组，类型是conn指针类型</p>
+</li>
+<li><p>基本的执行逻辑如下</p>
+  <pre><code class="hljs reasonml"><span class="hljs-comment">//函数入口，在memcached的入口</span>
+main 
+<span class="hljs-comment">//初始化全局的conns,max_fds = settings.maxconns + headroom + next_fd;</span>
+conn<span class="hljs-constructor">_init()</span>;
+<span class="hljs-comment">//main线程的event初始化</span>
+main_base = event<span class="hljs-constructor">_init()</span>;
+<span class="hljs-comment">//和server_socket类型，不同的仅仅是制定网卡绑定</span>
+server_sockets 
+	<span class="hljs-comment">//main线程通过socket/bind/listen来初始化listen_conn，设置该连接的类型，listen_conn中的sfd放到main_base监听</span>
+	server_socket 
+		<span class="hljs-comment">//根据sfd初始化一个conn放到main_base中，设置回函数event_handler</span>
+		conn_new 
+<span class="hljs-comment">//初始化工作线程</span>
+memcached_thread_init 
+	<span class="hljs-comment">//设置工作线程，把notify_receive_fd放到工作线程的event_base中监听</span>
+	setup_thread 
+		<span class="hljs-comment">//设置notify_receive_fd中IO事件处理函数</span>
+		thread_libevent_process 
+	<span class="hljs-comment">//启动单独线程开始监听notify_receive_fd的IO时间</span>
+	worker_libevent 
+event_base_loop
+event_base_free</code></pre>
+
+</li>
 </ul>
-<h3 id="内存池函数注释"><a href="#内存池函数注释" class="headerlink" title="内存池函数注释"></a>内存池函数注释</h3><p><a href="https://github.com/perrynzhou/nginx-1.19.1-reading-note/blob/perryn/dev/nginx-1.19.1/src/core/ngx_palloc.h" target="_blank" rel="noopener">ngx_palloc.h</a><br><a href="https://github.com/perrynzhou/nginx-1.19.1-reading-note/blob/perryn/dev/nginx-1.19.1/src/core/ngx_palloc.c" target="_blank" rel="noopener">ngx_palloc.c</a></p>
+<h3 id="memcached主线程如何处理一个新来的连接"><a href="#memcached主线程如何处理一个新来的连接" class="headerlink" title="memcached主线程如何处理一个新来的连接"></a>memcached主线程如何处理一个新来的连接</h3><ul>
+<li>服务端的socket(listenfd)监听套接字封装成conn,设置该连接状态为conn_listening，放到main_base中，一旦有listenfd有事件，event_handler就会被触发，则调用drive_machine函数接受客户单请求套接字<pre><code class="hljs 1c"><span class="hljs-comment">//针对main线程，把服务端的listenfd放到main_base中，针对工作线程则注册</span>
+event_handler notify_receive_fd注册到event_base中
+	drive_machine <span class="hljs-comment">//接受来自客户端IO请求，这是最重要的函数</span>
+		dispatch_conn_new <span class="hljs-comment">//把请求的FD封装到CQ_ITEM中，然后放到工作线程的队列中，然后通知工作线程有新连接进去</span></code></pre></li>
+<li>服务端调用drive_machine接受客户端fd后，调用dispatch_conn_new函数客户端的FD封装成CQ_ITEM</li>
+<li>客户端的FD封装成CQ_ITEM后，根据哈希取模策略选择一个线程，把CQ_ITEM放到该工作线程的new_conn_queue中，然后往该线程的notify_send_fd写入数据</li>
+<li>由于工作线程在memcached启动后就已经初始化几个工作线程，然后每个线程中调用thread_libevent_process监听该线程中的notify_recv_fd中的IO事件，该工作线程从notify_recv_fd中读取到了数据，从自己线程队列中取出一个CQ_ITEM,初始化conn，放到全局conns数组中，这个数据的下表就是客户请求的FD，然后释放CQ_ITEM资源，到此整个memcached的从主线程接受请求，到工作线程接受和初始化conn结束，后面就是处理这个客户端请求</li>
+</ul>
+<h3 id="memcached注释"><a href="#memcached注释" class="headerlink" title="memcached注释"></a>memcached注释</h3><ul>
+<li>memcached.c:<a href="https://github.com/perrynzhou/memcached-1.6.6-readingnote/blob/perryn/dev/memcached-1.6.6/memcached.c" target="_blank" rel="noopener">https://github.com/perrynzhou/memcached-1.6.6-readingnote/blob/perryn/dev/memcached-1.6.6/memcached.c</a></li>
+</ul>
 
             </article>
             <hr>
@@ -263,7 +316,7 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/nginx%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">nginx源码分析</a>
+                      <a class="hover-with-bg" href="/tags/memcached-%E7%BA%BF%E7%A8%8B/">memcached 线程</a>
                     
                   </div>
                 
@@ -276,18 +329,12 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/2020/08/08/memcached%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">memcached线程模型分析</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2020/07/29/%E7%AE%80%E5%8D%95%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B9%B6%E5%8F%91%E6%9C%8D%E5%8A%A1%E5%99%A8/">
-                        <span class="hidden-mobile">简单的网络并发服务器</span>
+                      <a href="/2020/08/06/nginx%E5%86%85%E5%AD%98%E6%B1%A0%E5%AE%9E%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">
+                        <span class="hidden-mobile">nginx内存池实现和分析</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -452,7 +499,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "nginx内存池实现和分析&nbsp;",
+        "memcached线程模型分析&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,
