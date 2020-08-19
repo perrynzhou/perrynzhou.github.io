@@ -168,6 +168,36 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/05/27/glusterfs-client%E5%AE%A2%E6%88%B6%E7%AB%AF%E5%87%BA%E7%8E%B0RPC-CLNT-DISCONNECT%E9%97%AE%E9%A2%98%E5%92%8Ckernel%E5%87%BA%E7%8E%B0task-xxx-blocked-for-more-than-120-second/">glusterfs client客戶端出现RPC_CLNT_DISCONNECT问题和kernel出现task xxx blocked for more than 120 seconds</a>
+
+      <a href="/2020/05/27/glusterfs-client%E5%AE%A2%E6%88%B6%E7%AB%AF%E5%87%BA%E7%8E%B0RPC-CLNT-DISCONNECT%E9%97%AE%E9%A2%98%E5%92%8Ckernel%E5%87%BA%E7%8E%B0task-xxx-blocked-for-more-than-120-second/" class="index-excerpt">
+        
+        
+          
+        
+        <div>故障现象
+glusterfs客户端无法连接某个节点的brick，一直出现rpc无法连接
+kernel 出现hung_task_timeout_secs超时问题
+
+故障分析   kernel层面分析   kernel出现sync flood，原因是客户端断掉后不断重新尝试导致，后面CallTrace出现 hung_task_timeout_secs关键字，该关键字含义是，异步刷新IO到磁盘，如果在h</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-05-27
+          </div>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/">glusterfs客户端挂载init流程</a>
 
       <a href="/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/" class="index-excerpt">
@@ -469,43 +499,11 @@ After ‘timeout’ seconds since the time ‘barrier’ option was set to “on
     </div>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/04/16/Redis%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B/">Redis复制过程</a>
-
-      <a href="/2020/04/16/Redis%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B/" class="index-excerpt">
-        
-        
-          
-        
-        <div>how redis do replication
-
-step 1:add callback for server cron job
-
-//location:server.c
-//fucntion:setting callback for timeout
-if (aeCreateTimeEvent(server.el, 1, serverCron, NULL, NULL) == AE_ERR) &#</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-04-16
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/2/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/4/"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/2/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/4/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   

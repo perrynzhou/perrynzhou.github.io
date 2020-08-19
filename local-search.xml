@@ -4,6 +4,25 @@
   
   
   <entry>
+    <title>nginx基本配置说明</title>
+    <link href="/2020/08/19/nginx%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E/"/>
+    <url>/2020/08/19/nginx%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E/</url>
+    
+    <content type="html"><![CDATA[<h2 id="nginx基本配置说明"><a href="#nginx基本配置说明" class="headerlink" title="nginx基本配置说明"></a>nginx基本配置说明</h2><h4 id="nginx信号控制"><a href="#nginx信号控制" class="headerlink" title="nginx信号控制"></a>nginx信号控制</h4><table><thead><tr><th>信号</th><th>作用</th><th>用法</th></tr></thead><tbody><tr><td>SIGTERN或者SIGINT</td><td>快速停止nginx服务</td><td>kill -SIGTERM {nginx_pid} 或者 kill -SIGINT {nginx_pid}</td></tr><tr><td>SIGQUIT</td><td>平缓停止nginx服务</td><td>kill -SIGTQUIT {nginx_pid}</td></tr><tr><td>SIGHUP</td><td>平缓重启nginx服务</td><td>kill -SIGHUP {nginx_pid}</td></tr></tbody></table><ul><li>快速停止nginx:停止当前nginx服务正在处理的所有网路请求，立即丢弃连接，停止工作</li><li>平缓停止nginx:允许nginx服务将当前正在处理网络连接请求处理完毕，但是不在接受新的请求，之后关闭连接、停止工作</li><li>平缓重启nginx：平缓停止所有进程,使用新的配置启动nginx进程</li></ul><h4 id="nginx配置结构"><a href="#nginx配置结构" class="headerlink" title="nginx配置结构"></a>nginx配置结构</h4><ul><li>全局块：默认是从配置文件开始到events的一部分内容，主要影响nginx服务器整体运行的参数，包括用户运行的组、最大的worker进程数</li><li>events块:主要影响nginx服务器与用户的网络连接，比如是否允许同时接受多个连接请求、选择哪一种事件驱动模型处理请求(select/epoll)</li><li>http块：这是nginx服务器配置代理、缓存、日志定义的大部分的功能，http块可以包括server块，server块可以包括localtion块</li><li>server块：主要用于配置虚拟主机</li><li>localtion块：每个server块可以包括多个location块，严格来说，location是server的一个指令，location块主要作用基于nginx服务器接收到请求的字符串(server_name/uri-string),除对虚拟主机名称之外的字符串进行匹配，对特定的请求进行处理</li></ul><h4 id="nginx核心配置"><a href="#nginx核心配置" class="headerlink" title="nginx核心配置"></a>nginx核心配置</h4><ul><li>worker_process {num} | auto:这是非常核心的参数，也是nginx的实现并发服务的核心，该参数配置nginx的worker进程的数量</li><li>pid  {pid_path}:nginx是以daemon的方式运行，master进程的pid的值会写入到nginx配置文件中 pid {path}指定的路径中。</li><li>error_log {file_path} {log_level}:配置nginx的日志</li><li>accept_mutex on|off:防止nginx的惊群配置，默认开启</li><li>use {method}:选择事件驱动模型</li><li>worker_connetions {number}:用来设置允许每一个worker_process同时开启的最大连接数</li><li>sendfile on|off:零拷贝方式的文件传输</li><li>keepalive_timeout {timeout} {header_timeout}:nginx可以保持连接打开一段时间</li><li>keepalive_requests {number}:nginx服务器和用户建立回话连接后，用户端通过此连接发出请求，这个参数用于限制用户通过某一连接向nginx服务器发送请求的次数</li></ul>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>nginx</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>memcached线程模型分析</title>
     <link href="/2020/08/08/memcached%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/"/>
     <url>/2020/08/08/memcached%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/</url>
