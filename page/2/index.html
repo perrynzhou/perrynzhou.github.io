@@ -168,6 +168,47 @@
     
     
     <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/">进程间实时通信模块设计和实现</a>
+
+      <a href="/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/" class="index-excerpt">
+        
+        
+          
+        
+        <div>进程间实时通信模块设计和实现介绍
+基于设备文件作为数据传输介质，一切皆文件
+设备文件必须可以读可以写
+通过linux kernel的file_operations来实现设备的读写
+
+原理
+
+设计一个内核模块，客户端A写数据客户端B，客户端A到某个字符设备，然后通过设计的内核模块主动推送客户端B，这样就能达到进程间实时通信的效果.
+设备文件也是文件，通过绑定内核的file_operations的函数</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2020-06-27
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/kernel-module/">kernel module</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
       <a class="index-header" href="/2020/06/25/start-kernel-plan/">start kernel plan</a>
 
       <a href="/2020/06/25/start-kernel-plan/" class="index-excerpt">
@@ -444,42 +485,6 @@ Number of Br</div>
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>&nbsp;2020-06-10
-          </div>
-        
-        
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2020/05/30/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E8%B0%83%E7%94%A8/">Linux系统调调用</a>
-
-      <a href="/2020/05/30/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E8%B0%83%E7%94%A8/" class="index-excerpt">
-        
-        
-          
-        
-        <div>基本介绍
-系统调用例子#include &lt;stdio.h&gt;
-#include &lt;time.h&gt;
-int main(void) &#123;
-    time_t tt;
-    struct tm *t;
-    //time系统调用非常方便
-    tt = time(NULL);
-    //内嵌汇编替换time系统调用
-       asm volatile (
-  </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-05-30
           </div>
         
         

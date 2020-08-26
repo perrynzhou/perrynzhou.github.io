@@ -17,7 +17,7 @@
   <meta name="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
   <meta name="author" content="perrynzhou">
   <meta name="keywords" content="C, Go, nginx,glusterfs,redis">
-  <title>nginx基本配置说明 - perrynzhou</title>
+  <title>TCP初探 - perrynzhou</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -152,8 +152,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-08-19 09:55">
-      2020年8月19日 上午
+    <time datetime="2020-08-26 09:18">
+      2020年8月26日 上午
     </time>
   </div>
 
@@ -163,7 +163,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      610 字
+      1.8k 字
     </span>
   
 
@@ -173,7 +173,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      6
+      18
        分钟
     </span>
   
@@ -204,52 +204,63 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h2 id="nginx基本配置说明"><a href="#nginx基本配置说明" class="headerlink" title="nginx基本配置说明"></a>nginx基本配置说明</h2><h4 id="nginx信号控制"><a href="#nginx信号控制" class="headerlink" title="nginx信号控制"></a>nginx信号控制</h4><table>
-<thead>
-<tr>
-<th>信号</th>
-<th>作用</th>
-<th>用法</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>SIGTERN或者SIGINT</td>
-<td>快速停止nginx服务</td>
-<td>kill -SIGTERM {nginx_pid} 或者 kill -SIGINT {nginx_pid}</td>
-</tr>
-<tr>
-<td>SIGQUIT</td>
-<td>平缓停止nginx服务</td>
-<td>kill -SIGTQUIT {nginx_pid}</td>
-</tr>
-<tr>
-<td>SIGHUP</td>
-<td>平缓重启nginx服务</td>
-<td>kill -SIGHUP {nginx_pid}</td>
-</tr>
-</tbody></table>
+              <h3 id="TCP协议初探"><a href="#TCP协议初探" class="headerlink" title="TCP协议初探"></a>TCP协议初探</h3><ul>
+<li><p>发送方对一个ACK应该等待多长时间？</p>
+</li>
+<li><p>如果ACK丢失怎么办？</p>
 <ul>
-<li>快速停止nginx:停止当前nginx服务正在处理的所有网路请求，立即丢弃连接，停止工作</li>
-<li>平缓停止nginx:允许nginx服务将当前正在处理网络连接请求处理完毕，但是不在接受新的请求，之后关闭连接、停止工作</li>
-<li>平缓重启nginx：平缓停止所有进程,使用新的配置启动nginx进程</li>
+<li>如果一个ack丢失了，发送方式是不能轻易的识别ACK丢失和原分组的丢失的情况，所以发送方会再次发送原分组</li>
 </ul>
-<h4 id="nginx配置结构"><a href="#nginx配置结构" class="headerlink" title="nginx配置结构"></a>nginx配置结构</h4><ul>
-<li>全局块：默认是从配置文件开始到events的一部分内容，主要影响nginx服务器整体运行的参数，包括用户运行的组、最大的worker进程数</li>
-<li>events块:主要影响nginx服务器与用户的网络连接，比如是否允许同时接受多个连接请求、选择哪一种事件驱动模型处理请求(select/epoll)</li>
-<li>http块：这是nginx服务器配置代理、缓存、日志定义的大部分的功能，http块可以包括server块，server块可以包括localtion块</li>
-<li>server块：主要用于配置虚拟主机</li>
-<li>localtion块：每个server块可以包括多个location块，严格来说，location是server的一个指令，location块主要作用基于nginx服务器接收到请求的字符串(server_name/uri-string),除对虚拟主机名称之外的字符串进行匹配，对特定的请求进行处理</li>
+</li>
+<li><p>如果分组被接受了，但是分组有错误怎么办？</p>
+<ul>
+<li>使用编码技术检测一个大的分组的差错一般都是简单，仅仅使用比自身小很多的一些比特即可纠正。当接受方接受到有差错的分组，接收方是不能发送ACK，最后发送方重新发送无差错的分组</li>
 </ul>
-<h4 id="nginx核心配置"><a href="#nginx核心配置" class="headerlink" title="nginx核心配置"></a>nginx核心配置</h4><ul>
-<li>worker_process {num} | auto:这是非常核心的参数，也是nginx的实现并发服务的核心，该参数配置nginx的worker进程的数量</li>
-<li>pid  {pid_path}:nginx是以daemon的方式运行，master进程的pid的值会写入到nginx配置文件中 pid {path}指定的路径中。</li>
-<li>error_log {file_path} {log_level}:配置nginx的日志</li>
-<li>accept_mutex on|off:防止nginx的惊群配置，默认开启</li>
-<li>use {method}:选择事件驱动模型</li>
-<li>worker_connetions {number}:用来设置允许每一个worker_process同时开启的最大连接数</li>
-<li>sendfile on|off:零拷贝方式的文件传输</li>
-<li>keepalive_timeout {timeout} {header_timeout}:nginx可以保持连接打开一段时间</li>
-<li>keepalive_requests {number}:nginx服务器和用户建立回话连接后，用户端通过此连接发出请求，这个参数用于限制用户通过某一连接向nginx服务器发送请求的次数</li>
+</li>
+<li><p>如果接受方接收到了重复分组怎么办？</p>
+<ul>
+<li>发送方针对每个分组会有一个序列号，这个序列号是有分组自身携带，接受方可以使用这个序列号来判断它是否已经接受到这个分组，如果是则丢弃</li>
+</ul>
+</li>
+<li><p>什么是分组窗口和滑动窗口？</p>
+<ul>
+<li>定义一个分组窗口作为已经被发送方发送但还没完成收到ACK确认的分组的集合，这是分组窗口；这个分组窗口的数量叫做窗口大小；发送方和接受方都存在滑动窗口，对于发送方，滑动窗口记录发送已确认的分组（可释放）、发送未收到确认的分组、即将发送的分组。对于接收方，滑动窗口记录已接受和确认的分组、期望接受分组、即将接受可能因为内存限制而被丢弃的分组。</li>
+</ul>
+</li>
+<li><p>什么是流量控制和拥塞控制？</p>
+<ul>
+<li>在接受方接受分组的速度跟不上发送方发分送分组的速度，会强迫发送方把发送分组的速度降下来，这个称谓流量控制；流量控制有2种方式，一种是基于速率，它给发送方指定某个发送的速率，同时确保数据永远不会超过这个发送速率发送，这个仅仅适合流应用程序，可用于广播和组播。另外一种是基于窗口流量控制，是使用滑动窗口，在这个方法里，滑动窗口大小不固定，随着时间而变化。必须有一种方法让接受方可以通知发送方应该使用多大的滑动窗口，这个接受方通知发送方的窗口叫做窗口更新。</li>
+<li>在发送方和接受方之间可能会有因为有限内存的路由器，它们和低速网络链路抗争着，当这种情况发生时候，发送方发送分组的速率可能超过某个路由器的能力，从而导致丢包，这种情况是有拥塞控制的流量控制方式来处理。拥塞控制涉及发送方降低发送速度，不至于压垮其和接受方之间的网络。</li>
+</ul>
+</li>
+<li><p>如果设置重传超时？</p>
+<ul>
+<li>发送方在重发一个分组之前等待的时间包括：发送分组所用时间、接受方处理分组时间、接受方发送ACK的时间、发送方接受ACK所用时间。在这些时间都是不确定的。比较好的策略让协议实现尝试去评估它们，这称为往返时间评估，这是一个统计过程。</li>
+</ul>
+</li>
+<li><p>TCP服务有什么特点？</p>
+<ul>
+<li>TCCP虽然TCP和UDP都使用相同的网络层(IP层)，但是TCP给应用程序提供一种和UDP完全不同的服务，TCP提供一种面向连接、可靠的字节流的服务，面向连接是指TCP的两个应用程序必须在他们可交换数据之前，通过相互联系来建立一个TCP连接。最经典的比喻，拨打一个电话号码，等待另外一方接电话并说“喂”，然后说“找谁？”，这正是一个TCP连接的两个端点之间的通信，广播和组播不存在于TCP，存在于UDP。</li>
+<li>TCP没有消息边界，是一种流式服务。</li>
+</ul>
+</li>
+<li><p>TCP如何保证可靠性?</p>
+<ul>
+<li>TCP提供一个字节流接口，TCP必须把一个发送应用程序的数据转换为一组IP可以携带的分组，这个分组叫做组包，这些分组包含序列号，这个序列号实际代表每个分组的第一个字节在整个应用程序数据中的字节偏移量，而不是分组号。</li>
+<li>TCP传给IP层的块叫做报文段，应用程序数据被打散成TCP人为最佳的大小块来发送，使得每个报文段按照不会被IP层数据报的大小来划分</li>
+<li>TCP发送一组报文段时会设置一个重传计时器，等待对方的确认接收，TCP不会为每个报文段设置一个不同的重传计时器，相反，发送一个窗口的数据，它仅仅设置一个计时器，当ACK到达时候在更新计时器；如果ACK么有及时接收，这个报文段会被重传。</li>
+<li>当TCP接收到连接的另一端数据时候，它会发送一个ACK确认给另一端，告知另一端数据已经接受。这个ACK确认可能不会立即发送，一般会延迟发送。</li>
+<li>TCP给应用程序提供一种双工服务，数据可以在两个方向上流动，两个方向互相独立，因此连接的每个端点必须对每个方向维持一个数据流的一个序列号，一旦建立一个连接，这连接的一个方向上的包含数据流的每个TCP报文段也包含了相反方向上的报文段的一个ACK。</li>
+<li>TCP接受端使用序列号来丢弃重复的报文段和记录杂乱次序到达的报文段，TCP使用IP来传递它的报文段，IP不提供重复消除、保证次序正确的功能。然而，因为TCP是一个字节流协议，TCP绝不会以杂乱次序给接收应用程序发送数据，因此TCP接收端可能会被迫先保持大序列号的数据不交给应用程序，知道缺失的小序列号的报文段被填满。</li>
+</ul>
+</li>
+<li><p>TCP头部和封装是什么样的？</p>
+<ul>
+<li>每个TCP头部都包含源和目标的端口，这两个值和IP头部的源和目标IP地址一起唯一的标识每个连接，TCP术语中，一个IP地址和一个端口的组合有时被称为套接字或者端点。每个TCP连接由一对套接字或端点（四元组，客户端IP、客户端端口、服务器IP，服务器端口唯一标识。</li>
+<li>确认字段(ack)包含德玛值是该确认号发送方期待接受下一个序列号，即最后发送成功的数据字节的序列号加1</li>
+<li>当建立一个新连接时，从客户机发送至服务器的第一个报文段的SYN位字段被启用，这个报文段称为SYNC报文段</li>
+</ul>
+</li>
 </ul>
 
             </article>
@@ -261,7 +272,7 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/nginx/">nginx</a>
+                      <a class="hover-with-bg" href="/tags/network/">network</a>
                     
                   </div>
                 
@@ -274,18 +285,12 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/2020/08/26/TCP%E5%88%9D%E6%8E%A2/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">TCP初探</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2020/08/08/memcached%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/">
-                        <span class="hidden-mobile">memcached线程模型分析</span>
+                      <a href="/2020/08/19/nginx%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E/">
+                        <span class="hidden-mobile">nginx基本配置说明</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -450,7 +455,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "nginx基本配置说明&nbsp;",
+        "TCP初探&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,
