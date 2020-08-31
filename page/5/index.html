@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="擅长C&#x2F;Go编程;https:&#x2F;&#x2F;github.com&#x2F;perrynzhou。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="perrynzhou">
+<meta property="og:url" content="http://yoursite.com/page/5/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="擅长C&#x2F;Go编程;https:&#x2F;&#x2F;github.com&#x2F;perrynzhou。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content=" Go">
+<meta property="article:tag" content=" nginx">
+<meta property="article:tag" content="glusterfs">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/page/5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/System-IO%E5%92%8CStandard-IO%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/System-IO%E5%92%8CStandard-IO%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">System IO和Standard IO详解</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-15 14:34:12 / 修改时间：14:43:24" itemprop="dateCreated datePublished" datetime="2020-04-15T14:34:12+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="System-IO"><a href="#System-IO" class="headerlink" title="System IO"></a>System IO</h2><ul>
+<li>System IO指的是使用open/close/read/write/lseek系统调用使用io的方式，这样的方式是实打实的从user space-&gt;kernel space中函数调用,这样的方式是实时性高。<h2 id="Standard-IO"><a href="#Standard-IO" class="headerlink" title="Standard IO"></a>Standard IO</h2></li>
+<li>Standard IO 是是指使用stdio中的FILE中的fopen/fclose/fread/fwrite/fseek等方式进行IO的操作.使用stdio中的函数实现是依赖底层system io的系统函数。stdio中的函数是带有cache的机制，说简单点就是merge system io函数的调用，已达到在kernel层面减少系统调用的，这样的IO方式可以提高吞吐量。</li>
+</ul>
+<h2 id="文件描述符本质"><a href="#文件描述符本质" class="headerlink" title="文件描述符本质"></a>文件描述符本质</h2><p><img src="https://upload-images.jianshu.io/upload_images/2582954-b0b70b4672c56758.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<ul>
+<li><p>每个文件open/fopen以后会产生一个inode-struct.一个inode-struct包含了文件操作的基本属性以及position，position是这个文件读写的位置。每个inode-struct会保存在每个进程中的文件描述符的数组中，open返回的fd就是这个数组的下边。</p>
+</li>
+<li><p>每个进程在默认情况下最多打开1024个文件描述符，0/1/2默认是是输入、输出、错误输出。</p>
+</li>
+<li><p>进程中文件描述符数组使用方式按照最小下标方式。</p>
+</li>
+<li><p>FILE 结构中的position和inode-struct中的postition基本不是一样的，这个为什么？比如执行三次fput(FILE,’a’)，这样的操作在FILE结构中postion会++3次。这个position中是揍batch然后在kernel层面统一执行一次系统调用。</p>
+</li>
+<li><p>System IO 和 Standard IO 不能混用。</p>
+<h2 id="验证推断"><a href="#验证推断" class="headerlink" title="验证推断"></a>验证推断</h2></li>
+<li><p>实例代码验证standard io缓冲以及system io 实打实的调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: test.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Sat May  4 21:58:45 2019</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line"></span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line"></span><br><span class="line">    putchar(&#39;a&#39;);</span><br><span class="line">    write(1, &quot;b&quot;, 1);</span><br><span class="line">    exit(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>执行结果如下</p>
+</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/2582954-77a03ea892dfc791.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Snipaste_2019-05-04_22-11-44.png"></p>
+<ul>
+<li><p>trace下test执行路径<br><img src="https://upload-images.jianshu.io/upload_images/2582954-f654d46749be9fcb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Snipaste_2019-05-04_22-16-58.png"></p>
+</li>
+<li><p>分析<br>strace后的执行路径，可以看出，putchar执行三次最后是一次write(1,”aaa”,3)写入。其他的关于b的写入，每一次write都会写一次。</p>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/zombies-%E5%92%8C-init-process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/zombies-%E5%92%8C-init-process/" class="post-title-link" itemprop="url">zombies 和 init process</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-15 14:32:21 / 修改时间：14:34:02" itemprop="dateCreated datePublished" datetime="2020-04-15T14:32:21+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="进程关系"><a href="#进程关系" class="headerlink" title="进程关系"></a>进程关系</h4><h4 id="zombies进程"><a href="#zombies进程" class="headerlink" title="zombies进程"></a>zombies进程</h4><ul>
+<li>linux中的pid号和file的fd号的规则不同，pid的增长是逐次递增使用，如果达到上限再来一次从小到大的周期，寻找可用的pid号。如果没有就会出现系统错误。<ul>
+<li>linux fork后子进程先于父进程退出，这个进程子进程就是zombies的进程，zombies的进程占用的是pcb块资源以及pid资源，zombies的进程最终由1号(init process接管),统一由init process回收这些zombies进程，但是这个回收zombies的进程是异步的<h4 id="孤儿进程"><a href="#孤儿进程" class="headerlink" title="孤儿进程"></a>孤儿进程</h4></li>
+<li>linux fork之后父进程退出，子进程存活，这些子进程是孤儿进程，孤儿进程是由init process接管。这些孤儿进程最开始得父进程是fork出来这些子进程的父进程，之后父进程退出后，孤儿进程的父进程就是1号进程(init process)<h4 id="zombies-代码例子"><a href="#zombies-代码例子" class="headerlink" title="zombies 代码例子"></a>zombies 代码例子</h4><img src="https://upload-images.jianshu.io/upload_images/2582954-8acbf597c443ce01.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: fork0.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Sun 16 Jun 2019 01:55:54 PM CST</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;getopt.h&gt;</span><br><span class="line">#include &lt;ctype.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">int is_num(const char *s)</span><br><span class="line">&#123;</span><br><span class="line">  if (NULL &#x3D;&#x3D; s)</span><br><span class="line">  &#123;</span><br><span class="line">    return -1;</span><br><span class="line">  &#125;</span><br><span class="line">  size_t len &#x3D; strlen(s);</span><br><span class="line">  for (int i &#x3D; 0; i &lt; len; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    if (isdigit(s[i]) &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      return -1;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br><span class="line">int main(int argc,char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">  int pn, fn;</span><br><span class="line">  int default_pn &#x3D; 2;</span><br><span class="line">  const char *cmd_line &#x3D; &quot;p:&quot;;</span><br><span class="line">  char ch;</span><br><span class="line">  while ((ch &#x3D; getopt(argc, argv, cmd_line)) !&#x3D; -1)</span><br><span class="line">  &#123;</span><br><span class="line">    int flag &#x3D; is_num(optarg);</span><br><span class="line">    switch(ch)</span><br><span class="line">    &#123;</span><br><span class="line">    case &#39;p&#39;:</span><br><span class="line">      pn &#x3D; (flag &#x3D;&#x3D; 0) ? atoi(optarg) : default_pn;</span><br><span class="line">      break;</span><br><span class="line">    default:</span><br><span class="line">      break;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  fprintf(stdout,&quot;process number:%d\n&quot;,pn);</span><br><span class="line">  fflush(NULL);</span><br><span class="line">  for (int i &#x3D; 0; i &lt; pn; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    fflush(NULL);</span><br><span class="line">    pid_t pid &#x3D; fork();</span><br><span class="line">    if (pid &#x3D;&#x3D; -1)</span><br><span class="line">    &#123;</span><br><span class="line">      perror(&quot;fork()&quot;);</span><br><span class="line">      exit(1);</span><br><span class="line">    &#125;</span><br><span class="line">    if (pid &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      fprintf(stdout, &quot;child process %ld,parent process %ld\n&quot;, getpid(), getppid());</span><br><span class="line">      &#x2F;&#x2F;sleep(100000); </span><br><span class="line">      exit(0);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  sleep(10000);</span><br><span class="line">  exit(0);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="孤儿进程-1"><a href="#孤儿进程-1" class="headerlink" title="孤儿进程"></a>孤儿进程</h5><p><img src="https://upload-images.jianshu.io/upload_images/2582954-70345eae7ba28d33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: fork0.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Sun 16 Jun 2019 01:55:54 PM CST</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;getopt.h&gt;</span><br><span class="line">#include &lt;ctype.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">int is_num(const char *s)</span><br><span class="line">&#123;</span><br><span class="line">  if (NULL &#x3D;&#x3D; s)</span><br><span class="line">  &#123;</span><br><span class="line">    return -1;</span><br><span class="line">  &#125;</span><br><span class="line">  size_t len &#x3D; strlen(s);</span><br><span class="line">  for (int i &#x3D; 0; i &lt; len; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    if (isdigit(s[i]) &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      return -1;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br><span class="line">int main(int argc,char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">  int pn, fn;</span><br><span class="line">  int default_pn &#x3D; 2;</span><br><span class="line">  const char *cmd_line &#x3D; &quot;p:&quot;;</span><br><span class="line">  char ch;</span><br><span class="line">  while ((ch &#x3D; getopt(argc, argv, cmd_line)) !&#x3D; -1)</span><br><span class="line">  &#123;</span><br><span class="line">    int flag &#x3D; is_num(optarg);</span><br><span class="line">    switch(ch)</span><br><span class="line">    &#123;</span><br><span class="line">    case &#39;p&#39;:</span><br><span class="line">      pn &#x3D; (flag &#x3D;&#x3D; 0) ? atoi(optarg) : default_pn;</span><br><span class="line">      break;</span><br><span class="line">    default:</span><br><span class="line">      break;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  fprintf(stdout,&quot;process number:%d\n&quot;,pn);</span><br><span class="line">  fflush(NULL);</span><br><span class="line">  for (int i &#x3D; 0; i &lt; pn; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    fflush(NULL);</span><br><span class="line">    pid_t pid &#x3D; fork();</span><br><span class="line">    if (pid &#x3D;&#x3D; -1)</span><br><span class="line">    &#123;</span><br><span class="line">      perror(&quot;fork()&quot;);</span><br><span class="line">      exit(1);</span><br><span class="line">    &#125;</span><br><span class="line">    if (pid &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      fprintf(stdout, &quot;child process %ld,parent process %ld\n&quot;, getpid(), getppid());</span><br><span class="line">      sleep(100000); </span><br><span class="line">      exit(0);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> &#x2F;&#x2F; sleep(10000);</span><br><span class="line">  exit(0);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/%E7%90%86%E8%A7%A3%E7%AE%80%E5%8D%95%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F/" class="post-title-link" itemprop="url">理解简单汇编程序</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-15 14:31:00 / 修改时间：14:31:57" itemprop="dateCreated datePublished" datetime="2020-04-15T14:31:00+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <ul>
+<li>寄存器以及中断号对应表</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>eax(系统调用号)</th>
+<th>系统调用</th>
+<th>ebx(系统调用参数1)</th>
+<th>ecx(系统调用参数2)</th>
+<th>ecx(系统调用参数3)</th>
+<th>edx(系统调用参数4 )</th>
+<th>esx(系统调用参数5)</th>
+<th>edi（系统调用参数6）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>sys_exit</td>
+<td>int</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>4</td>
+<td>sys_write</td>
+<td>unsigned int</td>
+<td>const char *</td>
+<td>size_t</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+</tr>
+</tbody></table>
+<ul>
+<li>hello.asm汇编代码解释<pre><code>//定义数据段
+SECTION .data;
+</code></pre></li>
+</ul>
+<p>//db 代表一个字节占8个字节，读完一个偏移量加1字节<br>//dw 是汇编中的一个字，就是占用2个字节，读完一个偏移量加2<br>//dd 是汇编中的一个双字节，占用4个字节，读完一个偏移量加4<br>MyMsg: db “hello,word”;<br>MyMsgLen: equ $-MyMsg;</p>
+<p>//定义bbs段<br>SECTION  .bbs;<br>//定义代码段<br>SECTION .text;</p>
+<p>global _start;</p>
+<p>_start:<br>            nop;<br>            mov eax,4;                         //把4号系统调用写入到eax,sys_write写入到eax寄存器<br>            mov ebx,1;                         //把1号文件描述符写入到ebx<br>            mov ecx,MyMsg;                     //把MyMsg的地址写入到ecx<br>            mov edx,MyMsgLen;                       //把MyMsgLen写入到edx<br>            int 80H;                           //调用系统sys_write，回去eax取出对应的中断号，同时从ebx,ecx,edx出去系统调用参数进行调用<br>            mov eax,1;                              //把1号系统调用写入到eax<br>            mov ebx ,0;                         //把0写入到ebx中<br>            int 80H;                         //调用系统exit</p>
+<pre><code>
+- linux系统中断对应表
+
+
+![image.png](https://upload-images.jianshu.io/upload_images/2582954-c5536607f4a7b75d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+</code></pre>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/golang-1-4-mod-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C/" class="post-title-link" itemprop="url">golang 1.4 mod 使用经验</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-15 14:29:42 / 修改时间：14:30:35" itemprop="dateCreated datePublished" datetime="2020-04-15T14:29:42+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="1-go-mod-替代原来gopath的功能-依赖包下载依赖Go环境变量"><a href="#1-go-mod-替代原来gopath的功能-依赖包下载依赖Go环境变量" class="headerlink" title="1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量"></a>1.go mod 替代原来gopath的功能,依赖包下载依赖Go环境变量</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export GO111MODULE&#x3D;on</span><br><span class="line">export GOPROXY&#x3D;https:&#x2F;&#x2F;mirrors.aliyun.com&#x2F;goproxy&#x2F;</span><br></pre></td></tr></table></figure>
+<h4 id="2-go-mod-init-一个golang-项目"><a href="#2-go-mod-init-一个golang-项目" class="headerlink" title="2.go mod init 一个golang 项目"></a>2.go mod init 一个golang 项目</h4><ul>
+<li>go mod 的命令使用<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ go help mod</span><br><span class="line">Usage:</span><br><span class="line"></span><br><span class="line">        go mod &lt;command&gt; [arguments]</span><br><span class="line"></span><br><span class="line">The commands are:</span><br><span class="line"></span><br><span class="line">        download    download modules to local cache</span><br><span class="line">        edit        edit go.mod from tools or scripts</span><br><span class="line">        graph       print module requirement graph</span><br><span class="line">        init        initialize new module in current directory</span><br><span class="line">        tidy        add missing and remove unused modules</span><br><span class="line">        vendor      make vendored copy of dependencies</span><br><span class="line">        verify      verify dependencies have expected content</span><br><span class="line">        why         explain why packages or modules are needed</span><br></pre></td></tr></table></figure></li>
+<li>用go mod 初始化glusterfs-benchmark依赖包管理</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;进入glusterfs-benchmark目录</span><br><span class="line">cd glusterfs-benchmark </span><br><span class="line">go mod init glusterfs-benchmark </span><br><span class="line">&#x2F;&#x2F;会在 lusterfs-benchmark目录中  生成go.mod的文件</span><br></pre></td></tr></table></figure>
+<ul>
+<li>项目目录架构<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[perrynzhou@Debian ~&#x2F;Source&#x2F;perryn&#x2F;glusterfs-benchmark]$ tree ..&#x2F;glusterfs-benchmark&#x2F;</span><br><span class="line">..&#x2F;glusterfs-benchmark&#x2F;</span><br><span class="line">├── api</span><br><span class="line">│   ├── fuse_fetch.go</span><br><span class="line">│   └── glfs_fetch.go</span><br><span class="line">├── conf</span><br><span class="line">│   └── conf.go</span><br><span class="line">├── go.mod</span><br><span class="line">├── metric</span><br><span class="line">│   └── metric.go</span><br><span class="line">├── pkg</span><br><span class="line">│   └── mod</span><br><span class="line">│       └── cache</span><br><span class="line">│           └── lock</span><br><span class="line">└── utils</span><br><span class="line">    └── utils.go</span><br><span class="line"></span><br><span class="line">14 directories, 114 files</span><br></pre></td></tr></table></figure></li>
+<li>引入glusterfs-benchmark/api/fuse_fetch.go中引入utils库本地库</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; fuse_fetch.go的包信息</span><br><span class="line">package api</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">	&quot;bufio&quot;</span><br><span class="line">	&quot;fmt&quot;</span><br><span class="line">	log &quot;github.com&#x2F;sirupsen&#x2F;logrus&quot;</span><br><span class="line">	&quot;glusterfs-benchmark&#x2F;conf&quot;</span><br><span class="line">	&quot;glusterfs-benchmark&#x2F;metric&quot;</span><br><span class="line">	&quot;glusterfs-benchmark&#x2F;utils&quot;</span><br><span class="line">	&quot;os&quot;</span><br><span class="line">	&quot;path&#x2F;filepath&quot;</span><br><span class="line">	&quot;sync&quot;</span><br><span class="line">	&quot;sync&#x2F;atomic&quot;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;修改go.mod文件</span><br><span class="line">module glusterfs-benchmark</span><br><span class="line"></span><br><span class="line">go 1.14</span><br><span class="line"></span><br><span class="line">require github.com&#x2F;sirupsen&#x2F;logrus v1.4.2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>项目构建<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;进入包含main.go的目录下执行go mod vendor,保存依赖包</span><br><span class="line">go mod vendor</span><br><span class="line">&#x2F;&#x2F;下载第三方依赖库</span><br><span class="line">go mod tidy -v</span><br><span class="line">&#x2F;&#x2F;编译项目</span><br><span class="line">go build -mod&#x3D;vendor</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/linux%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" class="post-title-link" itemprop="url">linux文件系统</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-15 14:27:50 / 修改时间：14:29:17" itemprop="dateCreated datePublished" datetime="2020-04-15T14:27:50+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><img src="https://upload-images.jianshu.io/upload_images/2582954-a7eed89cf5b27e87.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="文件系统（note by perrynzhou).png"></p>
+<h5 id="1-文件系统的系统调用"><a href="#1-文件系统的系统调用" class="headerlink" title="1.文件系统的系统调用"></a>1.文件系统的系统调用</h5><ul>
+<li>例如：read、write</li>
+</ul>
+<h5 id="2-虚拟文件系统-vfs-virtual-filesystem-switch"><a href="#2-虚拟文件系统-vfs-virtual-filesystem-switch" class="headerlink" title="2.虚拟文件系统(vfs virtual filesystem switch)"></a>2.虚拟文件系统(vfs virtual filesystem switch)</h5><ul>
+<li><p>超级块对象</p>
+<ul>
+<li><p>简介</p>
+<ul>
+<li>1.代表已安装文件系统</li>
+<li>2.每个文件系统都会对应一个超级块对象</li>
+<li>3.描述整个文件系统信息(组织结构和管理信息),不涉及文件系统的内容</li>
+<li>4.具体文件系统在安装时候建立，并在这些文件系统卸载时自动删除</li>
+<li>5.vfs的超级超级块存在于内存，每个分区所挂在的文件系统都有一个属于该文件系统和分区的超级块存在于磁盘</li>
+</ul>
+</li>
+<li><p>操作对象</p>
+<ul>
+<li><p>super_operations</p>
+<ul>
+<li>包括内核对特定文件系统所能调用的方法，比如read_inide/sync_fs等</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>索引节点对象</p>
+<ul>
+<li><p>简介</p>
+<ul>
+<li>1.代表一个文件，包括访问权限、属主、组、大小、生成时间和访问时间</li>
+<li>2.内核操作文件或者目录时需要的全部信息，一个文件对应一个inode(唯一)</li>
+<li>3.具体文件系统的inode持久化在磁盘，访问时调入内存,vfs的inode存在于内存</li>
+<li>4.vfs的inode是xfs inode的抽象，映射与扩充，而后者是前者的静态信息部分，也是对前者(vfs inode)的具体化、实例化和持久化</li>
+</ul>
+</li>
+<li><p>操作对象</p>
+<ul>
+<li><p>inode_operations</p>
+<ul>
+<li>包括内核针对文件所能调用的方法，比如create/link等</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>目录项对象（动态创建)</p>
+<ul>
+<li><p>简介</p>
+<ul>
+<li><p>1.代表一个目录项，是路径组成的一部分</p>
+</li>
+<li><p>2.用于方便查找目录，找到后缓存目录到dcache中</p>
+<ul>
+<li>例如/bin/vi,这个目录bin是目录文件，vi是普通文件</li>
+</ul>
+</li>
+<li><p>3.该目录对象存在于内存，磁盘并没有任何的持久化</p>
+</li>
+</ul>
+</li>
+<li><p>操作对象</p>
+<ul>
+<li><p>dentry_operations</p>
+<ul>
+<li>内核针对目录所能调用方法，比如d_cpmpare/d_delete等</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>文件对象</p>
+<ul>
+<li><p>简介</p>
+<ul>
+<li><p>1.代表进程打开的文件的内存表现形式</p>
+<ul>
+<li>调用open/close来创建和销毁文件对象</li>
+</ul>
+</li>
+<li><p>2.文件对象存在于内存，在磁盘并没有具体的存储</p>
+</li>
+</ul>
+</li>
+<li><p>操作对象</p>
+<ul>
+<li><p>file_operations</p>
+<ul>
+<li>内核针对进程已打开的文件所能调用方法比如read/write等</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="挂在到VFS的实际文件系统"><a href="#挂在到VFS的实际文件系统" class="headerlink" title="挂在到VFS的实际文件系统"></a>挂在到VFS的实际文件系统</h5><ul>
+<li>例如:ext3、ext4、xfs</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/2582954-b3fd9e17db5e44e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="虚拟文件系统.png"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/hexo%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/hexo%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/" class="post-title-link" itemprop="url">hexo 使用手册</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-15 13:05:05" itemprop="dateCreated datePublished" datetime="2020-04-15T13:05:05+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server 或者 hexo s</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate 或者 hexo g</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy 或者hexo d</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/glusterfs%E5%B0%8F%E6%96%87%E4%BB%B6%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/glusterfs%E5%B0%8F%E6%96%87%E4%BB%B6%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/" class="post-title-link" itemprop="url">glusterfs小文件调优指南</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-15 12:56:18 / 修改时间：13:29:24" itemprop="dateCreated datePublished" datetime="2020-04-15T12:56:18+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="glusterfs-小文件调优指南"><a href="#glusterfs-小文件调优指南" class="headerlink" title="glusterfs 小文件调优指南"></a>glusterfs 小文件调优指南</h4><h5 id="获取glusterfs参数说明和默认值"><a href="#获取glusterfs参数说明和默认值" class="headerlink" title="获取glusterfs参数说明和默认值"></a>获取glusterfs参数说明和默认值</h5><ul>
+<li><p>glusterfs获取所有可用参数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># gluster volume set help</span><br></pre></td></tr></table></figure></li>
+<li><p>获取指定参数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># gluster volume set help|grep &quot;cache-min-file-size&quot; -A7</span><br></pre></td></tr></table></figure>
+<h5 id="glusterfs-volume调优参数"><a href="#glusterfs-volume调优参数" class="headerlink" title="glusterfs volume调优参数"></a>glusterfs volume调优参数</h5></li>
+<li><p>1.目录操作性能</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">Option: performance.readdir-ahead</span><br><span class="line">Default Value: on</span><br><span class="line">Description: enable&#x2F;disable readdir-ahead translator in the volume.</span><br><span class="line"></span><br><span class="line">Option: performance.rda-cache-limit</span><br><span class="line">Default Value: 10MB</span><br><span class="line">Description: maximum size of cache consumed by readdir-ahead xlator. This value is global and total memory consumption by readdir-ahead is capped by this value, irrespective of the number&#x2F;size of directories cached</span><br><span class="line"></span><br><span class="line">Option: cluster.readdir-optimize</span><br><span class="line">Default Value: off</span><br><span class="line">Description: This option if set to ON enables the optimization that allows DHT to requests non-first subvolumes to filter out directory entries.</span><br><span class="line"></span><br><span class="line">Option: cluster.lookup-unhashed</span><br><span class="line">Default Value: on</span><br><span class="line">Description: This option if set to ON, does a lookup through all the sub-volumes, in case a lookup didn&#39;t return any result from the hash subvolume. If set to OFF, it does not do a lookup on the remaining subvolumes.</span><br><span class="line"></span><br><span class="line">Option: performance.parallel-readdir</span><br><span class="line">Default Value: off</span><br><span class="line">Description: If this option is enabled, the readdir operation is performed in parallel on all the bricks, thus improving the performance of readdir. Note that the performance improvement is higher in large clusters</span><br><span class="line"></span><br><span class="line">gluster volume set dht_vol performance.readdir-ahead on</span><br><span class="line">gluster volume set dht_vol cluster.readdir-optimize on</span><br><span class="line">gluster volume set dht_vol cluster.lookup-unhashed off</span><br><span class="line">gluster volume set dht_vol performance.parallel-readdir on</span><br><span class="line">&#x2F;&#x2F;默认是关闭</span><br><span class="line">gluster volume set dht_vol group metadata-cache</span><br></pre></td></tr></table></figure></li>
+<li><p>2.inode缓存大小</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;官方解释</span><br><span class="line">Option: network.inode-lru-limit</span><br><span class="line">Default Value: 16384</span><br><span class="line">Description: Specifies the limit on the number of inodes in the lru list of the inode cache.</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;设置</span><br><span class="line">gluster volume set dht_vol network.inode-lru-limit 100000</span><br></pre></td></tr></table></figure></li>
+<li><p>3.实际IO操作线程调整</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;官方解释</span><br><span class="line">Option: performance.io-thread-count</span><br><span class="line">Default Value: 16</span><br><span class="line">Description: Number of threads in IO threads translator which perform concurrent IO operations</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 设置值小于等于可用CPU的合数</span><br><span class="line">gluster volume set dht_vol performance.io-thread-count 32</span><br></pre></td></tr></table></figure></li>
+<li><p>4.客户端rpc请求吞吐量设置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Option: server.outstanding-rpc-limit</span><br><span class="line">Default Value: 64</span><br><span class="line">Description: Parameter to throttle the number of incoming RPC requests from a client. 0 means no limit (can potentially run out of memory)</span><br><span class="line"></span><br><span class="line">gluster volume set dht_vol server.outstanding-rpc-limit 512</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>5.event线程数设置（提高性能,降低响应时间)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;官方解释</span><br><span class="line">Option: client.event-threads</span><br><span class="line">Default Value: 2</span><br><span class="line">Description: Specifies the number of event threads to execute in parallel. Larger values would help process responses faster, depending on available processing power. Range 1-32 threads.</span><br><span class="line"></span><br><span class="line">Option: server.event-threads</span><br><span class="line">Default Value: 2</span><br><span class="line">Description: Specifies the number of event threads to execute in parallel. Larger values would help process responses faster, depending on available processing power.</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;设置超过可用CPU核数会导致context切换严重</span><br><span class="line">gluster volume set dht_vol  client.event-threads  8</span><br><span class="line">gluster volume set dht_vol  server.event-threads  8</span><br></pre></td></tr></table></figure></li>
+<li><p>6.io-cache调整</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;官方解释</span><br><span class="line"># gluster volume set help|grep &quot;io-cache&quot; -A7</span><br><span class="line">Option: performance.cache-min-file-size</span><br><span class="line">Default Value: 0</span><br><span class="line">Description: Minimum file size which would be cached by the io-cache translator.</span><br><span class="line"></span><br><span class="line">Option: performance.cache-min-file-size</span><br><span class="line">Default Value: 0</span><br><span class="line">Description: Minimum file size which would be cached by the io-cache translator.</span><br><span class="line"></span><br><span class="line">Option: performance.cache-refresh-timeout</span><br><span class="line">Default Value: 1</span><br><span class="line">Description: The cached data for a file will be retained for &#39;cache-refresh-timeout&#39; seconds, after which data re-validation is performed.</span><br><span class="line"></span><br><span class="line">Option: performance.io-cache-pass-through</span><br><span class="line">Default Value: false</span><br><span class="line">Description: Enable&#x2F;Disable io cache translator</span><br><span class="line"></span><br><span class="line">Option: performance.io-cache</span><br><span class="line">Default Value: on</span><br><span class="line">Description: enable&#x2F;disable io-cache translator in the volume.</span><br><span class="line"></span><br><span class="line">Option: performance.open-behind</span><br><span class="line">Default Value: on</span><br><span class="line">Description: enable&#x2F;disable open-behind translator in the volume.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;当前我们采用opencas作为glusterfsd的后端存储，同时我们业务场景又是存储10亿+的小文件，因此IO-cache开启的意义不大,默认是开启（针对大文件效果好)，需要关闭才可以</span><br><span class="line">gluster volume set dht_vol  performance.io-cache  off</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="gluster-volume调优样例"><a href="#gluster-volume调优样例" class="headerlink" title="gluster volume调优样例"></a>gluster volume调优样例</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"># gluster volume info warm_vol1 </span><br><span class="line"> </span><br><span class="line">Volume Name: warm_vol1</span><br><span class="line">Type: Distribute</span><br><span class="line">Volume ID: d36874f3-60a0-458a-88b3-7f5ed18c645e</span><br><span class="line">Status: Started</span><br><span class="line">Snapshot Count: 0</span><br><span class="line">Number of Bricks: 2</span><br><span class="line">Transport-type: tcp</span><br><span class="line">Bricks:</span><br><span class="line">Brick1: 172.21.73.96:&#x2F;glusterfs&#x2F;warmvol1&#x2F;data1&#x2F;brick1</span><br><span class="line">Brick2: 172.21.73.96:&#x2F;glusterfs&#x2F;warmvol1&#x2F;data2&#x2F;brick1</span><br><span class="line">Options Reconfigured:</span><br><span class="line">performance.rda-cache-limit: 1024MB</span><br><span class="line">client.event-threads: 8</span><br><span class="line">server.outstanding-rpc-limit: 512</span><br><span class="line">performance.io-thread-count: 32</span><br><span class="line">server.event-threads: 8</span><br><span class="line">network.inode-lru-limit: 500000</span><br><span class="line">performance.read-ahead-page-count: 16</span><br><span class="line">cluster.min-free-inodes: 25%</span><br><span class="line">performance.readdir-ahead: on</span><br><span class="line">cluster.readdir-optimize: on</span><br><span class="line">cluster.lookup-optimize: on</span><br><span class="line">performance.io-cache: off</span><br><span class="line">cluster.lookup-unhashed: off</span><br><span class="line">performance.parallel-readdir: on</span><br><span class="line">storage.fips-mode-rchecksum: on</span><br></pre></td></tr></table></figure>
+<h5 id="linux-网络参数调优"><a href="#linux-网络参数调优" class="headerlink" title="linux 网络参数调优"></a>linux 网络参数调优</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;vi &#x2F;etc&#x2F;sysctl.conf 添加如下内容</span><br><span class="line">net.core.rmem_max&#x3D;67108864</span><br><span class="line">net.core.wmem_max&#x3D;67108864</span><br><span class="line">net.ipv4.tcp_wmem&#x3D;33554432</span><br><span class="line">net.ipv4.tcp_rmem&#x3D;33554432</span><br><span class="line">net.core.netdev_max_backlog&#x3D;30000</span><br><span class="line">net.ipv4.tcp_congestion_control&#x3D;htcp</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; sysctl -p 生效</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/%E4%BD%BF%E7%94%A8-Intel-Open-Cas%E5%8A%A0%E9%80%9Fglusterfs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/14/%E4%BD%BF%E7%94%A8-Intel-Open-Cas%E5%8A%A0%E9%80%9Fglusterfs/" class="post-title-link" itemprop="url">使用 Intel Open Cas加速glusterfs</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-14 18:54:16 / 修改时间：18:55:44" itemprop="dateCreated datePublished" datetime="2020-04-14T18:54:16+08:00">2020-04-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="Open-Cas-架构概览"><a href="#Open-Cas-架构概览" class="headerlink" title="Open Cas 架构概览"></a>Open Cas 架构概览</h3><ul>
+<li><p>数据从HDD盘读取然后拷贝到open cas 的cache中，后续数据读取都是从内存读取，提高读写效率。</p>
+</li>
+<li><p>在write-through模式，所有的数据都是同步刷新到open cas的ssd和后端hdd硬盘中。</p>
+</li>
+<li><p>在write-back模式中，所有数据同步写入open cas的ssd中，然后异步刷新到HDD中。</p>
+</li>
+<li><p>open cas 缓存满后，采用open cas的淘汰算法，用最新写入的数据淘汰以前旧数据，已达到oepn cas始终可以缓存数据。</p>
+<p><img src="https://open-cas.github.io/images/guide_figure1.jpg" alt="alt text"> </p>
+</li>
+</ul>
+<h3 id="系统组件以来"><a href="#系统组件以来" class="headerlink" title="系统组件以来"></a>系统组件以来</h3><ul>
+<li>sed</li>
+<li>make</li>
+<li>gcc</li>
+<li>kernel-devel</li>
+<li>kernel-headers</li>
+<li>python3</li>
+<li>lsblk</li>
+<li>argparse (python module)</li>
+</ul>
+<h3 id="安装linux-open-cas"><a href="#安装linux-open-cas" class="headerlink" title="安装linux open cas"></a>安装linux open cas</h3><h5 id="1-open-cas-由kernel-modules和cli工具组成"><a href="#1-open-cas-由kernel-modules和cli工具组成" class="headerlink" title="1.open cas 由kernel modules和cli工具组成"></a>1.open cas 由kernel modules和cli工具组成</h5><h5 id="2-为了获取最佳性能，强烈推荐在SSD-device采用noop的IO调度策略"><a href="#2-为了获取最佳性能，强烈推荐在SSD-device采用noop的IO调度策略" class="headerlink" title="2.为了获取最佳性能，强烈推荐在SSD device采用noop的IO调度策略"></a>2.为了获取最佳性能，强烈推荐在SSD device采用noop的IO调度策略</h5><h5 id="3-具体安装步骤"><a href="#3-具体安装步骤" class="headerlink" title="3.具体安装步骤:"></a>3.具体安装步骤:</h5><ul>
+<li><p>下载open cas linux source</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;Open-CAS&#x2F;open-cas-linux</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>获取子模块</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd open-cas-linux </span><br><span class="line">git submodule update –init</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置和安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>检查和验证</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cas_disk.ko  &#x2F;&#x2F;open cas 磁盘内核模块</span><br><span class="line">cas_cache.ko &#x2F;&#x2F;open cas 缓存内核模块</span><br><span class="line">casadm       &#x2F;&#x2F;open cas 管理员工具</span><br><span class="line">casadm -V    &#x2F;&#x2F;install 检验</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="open-cas配置"><a href="#open-cas配置" class="headerlink" title="open cas配置"></a>open cas配置</h3><ul>
+<li><p>配置文件在utils/opencas.conf中，包括cache的配置和core devices的配置</p>
+<ul>
+<li><p>caches配置说明</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1.cache id:执行设备的启动实例ID,整形取值范围在1~16384</span><br><span class="line">2.path:指向ssd的磁盘路径</span><br><span class="line">3.desired mode:预期模式，一共有5中模式，分别是write-through&#x2F;write-back&#x2F;write-only&#x2F;pass-through</span><br><span class="line">4.extra fields:用户自定义IO配置</span><br><span class="line">	4.1 ioclass_file：允许用户加载自定义IO策略</span><br><span class="line">   	4.2 cleaning_policy ：允许用户缓存清理的策略，包括了acp&#x2F;alru&#x2F;nop</span><br><span class="line">	4.3 promotion_policy ：允许用户使用缓存的推进策略，包括了always&#x2F;nhit</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>core devices配置说明</p>
+</li>
+</ul>
+</li>
+</ul>
+<pre><code>1.cache id:每个core device对应的Cache id，整形，取值范围0~4095
+2.core id:每个core device的id
+3.path:core device的路径
+    //每个cache和core devices必须执行已经存储在hdd和ssd,core device应该引用wwn的标识，cache device必须顺序数据。</code></pre><ul>
+<li><p>配置样例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">## Caches configuration section</span><br><span class="line"></span><br><span class="line">[caches]</span><br><span class="line"></span><br><span class="line">## Cache ID Cache device Cache mode Extra fields (optional)</span><br><span class="line"></span><br><span class="line">1 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;nvme-INTEL_SSD WT ioclass_file&#x3D;&#x2F;etc&#x2F;opencas&#x2F;ioclass-config.csv</span><br><span class="line"></span><br><span class="line">## Core devices configuration</span><br><span class="line"></span><br><span class="line">[cores]</span><br><span class="line"></span><br><span class="line">## Cache ID Core ID Core device</span><br><span class="line"></span><br><span class="line">1 1 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0aed22393</span><br><span class="line"></span><br><span class="line">1 2 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0042769ef</span><br><span class="line"></span><br><span class="line">1 3 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee00429bf94</span><br><span class="line"></span><br><span class="line">1 4 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0aed45a6d</span><br><span class="line"></span><br><span class="line">1 5 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee6b11be556</span><br><span class="line"></span><br><span class="line">1 6 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0aed229a4</span><br><span class="line"></span><br><span class="line">1 7 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee004276c68</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>cas管理工具</p>
+<ul>
+<li><p>手动配置 write-through 模式</p>
+<ul>
+<li>在该模式下，   caching  software 写入数据到flash device，然后顺序的写到到core device中，这种模式100%保证core device中数据和cache中数据一致，同时可以共享给其他的服务读取，这种类型可以加速读操作</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc  &#x2F;&#x2F;创建id&#x3D;1的cache</span><br><span class="line">casadm -A -i 1 -d &#x2F;dev&#x2F;sdb  &#x2F;&#x2F;匹配&#x2F;dev&#x2F;sdb到cache</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>手动配置write-back模式</p>
+<ul>
+<li>在该模式下， caching  software首先把数据先写入到cache中，然后通知用户写完毕了，最后周期性的把数据写入到core device中,write-back模式提高了读写性能，但是会有数据丢失的风险  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c wb</span><br><span class="line">casadm -A -i 1 -d &#x2F;dev&#x2F;sdb  &#x2F;&#x2F;匹配&#x2F;dev&#x2F;sdb到cache</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>手动配置Write-around模式</p>
+<ul>
+<li><p>在write-around模式下， 只有block数据已经存在于cache中，caching  software把数据才会写入到flash device中，然后顺序写数据到core device.这种模式100%保证core device和cache一致， 写回操作进一步优化了缓存，以避免在写入数据且随后不经常重新读取数据的情况下对缓存的污染 。</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c wa</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>手动配置pass-through模式</p>
+</li>
+<li><p>在该模式下,caching software所有操作都绕开cache.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c pt</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>手动配置write-only模式</p>
+<ul>
+<li>在write-only模式下,缓存系统先把数据写入到cache中，然后通知应用端写完成。后续周期性的同步写到core device中,当有新的读请求。只有当之前写入数据在cache device中，读请求会绕开cache software,直接读取caching device的数据。该模式仅仅提高写性能，但是会有数据丢失风险。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c wo</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/" class="post-title-link" itemprop="url">glusterfs and opencas issue列表</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-14 18:42:25" itemprop="dateCreated datePublished" datetime="2020-04-14T18:42:25+08:00">2020-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-22 19:55:46" itemprop="dateModified" datetime="2020-04-22T19:55:46+08:00">2020-04-22</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="issue-列表"><a href="#issue-列表" class="headerlink" title="issue 列表"></a>issue 列表</h3><ul>
+<li>1.glusterfsd crash due to health-check failed, going down ,system call errorno not return<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;gluster&#x2F;glusterfs&#x2F;issues&#x2F;1168</span><br></pre></td></tr></table></figure></li>
+<li>2.glusterfsd memory leak killed by os #1166<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;gluster&#x2F;glusterfs&#x2F;issues&#x2F;1166</span><br></pre></td></tr></table></figure></li>
+<li>3.Major bug,glusterfsd consume to much cpu resource #1133<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;gluster&#x2F;glusterfs&#x2F;issues&#x2F;1133</span><br></pre></td></tr></table></figure></li>
+<li><ol start="4">
+<li>opencase case write page lost</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;Open-CAS&#x2F;open-cas-linux&#x2F;issues&#x2F;396</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>5.Fatal Bug:distribute replica 3,one brick of data is different from another replicate one brick #1184</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;github.com&#x2F;gluster&#x2F;glusterfs&#x2F;issues&#x2F;1184</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/14/glusterfs-cluster-read-hash-mode%E7%9A%84%E4%BD%9C%E7%94%A8/" class="post-title-link" itemprop="url">glusterfs cluster.read-hash-mode的作用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-14 18:39:02 / 修改时间：18:39:54" itemprop="dateCreated datePublished" datetime="2020-04-14T18:39:02+08:00">2020-04-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="1-官方解释"><a href="#1-官方解释" class="headerlink" title="1.官方解释"></a>1.官方解释</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@centos-linux ~]$ gluster volume set help|grep read-hash-mode -A7</span><br><span class="line">Option: cluster.read-hash-mode</span><br><span class="line">Default Value: 1</span><br><span class="line">Description: inode-read fops happen only on one of the bricks in replicate. AFR will prefer the one computed using the method specified using this option.</span><br><span class="line">0 &#x3D; first readable child of AFR, starting from 1st child.</span><br><span class="line">1 &#x3D; hash by GFID of file (all clients use same subvolume).</span><br><span class="line">2 &#x3D; hash by GFID of file and client PID.</span><br><span class="line">3 &#x3D; brick having the least outstanding read requests.</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

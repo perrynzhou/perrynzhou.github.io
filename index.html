@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="擅长C&#x2F;Go编程;https:&#x2F;&#x2F;github.com&#x2F;perrynzhou。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="perrynzhou">
+<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="擅长C&#x2F;Go编程;https:&#x2F;&#x2F;github.com&#x2F;perrynzhou。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content=" Go">
+<meta property="article:tag" content=" nginx">
+<meta property="article:tag" content="glusterfs">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/26/TCP%E5%88%9D%E6%8E%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/26/TCP%E5%88%9D%E6%8E%A2/" class="post-title-link" itemprop="url">TCP初探</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-08-26 09:18:22 / 修改时间：09:21:39" itemprop="dateCreated datePublished" datetime="2020-08-26T09:18:22+08:00">2020-08-26</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="TCP协议初探"><a href="#TCP协议初探" class="headerlink" title="TCP协议初探"></a>TCP协议初探</h3><ul>
+<li><p>发送方对一个ACK应该等待多长时间？</p>
+</li>
+<li><p>如果ACK丢失怎么办？</p>
+<ul>
+<li>如果一个ack丢失了，发送方式是不能轻易的识别ACK丢失和原分组的丢失的情况，所以发送方会再次发送原分组</li>
+</ul>
+</li>
+<li><p>如果分组被接受了，但是分组有错误怎么办？</p>
+<ul>
+<li>使用编码技术检测一个大的分组的差错一般都是简单，仅仅使用比自身小很多的一些比特即可纠正。当接受方接受到有差错的分组，接收方是不能发送ACK，最后发送方重新发送无差错的分组</li>
+</ul>
+</li>
+<li><p>如果接受方接收到了重复分组怎么办？</p>
+<ul>
+<li>发送方针对每个分组会有一个序列号，这个序列号是有分组自身携带，接受方可以使用这个序列号来判断它是否已经接受到这个分组，如果是则丢弃</li>
+</ul>
+</li>
+<li><p>什么是分组窗口和滑动窗口？</p>
+<ul>
+<li>定义一个分组窗口作为已经被发送方发送但还没完成收到ACK确认的分组的集合，这是分组窗口；这个分组窗口的数量叫做窗口大小；发送方和接受方都存在滑动窗口，对于发送方，滑动窗口记录发送已确认的分组（可释放）、发送未收到确认的分组、即将发送的分组。对于接收方，滑动窗口记录已接受和确认的分组、期望接受分组、即将接受可能因为内存限制而被丢弃的分组。</li>
+</ul>
+</li>
+<li><p>什么是流量控制和拥塞控制？</p>
+<ul>
+<li>在接受方接受分组的速度跟不上发送方发分送分组的速度，会强迫发送方把发送分组的速度降下来，这个称谓流量控制；流量控制有2种方式，一种是基于速率，它给发送方指定某个发送的速率，同时确保数据永远不会超过这个发送速率发送，这个仅仅适合流应用程序，可用于广播和组播。另外一种是基于窗口流量控制，是使用滑动窗口，在这个方法里，滑动窗口大小不固定，随着时间而变化。必须有一种方法让接受方可以通知发送方应该使用多大的滑动窗口，这个接受方通知发送方的窗口叫做窗口更新。</li>
+<li>在发送方和接受方之间可能会有因为有限内存的路由器，它们和低速网络链路抗争着，当这种情况发生时候，发送方发送分组的速率可能超过某个路由器的能力，从而导致丢包，这种情况是有拥塞控制的流量控制方式来处理。拥塞控制涉及发送方降低发送速度，不至于压垮其和接受方之间的网络。</li>
+</ul>
+</li>
+<li><p>如果设置重传超时？</p>
+<ul>
+<li>发送方在重发一个分组之前等待的时间包括：发送分组所用时间、接受方处理分组时间、接受方发送ACK的时间、发送方接受ACK所用时间。在这些时间都是不确定的。比较好的策略让协议实现尝试去评估它们，这称为往返时间评估，这是一个统计过程。</li>
+</ul>
+</li>
+<li><p>TCP服务有什么特点？</p>
+<ul>
+<li>TCCP虽然TCP和UDP都使用相同的网络层(IP层)，但是TCP给应用程序提供一种和UDP完全不同的服务，TCP提供一种面向连接、可靠的字节流的服务，面向连接是指TCP的两个应用程序必须在他们可交换数据之前，通过相互联系来建立一个TCP连接。最经典的比喻，拨打一个电话号码，等待另外一方接电话并说“喂”，然后说“找谁？”，这正是一个TCP连接的两个端点之间的通信，广播和组播不存在于TCP，存在于UDP。</li>
+<li>TCP没有消息边界，是一种流式服务。</li>
+</ul>
+</li>
+<li><p>TCP如何保证可靠性?</p>
+<ul>
+<li>TCP提供一个字节流接口，TCP必须把一个发送应用程序的数据转换为一组IP可以携带的分组，这个分组叫做组包，这些分组包含序列号，这个序列号实际代表每个分组的第一个字节在整个应用程序数据中的字节偏移量，而不是分组号。</li>
+<li>TCP传给IP层的块叫做报文段，应用程序数据被打散成TCP人为最佳的大小块来发送，使得每个报文段按照不会被IP层数据报的大小来划分</li>
+<li>TCP发送一组报文段时会设置一个重传计时器，等待对方的确认接收，TCP不会为每个报文段设置一个不同的重传计时器，相反，发送一个窗口的数据，它仅仅设置一个计时器，当ACK到达时候在更新计时器；如果ACK么有及时接收，这个报文段会被重传。</li>
+<li>当TCP接收到连接的另一端数据时候，它会发送一个ACK确认给另一端，告知另一端数据已经接受。这个ACK确认可能不会立即发送，一般会延迟发送。</li>
+<li>TCP给应用程序提供一种双工服务，数据可以在两个方向上流动，两个方向互相独立，因此连接的每个端点必须对每个方向维持一个数据流的一个序列号，一旦建立一个连接，这连接的一个方向上的包含数据流的每个TCP报文段也包含了相反方向上的报文段的一个ACK。</li>
+<li>TCP接受端使用序列号来丢弃重复的报文段和记录杂乱次序到达的报文段，TCP使用IP来传递它的报文段，IP不提供重复消除、保证次序正确的功能。然而，因为TCP是一个字节流协议，TCP绝不会以杂乱次序给接收应用程序发送数据，因此TCP接收端可能会被迫先保持大序列号的数据不交给应用程序，知道缺失的小序列号的报文段被填满。</li>
+</ul>
+</li>
+<li><p>TCP头部和封装是什么样的？</p>
+<ul>
+<li>每个TCP头部都包含源和目标的端口，这两个值和IP头部的源和目标IP地址一起唯一的标识每个连接，TCP术语中，一个IP地址和一个端口的组合有时被称为套接字或者端点。每个TCP连接由一对套接字或端点（四元组，客户端IP、客户端端口、服务器IP，服务器端口唯一标识。</li>
+<li>确认字段(ack)包含德玛值是该确认号发送方期待接受下一个序列号，即最后发送成功的数据字节的序列号加1</li>
+<li>当建立一个新连接时，从客户机发送至服务器的第一个报文段的SYN位字段被启用，这个报文段称为SYNC报文段</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/19/nginx%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/19/nginx%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E/" class="post-title-link" itemprop="url">nginx基本配置说明</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-08-19 09:55:50 / 修改时间：09:56:45" itemprop="dateCreated datePublished" datetime="2020-08-19T09:55:50+08:00">2020-08-19</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="nginx基本配置说明"><a href="#nginx基本配置说明" class="headerlink" title="nginx基本配置说明"></a>nginx基本配置说明</h2><h4 id="nginx信号控制"><a href="#nginx信号控制" class="headerlink" title="nginx信号控制"></a>nginx信号控制</h4><table>
+<thead>
+<tr>
+<th>信号</th>
+<th>作用</th>
+<th>用法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SIGTERN或者SIGINT</td>
+<td>快速停止nginx服务</td>
+<td>kill -SIGTERM {nginx_pid} 或者 kill -SIGINT {nginx_pid}</td>
+</tr>
+<tr>
+<td>SIGQUIT</td>
+<td>平缓停止nginx服务</td>
+<td>kill -SIGTQUIT {nginx_pid}</td>
+</tr>
+<tr>
+<td>SIGHUP</td>
+<td>平缓重启nginx服务</td>
+<td>kill -SIGHUP {nginx_pid}</td>
+</tr>
+</tbody></table>
+<ul>
+<li>快速停止nginx:停止当前nginx服务正在处理的所有网路请求，立即丢弃连接，停止工作</li>
+<li>平缓停止nginx:允许nginx服务将当前正在处理网络连接请求处理完毕，但是不在接受新的请求，之后关闭连接、停止工作</li>
+<li>平缓重启nginx：平缓停止所有进程,使用新的配置启动nginx进程</li>
+</ul>
+<h4 id="nginx配置结构"><a href="#nginx配置结构" class="headerlink" title="nginx配置结构"></a>nginx配置结构</h4><ul>
+<li>全局块：默认是从配置文件开始到events的一部分内容，主要影响nginx服务器整体运行的参数，包括用户运行的组、最大的worker进程数</li>
+<li>events块:主要影响nginx服务器与用户的网络连接，比如是否允许同时接受多个连接请求、选择哪一种事件驱动模型处理请求(select/epoll)</li>
+<li>http块：这是nginx服务器配置代理、缓存、日志定义的大部分的功能，http块可以包括server块，server块可以包括localtion块</li>
+<li>server块：主要用于配置虚拟主机</li>
+<li>localtion块：每个server块可以包括多个location块，严格来说，location是server的一个指令，location块主要作用基于nginx服务器接收到请求的字符串(server_name/uri-string),除对虚拟主机名称之外的字符串进行匹配，对特定的请求进行处理</li>
+</ul>
+<h4 id="nginx核心配置"><a href="#nginx核心配置" class="headerlink" title="nginx核心配置"></a>nginx核心配置</h4><ul>
+<li>worker_process {num} | auto:这是非常核心的参数，也是nginx的实现并发服务的核心，该参数配置nginx的worker进程的数量</li>
+<li>pid  {pid_path}:nginx是以daemon的方式运行，master进程的pid的值会写入到nginx配置文件中 pid {path}指定的路径中。</li>
+<li>error_log {file_path} {log_level}:配置nginx的日志</li>
+<li>accept_mutex on|off:防止nginx的惊群配置，默认开启</li>
+<li>use {method}:选择事件驱动模型</li>
+<li>worker_connetions {number}:用来设置允许每一个worker_process同时开启的最大连接数</li>
+<li>sendfile on|off:零拷贝方式的文件传输</li>
+<li>keepalive_timeout {timeout} {header_timeout}:nginx可以保持连接打开一段时间</li>
+<li>keepalive_requests {number}:nginx服务器和用户建立回话连接后，用户端通过此连接发出请求，这个参数用于限制用户通过某一连接向nginx服务器发送请求的次数</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/08/memcached%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/08/memcached%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">memcached线程模型分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-08-08 15:22:55 / 修改时间：15:29:07" itemprop="dateCreated datePublished" datetime="2020-08-08T15:22:55+08:00">2020-08-08</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="memcached-有几种类型的线程"><a href="#memcached-有几种类型的线程" class="headerlink" title="memcached 有几种类型的线程?"></a>memcached 有几种类型的线程?</h3><p>memcached有2类线程，一类是main线程，一类是worker线程，main线程负责监听listenfd放到main_base中进行监听，一旦listenfd中有IO时间,也就是有新的连接进来，则转发通过dispatch_conn_new函数初始化一个CQ_ITEM，把对应的clientfd封装在CQ_ITEM中，同时把item放到线程的CQ_ITEM队列中，然后写入标记数据到线程的notify_send_fd中，worker线程则是监听工作线程中的notify_recv_fd中的IO事件，根据读取到的标记数据来初始化一个新连接，接着处理这个链接，释放CQ_ITEM</p>
+<h3 id="memcached中工作线程如何和main线程交互的"><a href="#memcached中工作线程如何和main线程交互的" class="headerlink" title="memcached中工作线程如何和main线程交互的"></a>memcached中工作线程如何和main线程交互的</h3><p>工作线程会有一个管道来实现和main线程进行通信的，工作线程通过pipe系统调用初始化一对FD。</p>
+<ul>
+<li>memcached中的工作线程的结构<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">	pthread_t thread_id;        &#x2F;* 工作线程ID*&#x2F;</span><br><span class="line">	struct event_base *base;    &#x2F;* libevent的句柄 *&#x2F;</span><br><span class="line">	struct event notify_event;  &#x2F;* listen event *&#x2F;</span><br><span class="line">	int notify_receive_fd;      &#x2F;* 客户端线程监听这个套接字接受来自服务端通知，比如新连接 *&#x2F;</span><br><span class="line">	int notify_send_fd;         &#x2F;* 主线程有消息，会往这个fd中进行写入数据 *&#x2F;</span><br><span class="line">	struct thread_stats stats;  &#x2F;* 线程的状态 *&#x2F;</span><br><span class="line">	struct conn_queue *new_conn_queue; &#x2F;* 该队列存储CQ_ITEM把服务端接受到的客户端fd状态为CQ_ITEM，放到这个队列中 *&#x2F;</span><br><span class="line">	cache_t *resp_cache;        &#x2F;* response objects *&#x2F;</span><br><span class="line">	cache_t *rbuf_cache;        &#x2F;* static-sized read buffers *&#x2F;</span><br><span class="line">	cache_t *io_cache;          &#x2F;* IO objects *&#x2F;</span><br><span class="line">	void *storage;              &#x2F;* data object for storage system *&#x2F;</span><br><span class="line">	logger *l;                  &#x2F;* logger buffer *&#x2F;</span><br><span class="line">	void *lru_bump_buf;         &#x2F;* async LRU bump buffer *&#x2F;</span><br><span class="line">	char   *ssl_wbuf;</span><br><span class="line">&#125; LIBEVENT_THREAD;</span><br></pre></td></tr></table></figure></li>
+<li>memcached的工作线程的初始化函数<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">	&#x2F;&#x2F;memcached的工作线程的初始化函数</span><br><span class="line">	void memcached_thread_init(int nthreads, void *arg) &#123;</span><br><span class="line">	&#x2F;&#x2F;每个工作线程的初始化</span><br><span class="line">		threads &#x3D; calloc(nthreads, sizeof(LIBEVENT_THREAD));</span><br><span class="line">		if (! threads) &#123;</span><br><span class="line">	    perror(&quot;Can&#39;t allocate thread descriptors&quot;);</span><br><span class="line">	    exit(1);</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">		for (i &#x3D; 0; i &lt; nthreads; i++) &#123;</span><br><span class="line">	    	int fds[2];</span><br><span class="line">	    	if (pipe(fds)) &#123;</span><br><span class="line">	        perror(&quot;Can&#39;t create notify pipe&quot;);</span><br><span class="line">	        exit(1);</span><br><span class="line">	    	&#125;</span><br><span class="line">	    &#x2F;&#x2F;当有新连接时候，主线程会选择性的写数据到线程的notify_send_fd，然后工作线程在从notify_receive_fd读取数据，然后取出连接开始处理</span><br><span class="line">			&#x2F;&#x2F;工作线程从notify_receive_fd读取数据</span><br><span class="line">	    threads[i].notify_receive_fd &#x3D; fds[0];</span><br><span class="line">		&#x2F;&#x2F;主线程从notify_send_fd写入数据</span><br><span class="line">	    threads[i].notify_send_fd &#x3D; fds[1];</span><br><span class="line">		&#x2F;&#x2F;设置每个线程中event监听notify_receive_fd中的数据</span><br><span class="line">	    setup_thread(&amp;threads[i]);</span><br><span class="line">	    &#x2F;* Reserve three fds for the libevent base, and two for the pipe *&#x2F;</span><br><span class="line">	    stats_state.reserved_fds +&#x3D; 5;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	&#x2F;* Create threads after we&#39;ve done all the libevent setup. *&#x2F;</span><br><span class="line">	&#x2F;&#x2F;启动每个工作线程,每个线程执行event_base_loop</span><br><span class="line">	for (i &#x3D; 0; i &lt; nthreads; i++) &#123;</span><br><span class="line">	    create_worker(worker_libevent, &amp;threads[i]);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="memcached主线程如何初始化服务端的socket"><a href="#memcached主线程如何初始化服务端的socket" class="headerlink" title="memcached主线程如何初始化服务端的socket?"></a>memcached主线程如何初始化服务端的socket?</h3><p>在这里我们需要大概了解下main函数的执行逻辑前基本介绍全局的数据结构如下：</p>
+<ul>
+<li><p>listen_conn:全局的监听套接字的连接</p>
+</li>
+<li><p>max_fds:默认最大支持的连接数</p>
+</li>
+<li><p>main_base:主线程的libevent的核心结构体</p>
+</li>
+<li><p>conns:全局的连接数组，类型是conn指针类型</p>
+</li>
+<li><p>基本的执行逻辑如下</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;函数入口，在memcached的入口</span><br><span class="line">main </span><br><span class="line">&#x2F;&#x2F;初始化全局的conns,max_fds &#x3D; settings.maxconns + headroom + next_fd;</span><br><span class="line">conn_init();</span><br><span class="line">&#x2F;&#x2F;main线程的event初始化</span><br><span class="line">main_base &#x3D; event_init();</span><br><span class="line">&#x2F;&#x2F;和server_socket类型，不同的仅仅是制定网卡绑定</span><br><span class="line">server_sockets </span><br><span class="line">	&#x2F;&#x2F;main线程通过socket&#x2F;bind&#x2F;listen来初始化listen_conn，设置该连接的类型，listen_conn中的sfd放到main_base监听</span><br><span class="line">	server_socket </span><br><span class="line">		&#x2F;&#x2F;根据sfd初始化一个conn放到main_base中，设置回函数event_handler</span><br><span class="line">		conn_new </span><br><span class="line">&#x2F;&#x2F;初始化工作线程</span><br><span class="line">memcached_thread_init </span><br><span class="line">	&#x2F;&#x2F;设置工作线程，把notify_receive_fd放到工作线程的event_base中监听</span><br><span class="line">	setup_thread </span><br><span class="line">		&#x2F;&#x2F;设置notify_receive_fd中IO事件处理函数</span><br><span class="line">		thread_libevent_process </span><br><span class="line">	&#x2F;&#x2F;启动单独线程开始监听notify_receive_fd的IO时间</span><br><span class="line">	worker_libevent </span><br><span class="line">event_base_loop</span><br><span class="line">event_base_free</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="memcached主线程如何处理一个新来的连接"><a href="#memcached主线程如何处理一个新来的连接" class="headerlink" title="memcached主线程如何处理一个新来的连接"></a>memcached主线程如何处理一个新来的连接</h3><ul>
+<li>服务端的socket(listenfd)监听套接字封装成conn,设置该连接状态为conn_listening，放到main_base中，一旦有listenfd有事件，event_handler就会被触发，则调用drive_machine函数接受客户单请求套接字<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;针对main线程，把服务端的listenfd放到main_base中，针对工作线程则注册</span><br><span class="line">event_handler notify_receive_fd注册到event_base中</span><br><span class="line">	drive_machine &#x2F;&#x2F;接受来自客户端IO请求，这是最重要的函数</span><br><span class="line">		dispatch_conn_new &#x2F;&#x2F;把请求的FD封装到CQ_ITEM中，然后放到工作线程的队列中，然后通知工作线程有新连接进去</span><br></pre></td></tr></table></figure></li>
+<li>服务端调用drive_machine接受客户端fd后，调用dispatch_conn_new函数客户端的FD封装成CQ_ITEM</li>
+<li>客户端的FD封装成CQ_ITEM后，根据哈希取模策略选择一个线程，把CQ_ITEM放到该工作线程的new_conn_queue中，然后往该线程的notify_send_fd写入数据</li>
+<li>由于工作线程在memcached启动后就已经初始化几个工作线程，然后每个线程中调用thread_libevent_process监听该线程中的notify_recv_fd中的IO事件，该工作线程从notify_recv_fd中读取到了数据，从自己线程队列中取出一个CQ_ITEM,初始化conn，放到全局conns数组中，这个数据的下表就是客户请求的FD，然后释放CQ_ITEM资源，到此整个memcached的从主线程接受请求，到工作线程接受和初始化conn结束，后面就是处理这个客户端请求</li>
+</ul>
+<h3 id="memcached注释"><a href="#memcached注释" class="headerlink" title="memcached注释"></a>memcached注释</h3><ul>
+<li>memcached.c:<a href="https://github.com/perrynzhou/memcached-1.6.6-readingnote/blob/perryn/dev/memcached-1.6.6/memcached.c" target="_blank" rel="noopener">https://github.com/perrynzhou/memcached-1.6.6-readingnote/blob/perryn/dev/memcached-1.6.6/memcached.c</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/06/nginx%E5%86%85%E5%AD%98%E6%B1%A0%E5%AE%9E%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/06/nginx%E5%86%85%E5%AD%98%E6%B1%A0%E5%AE%9E%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">nginx内存池实现和分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-08-06 09:44:05 / 修改时间：09:47:47" itemprop="dateCreated datePublished" datetime="2020-08-06T09:44:05+08:00">2020-08-06</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><ul>
+<li>目的是分析nginx的内存池模块，了解内存池相关知识</li>
+<li>nginx为什么要这样设计内存池</li>
+</ul>
+<h3 id="基本数据结构介绍"><a href="#基本数据结构介绍" class="headerlink" title="基本数据结构介绍"></a>基本数据结构介绍</h3><ul>
+<li>ngx_pool_s:nginx的内存池结构，定义如下<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">struct ngx_pool_s &#123;</span><br><span class="line">    &#x2F;&#x2F;d:保存可用内存地址信息</span><br><span class="line">    ngx_pool_data_t       d;</span><br><span class="line">    &#x2F;&#x2F;max:申请大块的的基本条件是申请大小超过max</span><br><span class="line">    size_t                max;</span><br><span class="line">    &#x2F;&#x2F;current：指向当前内存池结构，初始化时候指向它自己</span><br><span class="line">    ngx_pool_t           *current;</span><br><span class="line">    ngx_chain_t          *chain;</span><br><span class="line">    &#x2F;&#x2F;large:表示大块内存，通过单向链表表示</span><br><span class="line">    ngx_pool_large_t     *large;</span><br><span class="line">    ngx_pool_cleanup_t   *cleanup;</span><br><span class="line">    ngx_log_t            *log;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>ngx_pool_data_t：存储内存小于(4k-1)的内存块，其结构定义如下</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">    &#x2F;&#x2F;可用内存的开始地址</span><br><span class="line">    u_char               *last;</span><br><span class="line">    &#x2F;&#x2F;可用内存的末尾地址</span><br><span class="line">    u_char               *end;</span><br><span class="line">    &#x2F;&#x2F;指向下一个内存pool</span><br><span class="line">    ngx_pool_t           *next;</span><br><span class="line">    ngx_uint_t            failed;</span><br><span class="line">&#125; ngx_pool_data_t;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>ngx_pool_large_s：存储内存超过(4k-1)字节的内存块,其结构定义如下</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct ngx_pool_large_s &#123;</span><br><span class="line">    ngx_pool_large_t     *next;</span><br><span class="line">    void                 *alloc;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="基本函数介绍"><a href="#基本函数介绍" class="headerlink" title="基本函数介绍"></a>基本函数介绍</h3><ul>
+<li>ngx_create_pool:nginx的内存池创建</li>
+<li>ngx_destroy_pool:销毁一个内存池</li>
+<li>ngx_reset_pool:重置一个内存池中的小块内存，同时释放大块内存</li>
+<li>ngx_palloc:通过系统调用函数申请内存</li>
+<li>ngx_pnalloc:从内存池中申请内存</li>
+<li>ngx_pmemalign:按照对齐方式方式申请large结构体内存</li>
+<li>ngx_pfree:释放大块内存</li>
+</ul>
+<h3 id="内存池函数注释"><a href="#内存池函数注释" class="headerlink" title="内存池函数注释"></a>内存池函数注释</h3><p><a href="https://github.com/perrynzhou/nginx-1.19.1-reading-note/blob/perryn/dev/nginx-1.19.1/src/core/ngx_palloc.h" target="_blank" rel="noopener">ngx_palloc.h</a><br><a href="https://github.com/perrynzhou/nginx-1.19.1-reading-note/blob/perryn/dev/nginx-1.19.1/src/core/ngx_palloc.c" target="_blank" rel="noopener">ngx_palloc.c</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/29/%E7%AE%80%E5%8D%95%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B9%B6%E5%8F%91%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/29/%E7%AE%80%E5%8D%95%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B9%B6%E5%8F%91%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="post-title-link" itemprop="url">简单的网络并发服务器</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-07-29 09:58:19 / 修改时间：10:03:54" itemprop="dateCreated datePublished" datetime="2020-07-29T09:58:19+08:00">2020-07-29</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="简单的网络并发服务器"><a href="#简单的网络并发服务器" class="headerlink" title="简单的网络并发服务器"></a>简单的网络并发服务器</h3><h4 id="并发服务基本介绍"><a href="#并发服务基本介绍" class="headerlink" title="并发服务基本介绍"></a>并发服务基本介绍</h4><ul>
+<li>在网络服务器设计中，当用户请求达到10W以及更多时候，服务端处理客户端请求能力就非常重要，在业界一般是采用异步网络IO+多线程方式来做这种方案。本例中仅仅是采用多进程的方式模拟这种场景，主要的目的是搞清楚涉及到网络编程中的函数基本原理</li>
+</ul>
+<h4 id="基本函数介绍"><a href="#基本函数介绍" class="headerlink" title="基本函数介绍"></a>基本函数介绍</h4><ul>
+<li>socket函数:指明需要绑定什么版本的协议和具体协议类型，比如协议版本ipv4或者ipv6,具体的协议是tcp/udp/sctp协议</li>
+<li>bind函数：设置服务器端的地址，和socket函数返回的套接字绑定</li>
+<li>listen函数:监听这个套接字，同时设置内核的连接的最大队列，一个是未完成队列，一个是完成队列，未完成队列是程序发起syn之后和未完成三次握手之前，此时连接会被放到服务器端的未完成队列中；当完成三次握手，为被应用程序使用之前，此时这种连接会被放到服务器端TCP的完成队列中。</li>
+<li>accept函数：该函数就是从服务端的TCP的完成队列中取出一个可用连接以供应用程序使用</li>
+<li>connect函数: 程序发起syn包到服务端，之后的所有操作都是有tcp协议栈来做</li>
+</ul>
+<h4 id="样例代码中的疑惑"><a href="#样例代码中的疑惑" class="headerlink" title="样例代码中的疑惑"></a>样例代码中的疑惑</h4><p><strong><em>fork后为啥需要关闭listenfd?</em></strong><br>    讲道理父进程fork之后，在子进程中关闭了listenfd,子进程不需要读写整个listenfd的任何资源，子进程仅仅是一个工作进程。这个时候不是应该触发四次挥手(发送fin)断开的操作吗？在这里需要说清楚，fork之后，父子进程会共享listenfd和connfd,此时在内核看来，listenfd和connfd的文件描述符的引用计数在fork之前是1，fork后父子进程共享这2个文件描述符，这2个文件描述符的应用计数为2，在子进程中close（listenfd）不会触发发送fin包，仅仅是listenfd的引用计数从2减到了1而已。<br>    那如果要真正来发送fin包该如何做？可以调用shutdown函数实现发送fin包，断开连接<br><strong><em>父进程中为什么也要关闭connfd?</em></strong><br>    比如子进程处理connfd时间很长，在实例代码中，fork后返回2次，返回到父进程时候已经执行了close(connfd),那子进程不是读取数据失败？其实不是这样的，connfd和上面描述一样，都是引用计数，connfd的引用计数由原来的2减到1而已。这里关闭也有另外一个原因，父进程仅仅复杂监听来自客户单请求，不需要处理客户单请求。</p>
+<h4 id="基本实例代码"><a href="#基本实例代码" class="headerlink" title="基本实例代码"></a>基本实例代码</h4><ul>
+<li>代码<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">    &gt; File Name: concurrent_tcp_server.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Wednesday, July 29, 2020 AM09:06:42</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;stdint.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">#include &lt;assert.h&gt;</span><br><span class="line">#include &lt;arpa&#x2F;inet.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;socket.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;netdb.h&gt;</span><br><span class="line">#include &lt;ifaddrs.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#define TCP_MIN_BACKLOG (2048)</span><br><span class="line">static void fetch_ip_from_host(char *buf, size_t buf_size)</span><br><span class="line">&#123;</span><br><span class="line">  struct ifaddrs *ifaddr, *ifa;</span><br><span class="line">  int family, s;</span><br><span class="line">  if (getifaddrs(&amp;ifaddr) !&#x3D; -1)</span><br><span class="line">  &#123;</span><br><span class="line">    const char *local_address &#x3D; &quot;127.0.0.1&quot;;</span><br><span class="line">    size_t local_address_len &#x3D; strlen(local_address);</span><br><span class="line">    for (ifa &#x3D; ifaddr; ifa !&#x3D; NULL; ifa &#x3D; ifa-&gt;ifa_next)</span><br><span class="line">    &#123;</span><br><span class="line">      if (ifa-&gt;ifa_addr &#x3D;&#x3D; NULL)</span><br><span class="line">      &#123;</span><br><span class="line">        continue;</span><br><span class="line">      &#125;</span><br><span class="line">      s &#x3D; getnameinfo(ifa-&gt;ifa_addr, sizeof(struct sockaddr_in), buf, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);</span><br><span class="line">      if (s !&#x3D; 0)</span><br><span class="line">      &#123;</span><br><span class="line">        continue;</span><br><span class="line">      &#125;</span><br><span class="line">      if (ifa-&gt;ifa_addr-&gt;sa_family &#x3D;&#x3D; AF_INET &amp;&amp; strncmp(buf, local_address, local_address_len) !&#x3D; 0)</span><br><span class="line">      &#123;</span><br><span class="line">        break;</span><br><span class="line">      &#125;</span><br><span class="line">      bzero(buf, buf_size);</span><br><span class="line">    &#125;</span><br><span class="line">    freeifaddrs(ifaddr);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">void fetch_ip_from_fd(int client_fd, char *address, size_t address_size)</span><br><span class="line">&#123;</span><br><span class="line">  struct sockaddr_in addr;</span><br><span class="line">  socklen_t addr_size &#x3D; sizeof(struct sockaddr_in);</span><br><span class="line">  int res &#x3D; getpeername(client_fd, (struct sockaddr *)&amp;addr, &amp;addr_size);</span><br><span class="line">  strncpy(address, inet_ntoa(addr.sin_addr), address_size);</span><br><span class="line">  size_t alen &#x3D; strlen((char *)&amp;address);</span><br><span class="line">  snprintf((char *)&amp;address + alen, address_size - alen, &quot;:%d&quot;, htons(addr.sin_port));</span><br><span class="line">&#125;</span><br><span class="line">static int init_socket(int domain, int type, int protocol, int backlog, const char *addr, int port)</span><br><span class="line">&#123;</span><br><span class="line">  int sock &#x3D; socket(domain, type, protocol);</span><br><span class="line">  assert(sock !&#x3D; -1);</span><br><span class="line">  struct sockaddr_in serveraddr;</span><br><span class="line">  serveraddr.sin_family &#x3D; domain;</span><br><span class="line">  serveraddr.sin_port &#x3D; htons(port);</span><br><span class="line">  assert(inet_pton(AF_INET, addr, &amp;serveraddr.sin_addr) &gt; 0);</span><br><span class="line">  assert(bind(sock, (struct sockaddr *)&amp;serveraddr, sizeof(serveraddr)) !&#x3D; -1);</span><br><span class="line">  if (type &#x3D;&#x3D; SOCK_STREAM)</span><br><span class="line">  &#123;</span><br><span class="line">    int opt &#x3D; 1;</span><br><span class="line">    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &amp;opt, sizeof(opt));</span><br><span class="line">    listen(sock, backlog);</span><br><span class="line">  &#125;</span><br><span class="line">  return sock;</span><br><span class="line">&#125;</span><br><span class="line">inline static int init_tcp_server_socket(const char *addr, int port, int backlog)</span><br><span class="line">&#123;</span><br><span class="line">  int real_backlog &#x3D; (backlog &lt; TCP_MIN_BACKLOG) ? TCP_MIN_BACKLOG : backlog;</span><br><span class="line">  return init_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP, real_backlog, addr, port);</span><br><span class="line">&#125;</span><br><span class="line">inline static int init_tcp_client_socket(const char *addr, int port)</span><br><span class="line">&#123;</span><br><span class="line">  int sock &#x3D; socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);</span><br><span class="line">  assert(sock !&#x3D; 0);</span><br><span class="line">  struct sockaddr_in srvaddr;</span><br><span class="line">  srvaddr.sin_family &#x3D; AF_INET;</span><br><span class="line">  srvaddr.sin_port &#x3D; htons(port);</span><br><span class="line">  assert(inet_pton(AF_INET, addr, &amp;srvaddr.sin_addr) &gt; 0);</span><br><span class="line">  return sock;</span><br><span class="line">&#125;</span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">  int port &#x3D; atoi(argv[1]);</span><br><span class="line">  char addr[128] &#x3D; &#123;&#39;\0&#39;&#125;;</span><br><span class="line">  fetch_ip_from_host((char *)&amp;addr, 128);</span><br><span class="line">  int listenfd &#x3D; init_tcp_server_socket((char *)&amp;addr, port, 1024);</span><br><span class="line">  fprintf(stdout, &quot;::server run on %s:%d\n&quot;, (char *)&amp;addr, port);</span><br><span class="line">  int connfd &#x3D; -1;</span><br><span class="line">  pid_t pid;</span><br><span class="line">  for (;;)</span><br><span class="line">  &#123;</span><br><span class="line">    struct sockaddr_in cliaddr;</span><br><span class="line">    socklen_t len &#x3D; sizeof(cliaddr);</span><br><span class="line">    connfd &#x3D; accept(listenfd, (struct sockaddr *)&amp;cliaddr, &amp;len);</span><br><span class="line">    fflush(stdout);</span><br><span class="line">    if ((pid &#x3D; fork()) &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      fetch_ip_from_fd(connfd, (char *)&amp;addr, 128);</span><br><span class="line">      close(listenfd);</span><br><span class="line">      fprintf(stdout, &quot;%d process handle %s connection\n&quot;, getpid(), (char *)&amp;addr);</span><br><span class="line">      exit(0);</span><br><span class="line">    &#125;</span><br><span class="line">    close(connfd);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/08/%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/08/%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">容器网络分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-07-08 16:01:55 / 修改时间：21:46:33" itemprop="dateCreated datePublished" datetime="2020-07-08T16:01:55+08:00">2020-07-08</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="容器网络分析"><a href="#容器网络分析" class="headerlink" title="容器网络分析"></a>容器网络分析</h2><h3 id="容器二层网络分析"><a href="#容器二层网络分析" class="headerlink" title="容器二层网络分析"></a>容器二层网络分析</h3><h4 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h4><ul>
+<li>容器IP和节点IP在同一个网段</li>
+<li>二层协议通过ARP广播找到对方mac地址进行通信</li>
+</ul>
+<h4 id="基本环境"><a href="#基本环境" class="headerlink" title="基本环境"></a>基本环境</h4><ul>
+<li>物理节点上会有一个虚拟网卡对(veth-pair)、虚拟网桥。虚拟网卡对，一个在容器内(veth0),另外一个虚拟网卡(veth1)在物理节点的连接虚拟网桥上的veth1.</li>
+<li>contain1的ip和node1的IP是同一个网段的</li>
+<li>container1的默认网关是node1的IP地址</li>
+<li>两个节点之间是二层的交换机，通过ARP广播进行通信</li>
+<li>容器启动时候，会在容器内设置该节点的mac地址</li>
+</ul>
+<h4 id="通信过程"><a href="#通信过程" class="headerlink" title="通信过程"></a>通信过程</h4><p><img src="/2020/07/08/%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/%E4%BA%8C%E5%B1%82%E7%BD%91%E7%BB%9C.png" alt></p>
+<ul>
+<li>container-1和container-2进行通信，首先container-1的发起ARP广播，因为container-1是默认网关是node-1,container-1通过虚拟网桥把数据包发到了node-1上</li>
+<li>node-1 发现container-1 的目标IP不是自己的IP地址(这里涉及到了netfileter,这个模块是iptables的基础)container-1的目标IP是container-2的IP，在同一个网段可是认为是局域网，但是container-1的目标IP是容器，没有直接连接二层交换机。于是node-1进行ARP广播，询问谁是192.168.1.102,node-2接受到广播，发现不是自己的，node-2不会应答。但是node-2上有一个container-2的容器的IP却是192.168.1.102.</li>
+<li>基于二层网络的容器必须有sdn的功能，二层网络的交换机上代答(伪造arp应答),有这个基础，node-1进行ARP广播后，二层交换机进行代答，告诉node-1的container-2的mac地址是node-2.</li>
+<li>container-1的数据，到了node-1，交换机告诉node-1,container-2的mac是node-2,于是node-1通过交换机把数据送到了node-2.在这里container-1发送给container-2的包的mac地址已经变更为node-2的mac地址。</li>
+<li>node-2接受到数据，发现数据不是自己的，走自己节点的路由表，发现自己有一条路由规则，凡是发往container-2的IP的数据都是走容器的虚拟网桥，虚拟网桥(docker-bridge)连接虚拟网卡对，通过这对虚拟网卡通过网桥把node-2的数据送到container-2里面，至此2个容器完成二层的通信。</li>
+</ul>
+<h4 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h4><ul>
+<li>走二层没有包的封装，所以性能非常好</li>
+<li>容器和节点之间可以直通</li>
+</ul>
+<h3 id="容器三层网络分析"><a href="#容器三层网络分析" class="headerlink" title="容器三层网络分析"></a>容器三层网络分析</h3><h4 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h4><ul>
+<li>容器IP和节点IP在不同网段</li>
+<li>三层协议通过IP层寻找对方节点,大部分基于BGP协议来做，BGP协议就是一个同步路由规则的广播协议</li>
+</ul>
+<h4 id="通信过程-1"><a href="#通信过程-1" class="headerlink" title="通信过程"></a>通信过程</h4><p><img src="/2020/07/08/%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/%E4%B8%89%E5%B1%82%E7%BD%91%E7%BB%9C.png" alt></p>
+<ul>
+<li>container-1发送数据到容器的默认网关(node-1的IP)，node-1会收到数据包，此时经过netfilter模块。</li>
+<li>此时calico bgp会下发一条理由规则，凡是发送container-2的IP数据包，通过某个网卡(eth0)发往一个网关(网关地址是node-2的IP)，例如：172.138.1.102 –eth0 –&gt;192.168.1.202 ,这样的规则</li>
+<li>因为192.168.1.201和192.168.1.201分别是node1和node2的IP，此时数据包通过路由器，把数据发送给node-2</li>
+<li>node-2收到数据后，查找node-2的路由表，发现有一个条路由规则，凡是发送给72.138.1.102的数据都发往容器的网桥，然后经过容器网桥把数据送到container-2.至此2个容器通信结束</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/02/Linux%E7%BD%91%E7%BB%9C%E5%86%85%E6%A0%B8%E6%A6%82%E8%BF%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/02/Linux%E7%BD%91%E7%BB%9C%E5%86%85%E6%A0%B8%E6%A6%82%E8%BF%B0/" class="post-title-link" itemprop="url">Linux网络内核概述</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-07-02 18:04:35 / 修改时间：18:05:25" itemprop="dateCreated datePublished" datetime="2020-07-02T18:04:35+08:00">2020-07-02</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Linux网络内核概述"><a href="#Linux网络内核概述" class="headerlink" title="Linux网络内核概述"></a>Linux网络内核概述</h2><h3 id="Linux网络栈"><a href="#Linux网络栈" class="headerlink" title="Linux网络栈"></a>Linux网络栈</h3><ul>
+<li>物理层(L1)：提供电信号和一些底层细节</li>
+<li>数据链路层(L2)：处理端点间的数据传输，最常见的数据链层的标准是以太网，Linux以太网设备驱动运行在这一层</li>
+<li>网络层(L3)：负责数据包转发和主机编址，Linux内核网络子系统中最常用的是IPv4和IPv6协议</li>
+<li>传输层(L4): 完成节点间的数据发送，TCP和UDP是最常见的网络协议</li>
+<li>应用层：应用层协议，比如http/https、ftp协议</li>
+</ul>
+<h3 id="Linux网络栈的本质"><a href="#Linux网络栈的本质" class="headerlink" title="Linux网络栈的本质"></a>Linux网络栈的本质</h3><ul>
+<li>Linux内核协议栈任务就是将接收到的数据数据包从数据链路层(L2层,,网络设备驱动)传递给网络层(L3层,IPv4或者IPv6)，如果数据包的目的地是当前设备，Linux网络协议栈将数据包传递给传输层(L4层，同时是TCP/UDP);如果数据包需要转发，网络协议栈交给L2层进行传输。对于本设备需要发送的数据包，将从L4依次传递给L2，再有网络驱动程序进行传输，在传输节点可能会发生如下节点:</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1.根据协议规则(如IPsec规则或者NAT规则)，可能需要对数据包进行修改</span><br><span class="line">2.数据包可能会被丢弃</span><br><span class="line">3.数据包可能导致设备发送错误消息</span><br><span class="line">4.可能会对数据包进行分段</span><br><span class="line">5.可能会对数据包进行重组</span><br><span class="line">6.需要计算数据包的校验和</span><br></pre></td></tr></table></figure>
+
+<h3 id="网络设备"><a href="#网络设备" class="headerlink" title="网络设备"></a>网络设备</h3><ul>
+<li><p>混杂模式：在linux 网络协议栈实现中，有一个net_device表示设备的数据结构，其中有一个promsicuity字段，该字段值大于0，网络协议栈不会丢失那些目的地并非本地主机的数据包，这种模式就是混杂模式，通常该模式用户网络调试。</p>
+</li>
+<li><p>网络设备中的API：老的网络设备驱动是在中断模式下进行工作的，没接受一个数据包，就需要中断一次，大量实践表明这种中断模式在负载很高的情况下效率非常低下。为了解决这个问题引入了NAPI，当前几乎所有的Linux都支持这种技术，NAPI是在linux kernel 2.5/2.6引入，采用该NAPI，如果负载很高，网络设备驱动将以轮询模式工作，而不是中断模式工作，这就意味着不会再每次接受数据包时候触发中断，而是将数据包放到内核缓存区中，由kernel不断的轮询来取数据包</p>
+</li>
+<li><p>网络驱动的工作</p>
+<ul>
+<li>数据包接受目的地为当前主机，将其传递给网络层(L3)，然后传递给传输层（L4)</li>
+<li>传输当前主机发送出去的数据包或者转发当前主机接受的数据包</li>
+<li>每个数据包不管是接受还是发送出去的，都需要路由子系统执行一次查找，根据查找结果来决定数据包的处理。</li>
+<li>每个数据包在经过路由子系统之前会经过netfilter子系统的处理，netfilter子系统在网络栈中5个位置会注册回调函数，数据包经过netfileter的第一个回调函数处理，结果用verdict表示，这个值为NF_DROP，则数据包将会被丢弃；如果为NF_ACCEPT，则数据包继续传输到其他层。netfilter为用户态的iptables提供的基础的架构。</li>
+</ul>
+</li>
+<li><p>套接字缓冲区</p>
+<ul>
+<li>linux 网络内核使用sk_buff结构表示一个包含报头的入站(接受路径)或者出站(传输路径)的数据包。</li>
+<li>使用skb时候必须遵循skb api，比如需要skb-&gt;data指针向前移动，必须通过skb_pull_inline或者skb_pull函数。要冲skb_buff中取回传输层报头，需要调用skb_transport_header函数，同样的，要取回网络层的报头，必须调用skb_network_header函数；取回数据链路层的报头，必须调用skb_mac_header函数，这三个方法都是入参都是skb_buff的结构体。</li>
+<li>从物理层接收到数据包后，网络设备驱动会分配一个skb(通过netdev_alloc_skb函数)，在数据传输过程中，有时候需要丢失数据包则调用kfree_skb函数。skb_buff中的某些成员是有数据链路层决定的，比如IPv4数据包由14个字节的以太网报头、20到60个字节的IPv4报头、8个字节的UDPv4的报头，最后是数据包的有效载荷。每个skb_buffer的实例都包含了一个net_device的实例，对于接受到来的数据包，这个成员表示接受它的网络设备；对于发送出去的数据包，这个成员则表示发送它的网络设备。</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/30/nginx-%E5%A6%82%E4%BD%95worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/30/nginx-%E5%A6%82%E4%BD%95worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" class="post-title-link" itemprop="url">nginx 如何worker进程的请求处理的负载均衡</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-30 18:05:24 / 修改时间：18:06:53" itemprop="dateCreated datePublished" datetime="2020-06-30T18:05:24+08:00">2020-06-30</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="nginx-如何worker进程的请求处理的负载均衡"><a href="#nginx-如何worker进程的请求处理的负载均衡" class="headerlink" title="nginx 如何worker进程的请求处理的负载均衡"></a>nginx 如何worker进程的请求处理的负载均衡</h3><ul>
+<li>nginx 自身实现避免了进群效应，每一个请求上来仅仅只会有一个worker_process处理，nginx 作为静态资源服务器，最大请求连接数为:worker_process * connections；如果作为反向代理，则支撑的最大连接数为worker_process * conenctions/2,因为反向代理需要连接后端的服务，同时也会连接前端请求的。那nginx如何做到请求处理的负载均衡？</li>
+</ul>
+<ul>
+<li>nginx 核心逻辑调试</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ .&#x2F;configure --with-debug --with-cc-opt&#x3D;&#39;-g -O0&#39; --prefix&#x3D;&#x2F;usr&#x2F;local&#x2F;nginx</span><br><span class="line">$ make -j4</span><br><span class="line">$ make install</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;在配置文件中添加调试配置</span><br><span class="line">daemon off;</span><br><span class="line">master_process off;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>ngx_worker_process_cycle是每个worker进程核心执行的函数，所有的请求处理都是通过这个函数入口进行<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">static void</span><br><span class="line">ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)</span><br><span class="line">&#123;</span><br><span class="line">	ngx_worker_process_init(cycle, worker);</span><br><span class="line">	for ( ;; ) &#123;</span><br><span class="line">	        ngx_process_events_and_timers(cycle);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>ngx_process_events_and_timers是接受客户请求的函数</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">void</span><br><span class="line">ngx_process_events_and_timers(ngx_cycle_t *cycle)</span><br><span class="line">&#123;</span><br><span class="line">   if (ngx_use_accept_mutex) &#123;</span><br><span class="line">        if (ngx_accept_disabled &gt; 0) &#123;</span><br><span class="line">            ngx_accept_disabled--;</span><br><span class="line"></span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            if (ngx_trylock_accept_mutex(cycle) &#x3D;&#x3D; NGX_ERROR) &#123;</span><br><span class="line">                return;</span><br><span class="line">            &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      &#x2F;&#x2F;这里ngx_process_events宏定义的是ngx_epoll_process_events函数</span><br><span class="line">       (void) ngx_process_events(cycle, timer, flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ngx_epoll_process_events 通过多层次的请求最终函数调用会落在ngx_event_accept，最终处理来自客户端的请求</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)</span><br><span class="line">&#123;</span><br><span class="line">	 events &#x3D; epoll_wait(ep, event_list, (int) nevents, timer);</span><br><span class="line">	   for (i &#x3D; 0; i &lt; events; i++) &#123;</span><br><span class="line">        c &#x3D; event_list[i].data.ptr;</span><br><span class="line"></span><br><span class="line">        instance &#x3D; (uintptr_t) c &amp; 1;</span><br><span class="line">        c &#x3D; (ngx_connection_t *) ((uintptr_t) c &amp; (uintptr_t) ~1);</span><br><span class="line"></span><br><span class="line">        rev &#x3D; c-&gt;read;</span><br><span class="line">        &#x2F;&#x2F;(gdb) p rev-&gt;handler</span><br><span class="line">		&#x2F;&#x2F;$3 &#x3D; (ngx_event_handler_pt) 0x5555555cb7f6 &lt;ngx_http_wait_request_handler&gt;</span><br><span class="line">         rev-&gt;handler(rev);</span><br><span class="line">        &#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void ngx_event_accept(ngx_event_t *ev)</span><br><span class="line">&#123;</span><br><span class="line">  ngx_accept_disabled &#x3D; ngx_cycle-&gt;connection_n &#x2F; 8- ngx_cycle-&gt;free_connection_n;</span><br><span class="line">    ngx_listening_t   *ls;</span><br><span class="line">    &#x2F;*</span><br><span class="line">	(gdb) p ls-&gt;handler</span><br><span class="line">	$5 &#x3D; (ngx_connection_handler_pt) 0x5555555cb32d </span><br><span class="line">	&lt;ngx_http_init_connection&gt;</span><br><span class="line">	*&#x2F;</span><br><span class="line">    ls-&gt;handler(c);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>nginx 通过ngx_accept_disabled来协调当前worker是否应该接受处理来自客户端请求吗，在ngx_event_accept中，设置ngx_accept_disabled为当前worker进程的连接数的1/8 减去当前空间连接，这个ngx_accept_disabled越大，空闲连接就越小，说明当前worker进程比较繁忙，让出请求处理的特权，其他的worker可以去处理。</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/28/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E7%94%A8%E6%88%B7%E6%8E%A5%E5%8F%A3%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/28/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E7%94%A8%E6%88%B7%E6%8E%A5%E5%8F%A3%E7%AF%87/" class="post-title-link" itemprop="url">操作系统-用户接口篇</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-28 19:35:34 / 修改时间：19:36:34" itemprop="dateCreated datePublished" datetime="2020-06-28T19:35:34+08:00">2020-06-28</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="操作系统-用户接口篇"><a href="#操作系统-用户接口篇" class="headerlink" title="操作系统-用户接口篇"></a>操作系统-用户接口篇</h3><h4 id="用户接口"><a href="#用户接口" class="headerlink" title="用户接口"></a>用户接口</h4><ul>
+<li>为了方便用户使用计算机系同，操作系统向用户提供了直接使用计算系统的手段，这个就叫做用户接口</li>
+</ul>
+<h4 id="接口类型"><a href="#接口类型" class="headerlink" title="接口类型"></a>接口类型</h4><ul>
+<li>交互接口:用户提供各种命令控制界面，用户利用这些操作命令来阻止和控制程序的执行或者管理计算机系统，经典的实现有linux shell</li>
+<li>程序接口：编程人员在程序中通过程序接口来请求操作系统的提供服务</li>
+</ul>
+<h4 id="程序接口"><a href="#程序接口" class="headerlink" title="程序接口"></a>程序接口</h4><h5 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h5><ul>
+<li>程序接口用于在程序和系统资源以及系统服务之间实现交互的作用，而为了保证系统的安全行，系统提供了若干系统调用（system call）来实现用户程序和内核的交互，因此，系统调用是操作系统为编程人员提供唯一的程序接口。</li>
+</ul>
+<h5 id="一般函数和系统调用区别"><a href="#一般函数和系统调用区别" class="headerlink" title="一般函数和系统调用区别"></a>一般函数和系统调用区别</h5><ul>
+<li>运行在不同系统状态，一般函数调用运行于用户态，而系统调用运行于内核态</li>
+<li>系统调用通过软中断进入，一般的函数调用不涉及软中断，不涉及系统状态的转换；运行系统调用时候，由于调用程序和被调用程序处于不同的系统状态，因此不允许由调用程序直接转向被调用程序，通常是通过软中断机制，先由用户态转换内核态，在转向相应的中断处理子程序。</li>
+</ul>
+<h5 id="系统调用类型"><a href="#系统调用类型" class="headerlink" title="系统调用类型"></a>系统调用类型</h5><ul>
+<li>设备管理:用来请求和释放有关设备以及启动设备的操作</li>
+<li>文件管理:文件的读、写、创建、删除等操作</li>
+<li>进程控制:进程的创建、进程执行、进程等待、进程撤销、进程优先级等操作</li>
+<li>进程通信：进程之间的传递消息或者信号</li>
+<li>内存管理：内存的相关操作</li>
+</ul>
+<h5 id="系统调用处理过程"><a href="#系统调用处理过程" class="headerlink" title="系统调用处理过程"></a>系统调用处理过程</h5><ul>
+<li>保护进程的现场，这里也叫上下文，系统发生陷入终端时候，需要把当前进程的状态保存起来，才能切换到目标进程的执行状态，这些上下文保存在寄存器中</li>
+<li>取得系统调用号并转入相应的处理程序，系统中配置了一个系统调用号和处理子程序的入口地址</li>
+<li>返回，在系统调用结束之后，陷入处理还要恢复处理机现场</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/28/nginx-%E7%9A%84worker-process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/28/nginx-%E7%9A%84worker-process/" class="post-title-link" itemprop="url">nginx 的worker_process</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-28 17:51:19 / 修改时间：17:53:51" itemprop="dateCreated datePublished" datetime="2020-06-28T17:51:19+08:00">2020-06-28</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="nginx-的worker-process"><a href="#nginx-的worker-process" class="headerlink" title="nginx 的worker_process"></a>nginx 的worker_process</h3><h4 id="nginx的配置worker-process"><a href="#nginx的配置worker-process" class="headerlink" title="nginx的配置worker_process"></a>nginx的配置worker_process</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">[perrynzhou@perrynzhou-ubuntu ~&#x2F;Debug&#x2F;nginx-1.19.0&#x2F;conf]$ cat nginx.conf </span><br><span class="line"></span><br><span class="line">#user  nobody;</span><br><span class="line">worker_processes  1;</span><br><span class="line"></span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections  1024;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    include       mime.types;</span><br><span class="line">    default_type  application&#x2F;octet-stream;</span><br><span class="line">    sendfile        on;</span><br><span class="line">    keepalive_timeout  65;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  localhost;</span><br><span class="line"></span><br><span class="line">        location &#x2F; &#123;</span><br><span class="line">            root   html;</span><br><span class="line">            index  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        error_page   500 502 503 504  &#x2F;50x.html;</span><br><span class="line">        location &#x3D; &#x2F;50x.html &#123;</span><br><span class="line">            root   html;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="nginx-如何配置worker-process呢"><a href="#nginx-如何配置worker-process呢" class="headerlink" title="nginx 如何配置worker_process呢?"></a>nginx 如何配置worker_process呢?</h4><h5 id="nginx中通过static-ngx-command-t-ngx-core-commands-数组表示配置文件以及配置文件中的回调函数"><a href="#nginx中通过static-ngx-command-t-ngx-core-commands-数组表示配置文件以及配置文件中的回调函数" class="headerlink" title="nginx中通过static ngx_command_t  ngx_core_commands[]数组表示配置文件以及配置文件中的回调函数"></a>nginx中通过static ngx_command_t  ngx_core_commands[]数组表示配置文件以及配置文件中的回调函数</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123; ngx_string(&quot;worker_processes&quot;),</span><br><span class="line">   NGX_MAIN_CONF|NGX_DIRECT_CONF|NGX_CONF_TAKE1,</span><br><span class="line">   ngx_set_worker_processes,</span><br><span class="line">   0,</span><br><span class="line">   0,</span><br><span class="line">   NULL &#125;,</span><br></pre></td></tr></table></figure>
+
+<h5 id="worker-process-通过回调函数ngx-set-worker-processes设置nginx的进程数"><a href="#worker-process-通过回调函数ngx-set-worker-processes设置nginx的进程数" class="headerlink" title="worker_process 通过回调函数ngx_set_worker_processes设置nginx的进程数"></a>worker_process 通过回调函数ngx_set_worker_processes设置nginx的进程数</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">static char *</span><br><span class="line">ngx_set_worker_processes(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)</span><br><span class="line">&#123;</span><br><span class="line">    ngx_str_t        *value;</span><br><span class="line">    ngx_core_conf_t  *ccf;</span><br><span class="line"></span><br><span class="line">    ccf &#x3D; (ngx_core_conf_t *) conf;</span><br><span class="line"></span><br><span class="line">    if (ccf-&gt;worker_processes !&#x3D; NGX_CONF_UNSET) &#123;</span><br><span class="line">        return &quot;is duplicate&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    value &#x3D; (ngx_str_t *) cf-&gt;args-&gt;elts;</span><br><span class="line"></span><br><span class="line">    if (ngx_strcmp(value[1].data, &quot;auto&quot;) &#x3D;&#x3D; 0) &#123;</span><br><span class="line">  		&#x2F;&#x2F;如果在 conf&#x2F;nginx.conf 中配置 worker_processes  auto;则会走这个逻辑</span><br><span class="line">        ccf-&gt;worker_processes &#x3D; ngx_ncpu;</span><br><span class="line">        &#x2F;&#x2F;ngx_cpu:会在 ngx_os_init 函数中初始化这个全局变量，ngx_ncpu &#x3D; sysconf(_SC_NPROCESSORS_ONLN);获取CPU逻辑核</span><br><span class="line">        return NGX_CONF_OK;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ccf-&gt;worker_processes &#x3D; ngx_atoi(value[1].data, value[1].len);</span><br><span class="line"></span><br><span class="line">    if (ccf-&gt;worker_processes &#x3D;&#x3D; NGX_ERROR) &#123;</span><br><span class="line">        return &quot;invalid value&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return NGX_CONF_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="nginx-如何启动一个或者多个-worker-process"><a href="#nginx-如何启动一个或者多个-worker-process" class="headerlink" title="nginx 如何启动一个或者多个 worker_process?"></a>nginx 如何启动一个或者多个 worker_process?</h4><ul>
+<li>调用关系链</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">main-&gt;</span><br><span class="line">		ngx_master_process_cycle-&gt;</span><br><span class="line">			ngx_start_worker_processes</span><br></pre></td></tr></table></figure>
+<ul>
+<li>main:nginx入口函数</li>
+<li>ngx_master_process_cycle:依据配置文件初始化worker_process和master process.同时提供nginx -h 列举出所有的命令操作实现，这里仅仅列举出来和master、worker进程相关的实现<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">void ngx_master_process_cycle(ngx_cycle_t *cycle)</span><br><span class="line">&#123;</span><br><span class="line">		&#x2F;&#x2F;fork进程作为master进程</span><br><span class="line">	   ngx_start_worker_processes(cycle, ccf-&gt;worker_processes,NGX_PROCESS_JUST_RESPAWN);</span><br><span class="line">       </span><br><span class="line">       &#x2F;&#x2F;fork worker进程</span><br><span class="line">       ngx_start_cache_manager_processes(cycle, 1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>ngx_start_worker_processes:根据配置文件启动多个work_process.</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">static void ngx_start_worker_processes(ngx_cycle_t *cycle, ngx_int_t n, ngx_int_t type)</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">    for (i &#x3D; 0; i &lt; n; i++) &#123;</span><br><span class="line">		&#x2F;&#x2F;ngx_worker_process_cycle 是每个work进程执行的函数</span><br><span class="line">        ngx_spawn_process(cycle, ngx_worker_process_cycle, (void *) (intptr_t) i, &quot;worker process&quot;, type);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">static void ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)</span><br><span class="line">&#123;</span><br><span class="line">    ngx_int_t worker &#x3D; (intptr_t) data;</span><br><span class="line"></span><br><span class="line">    ngx_uint_t         i;</span><br><span class="line">    ngx_connection_t  *c;</span><br><span class="line"></span><br><span class="line">    ngx_process &#x3D; NGX_PROCESS_WORKER;</span><br><span class="line">    ngx_worker_process_init(cycle, worker);</span><br><span class="line">    ngx_setproctitle(&quot;worker process&quot;);</span><br><span class="line">    &#x2F;&#x2F;忽略了其他的代码</span><br><span class="line">    for ( ;; ) &#123;</span><br><span class="line"></span><br><span class="line">        if (ngx_exiting) &#123;</span><br><span class="line"></span><br><span class="line">            c &#x3D; cycle-&gt;connections;</span><br><span class="line"></span><br><span class="line">            for (i &#x3D; 0; i &lt; cycle-&gt;connection_n; i++) &#123;</span><br><span class="line"></span><br><span class="line">                &#x2F;* THREAD: lock *&#x2F;</span><br><span class="line"></span><br><span class="line">                if (c[i].fd !&#x3D; -1 &amp;&amp; c[i].idle) &#123;</span><br><span class="line">                    c[i].close &#x3D; 1;</span><br><span class="line">                    c[i].read-&gt;handler(c[i].read);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ngx_pid_t ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,char *name, ngx_int_t respawn)</span><br><span class="line">&#123;</span><br><span class="line">	&#x2F;&#x2F;</span><br><span class="line">    pid &#x3D; fork();</span><br><span class="line"></span><br><span class="line">    switch (pid) &#123;</span><br><span class="line"></span><br><span class="line">    case -1:</span><br><span class="line">        ngx_log_error(NGX_LOG_ALERT, cycle-&gt;log, ngx_errno,</span><br><span class="line">                      &quot;fork() failed while spawning \&quot;%s\&quot;&quot;, name);</span><br><span class="line">        ngx_close_channel(ngx_processes[s].channel, cycle-&gt;log);</span><br><span class="line">        return NGX_INVALID_PID;</span><br><span class="line"></span><br><span class="line">    case 0:</span><br><span class="line">        ngx_pid &#x3D; ngx_getpid();</span><br><span class="line">        proc(cycle, data);</span><br><span class="line">        break;</span><br><span class="line"></span><br><span class="line">    default:</span><br><span class="line">        break;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

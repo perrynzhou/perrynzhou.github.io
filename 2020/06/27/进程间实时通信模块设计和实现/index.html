@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="进程间实时通信模块设计和实现介绍 基于设备文件作为数据传输介质，一切皆文件 设备文件必须可以读可以写 通过linux kernel的file_operations来实现设备的读写  原理  设计一个内核模块，客户端A写数据客户端B，客户端A到某个字符设备，然后通过设计的内核模块主动推送客户端B，这样就能达到进程间实时通信的效果. 设备文件也是文件，通过绑定内核的file_operations的函数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程间实时通信模块设计和实现">
+<meta property="og:url" content="http://yoursite.com/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="进程间实时通信模块设计和实现介绍 基于设备文件作为数据传输介质，一切皆文件 设备文件必须可以读可以写 通过linux kernel的file_operations来实现设备的读写  原理  设计一个内核模块，客户端A写数据客户端B，客户端A到某个字符设备，然后通过设计的内核模块主动推送客户端B，这样就能达到进程间实时通信的效果. 设备文件也是文件，通过绑定内核的file_operations的函数">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1.png">
+<meta property="article:published_time" content="2020-06-27T02:31:22.000Z">
+<meta property="article:modified_time" content="2020-06-27T02:48:11.252Z">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="kernel module">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>进程间实时通信模块设计和实现 | perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          进程间实时通信模块设计和实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-27 10:31:22 / 修改时间：10:48:11" itemprop="dateCreated datePublished" datetime="2020-06-27T10:31:22+08:00">2020-06-27</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="进程间实时通信模块设计和实现"><a href="#进程间实时通信模块设计和实现" class="headerlink" title="进程间实时通信模块设计和实现"></a>进程间实时通信模块设计和实现</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><ul>
+<li>基于设备文件作为数据传输介质，一切皆文件</li>
+<li>设备文件必须可以读可以写</li>
+<li>通过linux kernel的file_operations来实现设备的读写</li>
+</ul>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p><img src="/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1.png" alt></p>
+<ul>
+<li>设计一个内核模块，客户端A写数据客户端B，客户端A到某个字符设备，然后通过设计的内核模块主动推送客户端B，这样就能达到进程间实时通信的效果.</li>
+<li>设备文件也是文件，通过绑定内核的file_operations的函数实现设备的open/release/read/write/mmap等接口，客户端当open/read/write时候会对应调用内核模块的open/read/write函数</li>
+</ul>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><ul>
+<li>进程A写数据</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;aaaa&quot; &gt; &#x2F;dev&#x2F;memchan</span><br></pre></td></tr></table></figure>
+<ul>
+<li>进程B接收数据</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: mem_channel_reader.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Fri 26 Jun 2020 01:35:15 PM CST</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">#include &lt;errno.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;stat.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;mman.h&gt;</span><br><span class="line"></span><br><span class="line">#define BUFFER_LENGTH 128</span><br><span class="line">static const char *device_name &#x3D; &quot;&#x2F;dev&#x2F;memchan&quot;;</span><br><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">  int fd &#x3D; open(device_name, O_RDWR);</span><br><span class="line">  if (fd &lt; 0)</span><br><span class="line">  &#123;</span><br><span class="line">    fprintf(stdout, &quot;%s,err:%s\n&quot;, device_name, strerror(errno));</span><br><span class="line">    return -1;</span><br><span class="line">  &#125;</span><br><span class="line">  char *buffer &#x3D; (char *)malloc(BUFFER_LENGTH);</span><br><span class="line">  memset(buffer, 0, BUFFER_LENGTH);</span><br><span class="line"></span><br><span class="line">  char *start &#x3D; mmap(NULL, BUFFER_LENGTH, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);</span><br><span class="line"></span><br><span class="line">  fd_set rds;</span><br><span class="line"></span><br><span class="line">  FD_ZERO(&amp;rds);</span><br><span class="line">  FD_SET(fd, &amp;rds);</span><br><span class="line"></span><br><span class="line">  while (1)</span><br><span class="line">  &#123;</span><br><span class="line">    int ret &#x3D; select(fd + 1, &amp;rds, NULL, NULL, NULL);</span><br><span class="line">    if (ret &lt; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      printf(&quot;select error\n&quot;);</span><br><span class="line">      exit(1);</span><br><span class="line">    &#125;</span><br><span class="line">    if (FD_ISSET(fd, &amp;rds))</span><br><span class="line">    &#123;</span><br><span class="line">#if 0</span><br><span class="line">			strcpy(buffer, start);</span><br><span class="line">			printf(&quot;ntychannel: %s\n&quot;, buffer);</span><br><span class="line">#else</span><br><span class="line">      read(fd, buffer, BUFFER_LENGTH);</span><br><span class="line">      printf(&quot;channel: %s\n&quot;, buffer);</span><br><span class="line">#endif</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  munmap(start, BUFFER_LENGTH);</span><br><span class="line">  free(buffer);</span><br><span class="line">  close(fd);</span><br><span class="line"></span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>内核模块</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">  &gt; File Name: mem_channel.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Fri 26 Jun 2020 12:59:42 PM CST</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;linux&#x2F;module.h&gt;</span><br><span class="line">#include &lt;linux&#x2F;types.h&gt;</span><br><span class="line">#include &lt;linux&#x2F;fs.h&gt;</span><br><span class="line">#include &lt;linux&#x2F;errno.h&gt;</span><br><span class="line">#include &lt;linux&#x2F;mm.h&gt;</span><br><span class="line">#include &lt;linux&#x2F;sched.h&gt;</span><br><span class="line">#include &lt;linux&#x2F;init.h&gt;</span><br><span class="line">#include &lt;linux&#x2F;cdev.h&gt;</span><br><span class="line">#include &lt;asm&#x2F;io.h&gt;</span><br><span class="line">#include &lt;asm&#x2F;uaccess.h&gt;</span><br><span class="line">#include &lt;linux&#x2F;slab.h&gt;</span><br><span class="line">#include &lt;linux&#x2F;poll.h&gt;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; first device id in kernel</span><br><span class="line">#ifndef MEM_CHANNEL_MAJOR</span><br><span class="line">#define MEM_CHANNEL_MAJOR 110</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;second device id in kernel</span><br><span class="line">#ifndef MEM_CHANNEL_MINOR</span><br><span class="line">#define MEM_CHANNEL_MINOR 2</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">#ifndef MEM_CHANNEL_DATA_LENGTH</span><br><span class="line">#define MEM_CHANNEL_DATA_LENGTH 4096</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">#define ENABLE_POLL 1</span><br><span class="line">#if ENABLE_POLL</span><br><span class="line">uint8_t is_have_data &#x3D; 0;</span><br><span class="line">#endif</span><br><span class="line">static const char *mem_channel_device &#x3D; &quot;memchan&quot;;</span><br><span class="line">static struct cdev mem_channel_dev;</span><br><span class="line">struct mem_channel</span><br><span class="line">&#123;</span><br><span class="line">  char *data;</span><br><span class="line">  size_t size;</span><br><span class="line">#if ENABLE_POLL</span><br><span class="line">  wait_queue_head_t queue;</span><br><span class="line">#endif</span><br><span class="line">&#125;;</span><br><span class="line">static struct mem_channel *chan;</span><br><span class="line">int mem_channel_open(struct inode *node, struct file *pfile)</span><br><span class="line">&#123;</span><br><span class="line">  struct mem_channel *mem &#x3D; NULL;</span><br><span class="line">  int num &#x3D; node-&gt;i_rdev;</span><br><span class="line">  if (num &gt; MEM_CHANNEL_MINOR || num &#x3D;&#x3D; 0)</span><br><span class="line">  &#123;</span><br><span class="line">    return -ENODEV;</span><br><span class="line">  &#125;</span><br><span class="line">  mem &#x3D; &amp;chan[num];</span><br><span class="line">  pfile-&gt;private_data &#x3D; mem;</span><br><span class="line">  printk(KERN_INFO &quot;mem_channel_open %d device success\n&quot;, num);</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br><span class="line">int mem_channel_release(struct inode *node, struct file *pfile)</span><br><span class="line">&#123;</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br><span class="line">ssize_t mem_channel_read(struct file *pfile, char __user *buffer, size_t size, loff_t *ppos)</span><br><span class="line">&#123;</span><br><span class="line">  int ret;</span><br><span class="line">  unsigned long p &#x3D; *ppos;</span><br><span class="line">  unsigned int count &#x3D; size;</span><br><span class="line">  struct mem_channel *mem &#x3D; pfile-&gt;private_data;</span><br><span class="line">  if (p &gt; MEM_CHANNEL_DATA_LENGTH)</span><br><span class="line">  &#123;</span><br><span class="line">    return 0;</span><br><span class="line">  &#125;</span><br><span class="line">  if (count &gt; (MEM_CHANNEL_DATA_LENGTH - p))</span><br><span class="line">  &#123;</span><br><span class="line">    count &#x3D; MEM_CHANNEL_DATA_LENGTH - p;</span><br><span class="line">  &#125;</span><br><span class="line">#if ENABLE_POLL</span><br><span class="line">  while (!is_have_data)</span><br><span class="line">  &#123;</span><br><span class="line">    if (pfile-&gt;f_flags &amp; O_NONBLOCK)</span><br><span class="line">    &#123;</span><br><span class="line">      return -EAGAIN;</span><br><span class="line">    &#125;</span><br><span class="line">    wait_event_interruptible(mem-&gt;queue, is_have_data);</span><br><span class="line">  &#125;</span><br><span class="line">#endif</span><br><span class="line">  if (copy_to_user(buffer, (void *)(mem-&gt;data + p), count))</span><br><span class="line">  &#123;</span><br><span class="line">    ret &#x3D; -EFAULT;</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    ret &#x3D; strlen(buffer);</span><br><span class="line">    mem-&gt;size -&#x3D; ret;</span><br><span class="line">  &#125;</span><br><span class="line">  printk(KERN_INFO &quot;read %d bytes from %ld\n&quot;, ret, p);</span><br><span class="line">  return ret;</span><br><span class="line">&#125;</span><br><span class="line">ssize_t mem_channel_write(struct file *pfile, const char __user *buffer, size_t size, loff_t *ppos)</span><br><span class="line">&#123;</span><br><span class="line">  int ret;</span><br><span class="line">  unsigned long p &#x3D; *ppos;</span><br><span class="line">  unsigned int count &#x3D; size;</span><br><span class="line">  struct mem_channel *mem &#x3D; (struct mem_channel *)pfile-&gt;private_data;</span><br><span class="line">  if (p &gt; MEM_CHANNEL_DATA_LENGTH)</span><br><span class="line">  &#123;</span><br><span class="line">    return 0;</span><br><span class="line">  &#125;</span><br><span class="line">  if (count &gt; (MEM_CHANNEL_DATA_LENGTH - p))</span><br><span class="line">  &#123;</span><br><span class="line">    count &#x3D; MEM_CHANNEL_DATA_LENGTH - p;</span><br><span class="line">  &#125;</span><br><span class="line">  if (copy_from_user((void *)(mem-&gt;data + p), buffer, count))</span><br><span class="line">  &#123;</span><br><span class="line">    ret &#x3D; -EFAULT;</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    *ppos +&#x3D; count;</span><br><span class="line">    ret &#x3D; count;</span><br><span class="line">    mem-&gt;size +&#x3D; count;</span><br><span class="line">    *(mem-&gt;data + p + count) &#x3D; &#39;\0&#39;;</span><br><span class="line">    printk(KERN_INFO &quot;write %d bytes from %ld\n&quot;, count, p);</span><br><span class="line">  &#125;</span><br><span class="line">#if ENABLE_POLL</span><br><span class="line">  is_have_data &#x3D; 1;</span><br><span class="line">  wake_up(&amp;mem-&gt;queue);</span><br><span class="line">#endif</span><br><span class="line">  return ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">#if ENABLE_POLL</span><br><span class="line">unsigned int mem_channel_poll(struct file *pfile, struct poll_table_struct *wait)</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">  struct mem_channel *mem &#x3D; pfile-&gt;private_data;</span><br><span class="line">  unsigned int mask &#x3D; 0;</span><br><span class="line"></span><br><span class="line">  poll_wait(pfile, &amp;mem-&gt;queue, wait);</span><br><span class="line"></span><br><span class="line">  if (is_have_data)</span><br><span class="line">  &#123;</span><br><span class="line">    mask |&#x3D; (POLLIN | POLLRDNORM);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  return mask;</span><br><span class="line">&#125;</span><br><span class="line">#endif</span><br><span class="line">int mem_channel_mmap(struct file *pfile, struct vm_area_struct *vma)</span><br><span class="line">&#123;</span><br><span class="line">  struct mem_channel *mem &#x3D; pfile-&gt;private_data;</span><br><span class="line"></span><br><span class="line">  vma-&gt;vm_flags |&#x3D; VM_IO;</span><br><span class="line">  vma-&gt;vm_flags |&#x3D; (VM_DONTEXPAND | VM_DONTDUMP);</span><br><span class="line"></span><br><span class="line">  if (remap_pfn_range(vma, vma-&gt;vm_start, virt_to_phys(mem-&gt;data) &gt;&gt; PAGE_SHIFT,</span><br><span class="line">                      vma-&gt;vm_end - vma-&gt;vm_start, vma-&gt;vm_page_prot))</span><br><span class="line">  &#123;</span><br><span class="line">    return -EAGAIN;</span><br><span class="line">  &#125;</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br><span class="line">static const struct file_operations fops &#x3D; &#123;</span><br><span class="line">    .owner &#x3D; THIS_MODULE,</span><br><span class="line">    .open &#x3D; mem_channel_open,</span><br><span class="line">    .release &#x3D; mem_channel_release,</span><br><span class="line">    .read &#x3D; mem_channel_read,</span><br><span class="line">    .write &#x3D; mem_channel_write,</span><br><span class="line">    .poll &#x3D; mem_channel_poll,</span><br><span class="line">    .mmap &#x3D; mem_channel_mmap,</span><br><span class="line">&#125;;</span><br><span class="line">&#x2F;&#x2F;when execute insmod xx.ko,mem_channel_init will be called</span><br><span class="line">static int mem_channel_init(void)</span><br><span class="line">&#123;</span><br><span class="line">  int result;</span><br><span class="line">  int i &#x3D; 0;</span><br><span class="line">  &#x2F;&#x2F;init first device no</span><br><span class="line">  dev_t devno &#x3D; MKDEV(MEM_CHANNEL_MAJOR, 0);</span><br><span class="line">  &#x2F;&#x2F;init minor device array for first device</span><br><span class="line">  result &#x3D; register_chrdev_region(devno, MEM_CHANNEL_MINOR, mem_channel_device);</span><br><span class="line">  if (result !&#x3D; 0)</span><br><span class="line">  &#123;</span><br><span class="line">    return result;</span><br><span class="line">  &#125;</span><br><span class="line">  cdev_init(&amp;mem_channel_dev, &amp;fops);</span><br><span class="line">  mem_channel_dev.owner &#x3D; THIS_MODULE;</span><br><span class="line">  &#x2F;&#x2F;add device to kernel device list,that save data</span><br><span class="line">  cdev_add(&amp;mem_channel_dev, devno, MEM_CHANNEL_MINOR);</span><br><span class="line">  chan &#x3D; kmalloc(MEM_CHANNEL_MINOR * sizeof(struct mem_channel), GFP_KERNEL);</span><br><span class="line">  if (chan &#x3D;&#x3D; NULL)</span><br><span class="line">  &#123;</span><br><span class="line">    result &#x3D; -ENOMEM;</span><br><span class="line">    goto failed;</span><br><span class="line">  &#125;</span><br><span class="line">  memset(chan, 0, sizeof(struct mem_channel) * MEM_CHANNEL_MINOR);</span><br><span class="line">  for (; i &lt; MEM_CHANNEL_MINOR; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    chan[i].size &#x3D; MEM_CHANNEL_DATA_LENGTH;</span><br><span class="line">    chan[i].data &#x3D; kmalloc(MEM_CHANNEL_DATA_LENGTH * sizeof(char), GFP_KERNEL);</span><br><span class="line">    if (chan[i].data &#x3D;&#x3D; NULL)</span><br><span class="line">    &#123;</span><br><span class="line">      goto failed;</span><br><span class="line">    &#125;</span><br><span class="line">    memset(chan[i].data, 0, MEM_CHANNEL_DATA_LENGTH);</span><br><span class="line">  &#125;</span><br><span class="line">  printk(KERN_INFO &quot;mem_channel init success\n&quot;);</span><br><span class="line">  return 0;</span><br><span class="line">failed:</span><br><span class="line">  unregister_chrdev_region(devno, MEM_CHANNEL_MINOR);</span><br><span class="line">  for (i &#x3D; 0; i &lt; MEM_CHANNEL_MINOR; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    if (chan[i].data !&#x3D; NULL)</span><br><span class="line">    &#123;</span><br><span class="line">      kfree(chan[i].data);</span><br><span class="line">      chan[i].data &#x3D; NULL;</span><br><span class="line">    &#125;</span><br><span class="line">    chan[i].size &#x3D; 0;</span><br><span class="line">  &#125;</span><br><span class="line">  if (chan !&#x3D; NULL)</span><br><span class="line">  &#123;</span><br><span class="line">    kfree(chan);</span><br><span class="line">    chan &#x3D; NULL;</span><br><span class="line">  &#125;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;when rmmod xx.ko,mem_channel_exit will be called</span><br><span class="line">static void mem_channel_exit(void)</span><br><span class="line">&#123;</span><br><span class="line">  int i;</span><br><span class="line">  cdev_del(&amp;mem_channel_dev);</span><br><span class="line">  for (i &#x3D; 0; i &lt; MEM_CHANNEL_MINOR; i++)</span><br><span class="line">  &#123;</span><br><span class="line"></span><br><span class="line">    kfree(chan[i].data);</span><br><span class="line">    chan[i].data &#x3D; NULL;</span><br><span class="line">    chan[i].size &#x3D; 0;</span><br><span class="line">  &#125;</span><br><span class="line">  if (chan !&#x3D; NULL)</span><br><span class="line">  &#123;</span><br><span class="line">    kfree(chan);</span><br><span class="line">    chan &#x3D; NULL;</span><br><span class="line">  &#125;</span><br><span class="line">  unregister_chrdev_region(MKDEV(MEM_CHANNEL_MAJOR, 0), MEM_CHANNEL_MINOR);</span><br><span class="line">  printk(KERN_INFO &quot;mem_channel_exit succes\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">MODULE_AUTHOR(&quot;perrynzhou@gmail.com&quot;);</span><br><span class="line">MODULE_LICENSE(&quot;GPL&quot;);</span><br><span class="line"></span><br><span class="line">module_init(mem_channel_init);</span><br><span class="line">module_exit(mem_channel_exit);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Makefile</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">KERNEL_SRC &#x3D; &#x2F;usr&#x2F;src&#x2F;kernels&#x2F;3.10.0-1127.8.2.el7.x86_64</span><br><span class="line">obj-m :&#x3D; mem_channel.o</span><br><span class="line">module-objs :&#x3D; mem_channel.o</span><br><span class="line"></span><br><span class="line">all:</span><br><span class="line">	$(MAKE)    -C $(KERNEL_SRC)   M&#x3D;$(PWD) modules</span><br><span class="line">	gcc -g -std&#x3D;gnu99 mem_channel_reader.c -o mem_channel_reader</span><br><span class="line">clean:</span><br><span class="line">	rm *.ko *.o</span><br><span class="line">	rm -rf  mem_channel_reader</span><br><span class="line">	rm -rf .mem_channel*</span><br><span class="line">	rm -rf modules.order  Module.symvers</span><br></pre></td></tr></table></figure>
+
+
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/kernel-module/" rel="tag"># kernel module</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/25/start-kernel-plan/" rel="prev" title="start kernel plan">
+      <i class="fa fa-chevron-left"></i> start kernel plan
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/06/28/nginx-%E7%9A%84worker-process/" rel="next" title="nginx 的worker_process">
+      nginx 的worker_process <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#进程间实时通信模块设计和实现"><span class="nav-number">1.</span> <span class="nav-text">进程间实时通信模块设计和实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#介绍"><span class="nav-number">1.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原理"><span class="nav-number">1.2.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现"><span class="nav-number">1.3.</span> <span class="nav-text">实现</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Open Cas 架构概览 数据从HDD盘读取然后拷贝到open cas 的cache中，后续数据读取都是从内存读取，提高读写效率。  在write-through模式，所有的数据都是同步刷新到open cas的ssd和后端hdd硬盘中。  在write-back模式中，所有数据同步写入open cas的ssd中，然后异步刷新到HDD中。  open cas 缓存满后，采用open cas的淘汰算">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 Intel Open Cas加速glusterfs">
+<meta property="og:url" content="http://yoursite.com/2020/04/14/%E4%BD%BF%E7%94%A8-Intel-Open-Cas%E5%8A%A0%E9%80%9Fglusterfs/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="Open Cas 架构概览 数据从HDD盘读取然后拷贝到open cas 的cache中，后续数据读取都是从内存读取，提高读写效率。  在write-through模式，所有的数据都是同步刷新到open cas的ssd和后端hdd硬盘中。  在write-back模式中，所有数据同步写入open cas的ssd中，然后异步刷新到HDD中。  open cas 缓存满后，采用open cas的淘汰算">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://open-cas.github.io/images/guide_figure1.jpg">
+<meta property="article:published_time" content="2020-04-14T10:54:16.000Z">
+<meta property="article:modified_time" content="2020-04-14T10:55:44.705Z">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content=" Go">
+<meta property="article:tag" content=" nginx">
+<meta property="article:tag" content="glusterfs">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://open-cas.github.io/images/guide_figure1.jpg">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/14/%E4%BD%BF%E7%94%A8-Intel-Open-Cas%E5%8A%A0%E9%80%9Fglusterfs/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>使用 Intel Open Cas加速glusterfs | perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/%E4%BD%BF%E7%94%A8-Intel-Open-Cas%E5%8A%A0%E9%80%9Fglusterfs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用 Intel Open Cas加速glusterfs
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-14 18:54:16 / 修改时间：18:55:44" itemprop="dateCreated datePublished" datetime="2020-04-14T18:54:16+08:00">2020-04-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="Open-Cas-架构概览"><a href="#Open-Cas-架构概览" class="headerlink" title="Open Cas 架构概览"></a>Open Cas 架构概览</h3><ul>
+<li><p>数据从HDD盘读取然后拷贝到open cas 的cache中，后续数据读取都是从内存读取，提高读写效率。</p>
+</li>
+<li><p>在write-through模式，所有的数据都是同步刷新到open cas的ssd和后端hdd硬盘中。</p>
+</li>
+<li><p>在write-back模式中，所有数据同步写入open cas的ssd中，然后异步刷新到HDD中。</p>
+</li>
+<li><p>open cas 缓存满后，采用open cas的淘汰算法，用最新写入的数据淘汰以前旧数据，已达到oepn cas始终可以缓存数据。</p>
+<p><img src="https://open-cas.github.io/images/guide_figure1.jpg" alt="alt text"> </p>
+</li>
+</ul>
+<h3 id="系统组件以来"><a href="#系统组件以来" class="headerlink" title="系统组件以来"></a>系统组件以来</h3><ul>
+<li>sed</li>
+<li>make</li>
+<li>gcc</li>
+<li>kernel-devel</li>
+<li>kernel-headers</li>
+<li>python3</li>
+<li>lsblk</li>
+<li>argparse (python module)</li>
+</ul>
+<h3 id="安装linux-open-cas"><a href="#安装linux-open-cas" class="headerlink" title="安装linux open cas"></a>安装linux open cas</h3><h5 id="1-open-cas-由kernel-modules和cli工具组成"><a href="#1-open-cas-由kernel-modules和cli工具组成" class="headerlink" title="1.open cas 由kernel modules和cli工具组成"></a>1.open cas 由kernel modules和cli工具组成</h5><h5 id="2-为了获取最佳性能，强烈推荐在SSD-device采用noop的IO调度策略"><a href="#2-为了获取最佳性能，强烈推荐在SSD-device采用noop的IO调度策略" class="headerlink" title="2.为了获取最佳性能，强烈推荐在SSD device采用noop的IO调度策略"></a>2.为了获取最佳性能，强烈推荐在SSD device采用noop的IO调度策略</h5><h5 id="3-具体安装步骤"><a href="#3-具体安装步骤" class="headerlink" title="3.具体安装步骤:"></a>3.具体安装步骤:</h5><ul>
+<li><p>下载open cas linux source</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https:&#x2F;&#x2F;github.com&#x2F;Open-CAS&#x2F;open-cas-linux</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>获取子模块</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd open-cas-linux </span><br><span class="line">git submodule update –init</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置和安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>检查和验证</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cas_disk.ko  &#x2F;&#x2F;open cas 磁盘内核模块</span><br><span class="line">cas_cache.ko &#x2F;&#x2F;open cas 缓存内核模块</span><br><span class="line">casadm       &#x2F;&#x2F;open cas 管理员工具</span><br><span class="line">casadm -V    &#x2F;&#x2F;install 检验</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="open-cas配置"><a href="#open-cas配置" class="headerlink" title="open cas配置"></a>open cas配置</h3><ul>
+<li><p>配置文件在utils/opencas.conf中，包括cache的配置和core devices的配置</p>
+<ul>
+<li><p>caches配置说明</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1.cache id:执行设备的启动实例ID,整形取值范围在1~16384</span><br><span class="line">2.path:指向ssd的磁盘路径</span><br><span class="line">3.desired mode:预期模式，一共有5中模式，分别是write-through&#x2F;write-back&#x2F;write-only&#x2F;pass-through</span><br><span class="line">4.extra fields:用户自定义IO配置</span><br><span class="line">	4.1 ioclass_file：允许用户加载自定义IO策略</span><br><span class="line">   	4.2 cleaning_policy ：允许用户缓存清理的策略，包括了acp&#x2F;alru&#x2F;nop</span><br><span class="line">	4.3 promotion_policy ：允许用户使用缓存的推进策略，包括了always&#x2F;nhit</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>core devices配置说明</p>
+</li>
+</ul>
+</li>
+</ul>
+<pre><code>1.cache id:每个core device对应的Cache id，整形，取值范围0~4095
+2.core id:每个core device的id
+3.path:core device的路径
+    //每个cache和core devices必须执行已经存储在hdd和ssd,core device应该引用wwn的标识，cache device必须顺序数据。</code></pre><ul>
+<li><p>配置样例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">## Caches configuration section</span><br><span class="line"></span><br><span class="line">[caches]</span><br><span class="line"></span><br><span class="line">## Cache ID Cache device Cache mode Extra fields (optional)</span><br><span class="line"></span><br><span class="line">1 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;nvme-INTEL_SSD WT ioclass_file&#x3D;&#x2F;etc&#x2F;opencas&#x2F;ioclass-config.csv</span><br><span class="line"></span><br><span class="line">## Core devices configuration</span><br><span class="line"></span><br><span class="line">[cores]</span><br><span class="line"></span><br><span class="line">## Cache ID Core ID Core device</span><br><span class="line"></span><br><span class="line">1 1 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0aed22393</span><br><span class="line"></span><br><span class="line">1 2 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0042769ef</span><br><span class="line"></span><br><span class="line">1 3 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee00429bf94</span><br><span class="line"></span><br><span class="line">1 4 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0aed45a6d</span><br><span class="line"></span><br><span class="line">1 5 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee6b11be556</span><br><span class="line"></span><br><span class="line">1 6 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee0aed229a4</span><br><span class="line"></span><br><span class="line">1 7 &#x2F;dev&#x2F;disk&#x2F;by-id&#x2F;wwn-0x50014ee004276c68</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>cas管理工具</p>
+<ul>
+<li><p>手动配置 write-through 模式</p>
+<ul>
+<li>在该模式下，   caching  software 写入数据到flash device，然后顺序的写到到core device中，这种模式100%保证core device中数据和cache中数据一致，同时可以共享给其他的服务读取，这种类型可以加速读操作</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc  &#x2F;&#x2F;创建id&#x3D;1的cache</span><br><span class="line">casadm -A -i 1 -d &#x2F;dev&#x2F;sdb  &#x2F;&#x2F;匹配&#x2F;dev&#x2F;sdb到cache</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>手动配置write-back模式</p>
+<ul>
+<li>在该模式下， caching  software首先把数据先写入到cache中，然后通知用户写完毕了，最后周期性的把数据写入到core device中,write-back模式提高了读写性能，但是会有数据丢失的风险  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c wb</span><br><span class="line">casadm -A -i 1 -d &#x2F;dev&#x2F;sdb  &#x2F;&#x2F;匹配&#x2F;dev&#x2F;sdb到cache</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>手动配置Write-around模式</p>
+<ul>
+<li><p>在write-around模式下， 只有block数据已经存在于cache中，caching  software把数据才会写入到flash device中，然后顺序写数据到core device.这种模式100%保证core device和cache一致， 写回操作进一步优化了缓存，以避免在写入数据且随后不经常重新读取数据的情况下对缓存的污染 。</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c wa</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>手动配置pass-through模式</p>
+</li>
+<li><p>在该模式下,caching software所有操作都绕开cache.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c pt</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>手动配置write-only模式</p>
+<ul>
+<li>在write-only模式下,缓存系统先把数据写入到cache中，然后通知应用端写完成。后续周期性的同步写到core device中,当有新的读请求。只有当之前写入数据在cache device中，读请求会绕开cache software,直接读取caching device的数据。该模式仅仅提高写性能，但是会有数据丢失风险。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">casadm -S -i 1 -d &#x2F;dev&#x2F;sdc -c wo</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/14/glusterfs-issue%E5%88%97%E8%A1%A8/" rel="prev" title="glusterfs and opencas issue列表">
+      <i class="fa fa-chevron-left"></i> glusterfs and opencas issue列表
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/15/glusterfs%E5%B0%8F%E6%96%87%E4%BB%B6%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/" rel="next" title="glusterfs小文件调优指南">
+      glusterfs小文件调优指南 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Open-Cas-架构概览"><span class="nav-number">1.</span> <span class="nav-text">Open Cas 架构概览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#系统组件以来"><span class="nav-number">2.</span> <span class="nav-text">系统组件以来</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装linux-open-cas"><span class="nav-number">3.</span> <span class="nav-text">安装linux open cas</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-open-cas-由kernel-modules和cli工具组成"><span class="nav-number">3.0.1.</span> <span class="nav-text">1.open cas 由kernel modules和cli工具组成</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-为了获取最佳性能，强烈推荐在SSD-device采用noop的IO调度策略"><span class="nav-number">3.0.2.</span> <span class="nav-text">2.为了获取最佳性能，强烈推荐在SSD device采用noop的IO调度策略</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-具体安装步骤"><span class="nav-number">3.0.3.</span> <span class="nav-text">3.具体安装步骤:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#open-cas配置"><span class="nav-number">4.</span> <span class="nav-text">open cas配置</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

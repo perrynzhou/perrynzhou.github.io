@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="nginx 的worker_processnginx的配置worker_process1234567891011121314151617181920212223242526272829303132[perrynzhou@perrynzhou-ubuntu ~&#x2F;Debug&#x2F;nginx-1.19.0&#x2F;conf]$ cat nginx.conf #user  nobody;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nginx 的worker_process">
+<meta property="og:url" content="http://yoursite.com/2020/06/28/nginx-%E7%9A%84worker-process/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="nginx 的worker_processnginx的配置worker_process1234567891011121314151617181920212223242526272829303132[perrynzhou@perrynzhou-ubuntu ~&#x2F;Debug&#x2F;nginx-1.19.0&#x2F;conf]$ cat nginx.conf #user  nobody;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-06-28T09:51:19.000Z">
+<meta property="article:modified_time" content="2020-06-28T09:53:51.865Z">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="nginx 源码分析">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/06/28/nginx-%E7%9A%84worker-process/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>nginx 的worker_process | perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/28/nginx-%E7%9A%84worker-process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          nginx 的worker_process
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-28 17:51:19 / 修改时间：17:53:51" itemprop="dateCreated datePublished" datetime="2020-06-28T17:51:19+08:00">2020-06-28</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="nginx-的worker-process"><a href="#nginx-的worker-process" class="headerlink" title="nginx 的worker_process"></a>nginx 的worker_process</h3><h4 id="nginx的配置worker-process"><a href="#nginx的配置worker-process" class="headerlink" title="nginx的配置worker_process"></a>nginx的配置worker_process</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">[perrynzhou@perrynzhou-ubuntu ~&#x2F;Debug&#x2F;nginx-1.19.0&#x2F;conf]$ cat nginx.conf </span><br><span class="line"></span><br><span class="line">#user  nobody;</span><br><span class="line">worker_processes  1;</span><br><span class="line"></span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections  1024;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    include       mime.types;</span><br><span class="line">    default_type  application&#x2F;octet-stream;</span><br><span class="line">    sendfile        on;</span><br><span class="line">    keepalive_timeout  65;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  localhost;</span><br><span class="line"></span><br><span class="line">        location &#x2F; &#123;</span><br><span class="line">            root   html;</span><br><span class="line">            index  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        error_page   500 502 503 504  &#x2F;50x.html;</span><br><span class="line">        location &#x3D; &#x2F;50x.html &#123;</span><br><span class="line">            root   html;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="nginx-如何配置worker-process呢"><a href="#nginx-如何配置worker-process呢" class="headerlink" title="nginx 如何配置worker_process呢?"></a>nginx 如何配置worker_process呢?</h4><h5 id="nginx中通过static-ngx-command-t-ngx-core-commands-数组表示配置文件以及配置文件中的回调函数"><a href="#nginx中通过static-ngx-command-t-ngx-core-commands-数组表示配置文件以及配置文件中的回调函数" class="headerlink" title="nginx中通过static ngx_command_t  ngx_core_commands[]数组表示配置文件以及配置文件中的回调函数"></a>nginx中通过static ngx_command_t  ngx_core_commands[]数组表示配置文件以及配置文件中的回调函数</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123; ngx_string(&quot;worker_processes&quot;),</span><br><span class="line">   NGX_MAIN_CONF|NGX_DIRECT_CONF|NGX_CONF_TAKE1,</span><br><span class="line">   ngx_set_worker_processes,</span><br><span class="line">   0,</span><br><span class="line">   0,</span><br><span class="line">   NULL &#125;,</span><br></pre></td></tr></table></figure>
+
+<h5 id="worker-process-通过回调函数ngx-set-worker-processes设置nginx的进程数"><a href="#worker-process-通过回调函数ngx-set-worker-processes设置nginx的进程数" class="headerlink" title="worker_process 通过回调函数ngx_set_worker_processes设置nginx的进程数"></a>worker_process 通过回调函数ngx_set_worker_processes设置nginx的进程数</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">static char *</span><br><span class="line">ngx_set_worker_processes(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)</span><br><span class="line">&#123;</span><br><span class="line">    ngx_str_t        *value;</span><br><span class="line">    ngx_core_conf_t  *ccf;</span><br><span class="line"></span><br><span class="line">    ccf &#x3D; (ngx_core_conf_t *) conf;</span><br><span class="line"></span><br><span class="line">    if (ccf-&gt;worker_processes !&#x3D; NGX_CONF_UNSET) &#123;</span><br><span class="line">        return &quot;is duplicate&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    value &#x3D; (ngx_str_t *) cf-&gt;args-&gt;elts;</span><br><span class="line"></span><br><span class="line">    if (ngx_strcmp(value[1].data, &quot;auto&quot;) &#x3D;&#x3D; 0) &#123;</span><br><span class="line">  		&#x2F;&#x2F;如果在 conf&#x2F;nginx.conf 中配置 worker_processes  auto;则会走这个逻辑</span><br><span class="line">        ccf-&gt;worker_processes &#x3D; ngx_ncpu;</span><br><span class="line">        &#x2F;&#x2F;ngx_cpu:会在 ngx_os_init 函数中初始化这个全局变量，ngx_ncpu &#x3D; sysconf(_SC_NPROCESSORS_ONLN);获取CPU逻辑核</span><br><span class="line">        return NGX_CONF_OK;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ccf-&gt;worker_processes &#x3D; ngx_atoi(value[1].data, value[1].len);</span><br><span class="line"></span><br><span class="line">    if (ccf-&gt;worker_processes &#x3D;&#x3D; NGX_ERROR) &#123;</span><br><span class="line">        return &quot;invalid value&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return NGX_CONF_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="nginx-如何启动一个或者多个-worker-process"><a href="#nginx-如何启动一个或者多个-worker-process" class="headerlink" title="nginx 如何启动一个或者多个 worker_process?"></a>nginx 如何启动一个或者多个 worker_process?</h4><ul>
+<li>调用关系链</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">main-&gt;</span><br><span class="line">		ngx_master_process_cycle-&gt;</span><br><span class="line">			ngx_start_worker_processes</span><br></pre></td></tr></table></figure>
+<ul>
+<li>main:nginx入口函数</li>
+<li>ngx_master_process_cycle:依据配置文件初始化worker_process和master process.同时提供nginx -h 列举出所有的命令操作实现，这里仅仅列举出来和master、worker进程相关的实现<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">void ngx_master_process_cycle(ngx_cycle_t *cycle)</span><br><span class="line">&#123;</span><br><span class="line">		&#x2F;&#x2F;fork进程作为master进程</span><br><span class="line">	   ngx_start_worker_processes(cycle, ccf-&gt;worker_processes,NGX_PROCESS_JUST_RESPAWN);</span><br><span class="line">       </span><br><span class="line">       &#x2F;&#x2F;fork worker进程</span><br><span class="line">       ngx_start_cache_manager_processes(cycle, 1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>ngx_start_worker_processes:根据配置文件启动多个work_process.</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">static void ngx_start_worker_processes(ngx_cycle_t *cycle, ngx_int_t n, ngx_int_t type)</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">    for (i &#x3D; 0; i &lt; n; i++) &#123;</span><br><span class="line">		&#x2F;&#x2F;ngx_worker_process_cycle 是每个work进程执行的函数</span><br><span class="line">        ngx_spawn_process(cycle, ngx_worker_process_cycle, (void *) (intptr_t) i, &quot;worker process&quot;, type);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">static void ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)</span><br><span class="line">&#123;</span><br><span class="line">    ngx_int_t worker &#x3D; (intptr_t) data;</span><br><span class="line"></span><br><span class="line">    ngx_uint_t         i;</span><br><span class="line">    ngx_connection_t  *c;</span><br><span class="line"></span><br><span class="line">    ngx_process &#x3D; NGX_PROCESS_WORKER;</span><br><span class="line">    ngx_worker_process_init(cycle, worker);</span><br><span class="line">    ngx_setproctitle(&quot;worker process&quot;);</span><br><span class="line">    &#x2F;&#x2F;忽略了其他的代码</span><br><span class="line">    for ( ;; ) &#123;</span><br><span class="line"></span><br><span class="line">        if (ngx_exiting) &#123;</span><br><span class="line"></span><br><span class="line">            c &#x3D; cycle-&gt;connections;</span><br><span class="line"></span><br><span class="line">            for (i &#x3D; 0; i &lt; cycle-&gt;connection_n; i++) &#123;</span><br><span class="line"></span><br><span class="line">                &#x2F;* THREAD: lock *&#x2F;</span><br><span class="line"></span><br><span class="line">                if (c[i].fd !&#x3D; -1 &amp;&amp; c[i].idle) &#123;</span><br><span class="line">                    c[i].close &#x3D; 1;</span><br><span class="line">                    c[i].read-&gt;handler(c[i].read);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ngx_pid_t ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,char *name, ngx_int_t respawn)</span><br><span class="line">&#123;</span><br><span class="line">	&#x2F;&#x2F;</span><br><span class="line">    pid &#x3D; fork();</span><br><span class="line"></span><br><span class="line">    switch (pid) &#123;</span><br><span class="line"></span><br><span class="line">    case -1:</span><br><span class="line">        ngx_log_error(NGX_LOG_ALERT, cycle-&gt;log, ngx_errno,</span><br><span class="line">                      &quot;fork() failed while spawning \&quot;%s\&quot;&quot;, name);</span><br><span class="line">        ngx_close_channel(ngx_processes[s].channel, cycle-&gt;log);</span><br><span class="line">        return NGX_INVALID_PID;</span><br><span class="line"></span><br><span class="line">    case 0:</span><br><span class="line">        ngx_pid &#x3D; ngx_getpid();</span><br><span class="line">        proc(cycle, data);</span><br><span class="line">        break;</span><br><span class="line"></span><br><span class="line">    default:</span><br><span class="line">        break;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/nginx-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="tag"># nginx 源码分析</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/27/%E8%BF%9B%E7%A8%8B%E9%97%B4%E5%AE%9E%E6%97%B6%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E5%92%8C%E5%AE%9E%E7%8E%B0/" rel="prev" title="进程间实时通信模块设计和实现">
+      <i class="fa fa-chevron-left"></i> 进程间实时通信模块设计和实现
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/06/28/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-%E7%94%A8%E6%88%B7%E6%8E%A5%E5%8F%A3%E7%AF%87/" rel="next" title="操作系统-用户接口篇">
+      操作系统-用户接口篇 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#nginx-的worker-process"><span class="nav-number">1.</span> <span class="nav-text">nginx 的worker_process</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#nginx的配置worker-process"><span class="nav-number">1.1.</span> <span class="nav-text">nginx的配置worker_process</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nginx-如何配置worker-process呢"><span class="nav-number">1.2.</span> <span class="nav-text">nginx 如何配置worker_process呢?</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#nginx中通过static-ngx-command-t-ngx-core-commands-数组表示配置文件以及配置文件中的回调函数"><span class="nav-number">1.2.1.</span> <span class="nav-text">nginx中通过static ngx_command_t  ngx_core_commands[]数组表示配置文件以及配置文件中的回调函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#worker-process-通过回调函数ngx-set-worker-processes设置nginx的进程数"><span class="nav-number">1.2.2.</span> <span class="nav-text">worker_process 通过回调函数ngx_set_worker_processes设置nginx的进程数</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nginx-如何启动一个或者多个-worker-process"><span class="nav-number">1.3.</span> <span class="nav-text">nginx 如何启动一个或者多个 worker_process?</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

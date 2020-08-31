@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="故障现象 glusterfs客户端无法连接某个节点的brick，一直出现rpc无法连接 kernel 出现hung_task_timeout_secs超时问题  故障分析   kernel层面分析   kernel出现sync flood，原因是客户端断掉后不断重新尝试导致，后面CallTrace出现 hung_task_timeout_secs关键字，该关键字含义是，异步刷新IO到磁盘，如果在h">
+<meta property="og:type" content="article">
+<meta property="og:title" content="glusterfs client客戶端出现RPC_CLNT_DISCONNECT问题和kernel出现task xxx blocked for more than 120 seconds">
+<meta property="og:url" content="http://yoursite.com/2020/05/27/glusterfs-client%E5%AE%A2%E6%88%B6%E7%AB%AF%E5%87%BA%E7%8E%B0RPC-CLNT-DISCONNECT%E9%97%AE%E9%A2%98%E5%92%8Ckernel%E5%87%BA%E7%8E%B0task-xxx-blocked-for-more-than-120-second/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="故障现象 glusterfs客户端无法连接某个节点的brick，一直出现rpc无法连接 kernel 出现hung_task_timeout_secs超时问题  故障分析   kernel层面分析   kernel出现sync flood，原因是客户端断掉后不断重新尝试导致，后面CallTrace出现 hung_task_timeout_secs关键字，该关键字含义是，异步刷新IO到磁盘，如果在h">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-05-27T09:26:20.000Z">
+<meta property="article:modified_time" content="2020-05-27T09:32:50.536Z">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content=" Go">
+<meta property="article:tag" content=" nginx">
+<meta property="article:tag" content="glusterfs">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/27/glusterfs-client%E5%AE%A2%E6%88%B6%E7%AB%AF%E5%87%BA%E7%8E%B0RPC-CLNT-DISCONNECT%E9%97%AE%E9%A2%98%E5%92%8Ckernel%E5%87%BA%E7%8E%B0task-xxx-blocked-for-more-than-120-second/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>glusterfs client客戶端出现RPC_CLNT_DISCONNECT问题和kernel出现task xxx blocked for more than 120 seconds | perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/27/glusterfs-client%E5%AE%A2%E6%88%B6%E7%AB%AF%E5%87%BA%E7%8E%B0RPC-CLNT-DISCONNECT%E9%97%AE%E9%A2%98%E5%92%8Ckernel%E5%87%BA%E7%8E%B0task-xxx-blocked-for-more-than-120-second/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          glusterfs client客戶端出现RPC_CLNT_DISCONNECT问题和kernel出现task xxx blocked for more than 120 seconds
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-27 17:26:20 / 修改时间：17:32:50" itemprop="dateCreated datePublished" datetime="2020-05-27T17:26:20+08:00">2020-05-27</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="故障现象"><a href="#故障现象" class="headerlink" title="故障现象"></a>故障现象</h4><ul>
+<li>glusterfs客户端无法连接某个节点的brick，一直出现rpc无法连接</li>
+<li>kernel 出现hung_task_timeout_secs超时问题</li>
+</ul>
+<h4 id="故障分析"><a href="#故障分析" class="headerlink" title="故障分析"></a>故障分析</h4><p>   <strong>kernel层面分析</strong><br>   kernel出现sync flood，原因是客户端断掉后不断重新尝试导致，后面CallTrace出现 hung_task_timeout_secs关键字，该关键字含义是，异步刷新IO到磁盘，如果在hung_task_timeout_secs时间内IO没有刷完，就会报出这个错误，解决方法需要调整vm.dirty_ratio和vm.dirty_backgroud_ratio参数，两个参数分别控制脏页刷磁盘的比例，如果后端磁盘非常慢，超过操作系统默认的timeout会出现这样的calltrace.建议设置vm.dirty_ratio=5和vm.dirty_backgroud_ratio=5</p>
+<p>  <strong>客户端日志分析</strong><br>    日志中大量报出0-speech_vol_v2-client-55对应的brick无法建立rpc连接(通过网络telnet 主机和端口无异常),从日志来看可能是sync flood导致，客户端无法连接到这个glusterfsd</p>
+<p>  <strong>服务端日志</strong><br>    服务端的日志也很明显出现read/write出现告警</p>
+<h4 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h4><ul>
+<li>调整kernel中 vm.dirty_ratio=5和 vm.dirty_backgroud_ratio=10（该问题仅仅关闭kernel报错)</li>
+<li>重启节点的glusterd的进程或者重启节点(sync flood的问题)</li>
+</ul>
+<h4 id="glusterfs-version"><a href="#glusterfs-version" class="headerlink" title="glusterfs version"></a>glusterfs version</h4><ul>
+<li>服务端版本</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@ai-storage-prd-141-165-65-141.v-bj-4.vivo.lan:&#x2F;root]</span><br><span class="line"># gluster --version</span><br><span class="line">glusterfs 7.2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>客户端版本</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@storage-center-prd-10-194-8-133.v-bj-4.vivo.lan:&#x2F;var&#x2F;log&#x2F;glusterfs]</span><br><span class="line"># rpm -qa|grep gluster</span><br><span class="line">glusterfs-7.2-1.el7.x86_64</span><br><span class="line">glusterfs-fuse-7.2-1.el7.x86_64</span><br><span class="line">glusterfs-libs-7.2-1.el7.x86_64</span><br></pre></td></tr></table></figure>
+
+<h4 id="cluster-volume"><a href="#cluster-volume" class="headerlink" title="cluster volume"></a>cluster volume</h4><ul>
+<li><p>volume info</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"># gluster volume info  speech_vol_v2     </span><br><span class="line"> </span><br><span class="line">Volume Name: speech_vol_v2</span><br><span class="line">Type: Distributed-Replicate</span><br><span class="line">Volume ID: e1b28e82-0d0b-4c87-bb6a-45306ec4a568</span><br><span class="line">Status: Started</span><br><span class="line">Snapshot Count: 0</span><br><span class="line">Number of Bricks: 24 x 3 &#x3D; 72</span><br><span class="line">Transport-type: tcp</span><br><span class="line">Bricks:</span><br><span class="line">Brick1: 141.165.65.141:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick2: 141.165.65.142:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick3: 141.165.65.144:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick4: 141.165.65.141:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick5: 141.165.65.142:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick6: 141.165.65.144:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick7: 141.165.65.141:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick8: 141.165.65.142:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick9: 141.165.65.144:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick10: 141.165.65.141:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick11: 141.165.65.142:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick12: 141.165.65.144:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick13: 141.165.65.141:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick14: 141.165.65.142:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick15: 141.165.65.144:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick16: 141.165.65.141:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick17: 141.165.65.142:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick18: 141.165.65.144:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick19: 141.165.65.141:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick20: 141.165.65.142:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick21: 141.165.65.144:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick22: 141.165.65.141:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick23: 141.165.65.142:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick24: 141.165.65.144:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick25: 141.165.65.141:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick26: 141.165.65.142:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick27: 141.165.65.144:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick28: 141.165.65.141:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick29: 141.165.65.142:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick30: 141.165.65.144:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick31: 141.165.65.141:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick32: 141.165.65.142:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick33: 141.165.65.144:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick34: 141.165.65.141:&#x2F;data12&#x2F;brick</span><br><span class="line">Brick35: 141.165.65.142:&#x2F;data12&#x2F;brick</span><br><span class="line">Brick36: 141.165.65.144:&#x2F;data12&#x2F;brick</span><br><span class="line">Brick37: 141.165.181.146:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick38: 141.165.181.147:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick39: 141.165.181.148:&#x2F;data1&#x2F;brick</span><br><span class="line">Brick40: 141.165.181.146:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick41: 141.165.181.147:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick42: 141.165.181.148:&#x2F;data2&#x2F;brick</span><br><span class="line">Brick43: 141.165.181.146:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick44: 141.165.181.147:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick45: 141.165.181.148:&#x2F;data3&#x2F;brick</span><br><span class="line">Brick46: 141.165.181.146:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick47: 141.165.181.147:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick48: 141.165.181.148:&#x2F;data4&#x2F;brick</span><br><span class="line">Brick49: 141.165.181.146:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick50: 141.165.181.147:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick51: 141.165.181.148:&#x2F;data5&#x2F;brick</span><br><span class="line">Brick52: 141.165.181.146:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick53: 141.165.181.147:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick54: 141.165.181.148:&#x2F;data6&#x2F;brick</span><br><span class="line">Brick55: 141.165.181.146:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick56: 141.165.181.147:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick57: 141.165.181.148:&#x2F;data7&#x2F;brick</span><br><span class="line">Brick58: 141.165.181.146:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick59: 141.165.181.147:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick60: 141.165.181.148:&#x2F;data8&#x2F;brick</span><br><span class="line">Brick61: 141.165.181.146:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick62: 141.165.181.147:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick63: 141.165.181.148:&#x2F;data9&#x2F;brick</span><br><span class="line">Brick64: 141.165.181.146:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick65: 141.165.181.147:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick66: 141.165.181.148:&#x2F;data10&#x2F;brick</span><br><span class="line">Brick67: 141.165.181.146:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick68: 141.165.181.147:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick69: 141.165.181.148:&#x2F;data11&#x2F;brick</span><br><span class="line">Brick70: 141.165.181.146:&#x2F;data12&#x2F;brick</span><br><span class="line">Brick71: 141.165.181.147:&#x2F;data12&#x2F;brick</span><br><span class="line">Brick72: 141.165.181.148:&#x2F;data12&#x2F;brick</span><br><span class="line">Options Reconfigured:</span><br><span class="line">network.ping-timeout: 120</span><br><span class="line">cluster.read-hash-mode: 3</span><br><span class="line">storage.fips-mode-rchecksum: on</span><br><span class="line">nfs.disable: on</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>volume status</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"># gluster volume status   speech_vol_v2     </span><br><span class="line">Status of volume: speech_vol_v2</span><br><span class="line">Gluster process                             TCP Port  RDMA Port  Online  Pid</span><br><span class="line">------------------------------------------------------------------------------</span><br><span class="line">Brick 141.165.65.141:&#x2F;data1&#x2F;brick            49152     0          Y       16432</span><br><span class="line">Brick 141.165.65.142:&#x2F;data1&#x2F;brick            49152     0          Y       16355</span><br><span class="line">Brick 141.165.65.144:&#x2F;data1&#x2F;brick            49152     0          Y       32212</span><br><span class="line">Brick 141.165.65.141:&#x2F;data2&#x2F;brick            49153     0          Y       20613</span><br><span class="line">Brick 141.165.65.142:&#x2F;data2&#x2F;brick            49153     0          Y       16376</span><br><span class="line">Brick 141.165.65.144:&#x2F;data2&#x2F;brick            49153     0          Y       32232</span><br><span class="line">Brick 141.165.65.141:&#x2F;data3&#x2F;brick            49154     0          Y       20627</span><br><span class="line">Brick 141.165.65.142:&#x2F;data3&#x2F;brick            49154     0          Y       16402</span><br><span class="line">Brick 141.165.65.144:&#x2F;data3&#x2F;brick            49154     0          Y       32252</span><br><span class="line">Brick 141.165.65.141:&#x2F;data4&#x2F;brick            49155     0          Y       10020</span><br><span class="line">Brick 141.165.65.142:&#x2F;data4&#x2F;brick            49155     0          Y       16433</span><br><span class="line">Brick 141.165.65.144:&#x2F;data4&#x2F;brick            49155     0          Y       32272</span><br><span class="line">Brick 141.165.65.141:&#x2F;data5&#x2F;brick            49156     0          Y       10026</span><br><span class="line">Brick 141.165.65.142:&#x2F;data5&#x2F;brick            49156     0          Y       16457</span><br><span class="line">Brick 141.165.65.144:&#x2F;data5&#x2F;brick            49156     0          Y       32292</span><br><span class="line">Brick 141.165.65.141:&#x2F;data6&#x2F;brick            49157     0          Y       20620</span><br><span class="line">Brick 141.165.65.142:&#x2F;data6&#x2F;brick            49157     0          Y       16485</span><br><span class="line">Brick 141.165.65.144:&#x2F;data6&#x2F;brick            49157     0          Y       32312</span><br><span class="line">Brick 141.165.65.141:&#x2F;data7&#x2F;brick            49158     0          Y       10055</span><br><span class="line">Brick 141.165.65.142:&#x2F;data7&#x2F;brick            49158     0          Y       16505</span><br><span class="line">Brick 141.165.65.144:&#x2F;data7&#x2F;brick            49158     0          Y       32332</span><br><span class="line">Brick 141.165.65.141:&#x2F;data8&#x2F;brick            49159     0          Y       15551</span><br><span class="line">Brick 141.165.65.142:&#x2F;data8&#x2F;brick            49159     0          Y       16530</span><br><span class="line">Brick 141.165.65.144:&#x2F;data8&#x2F;brick            49159     0          Y       32352</span><br><span class="line">Brick 141.165.65.141:&#x2F;data9&#x2F;brick            49160     0          Y       10075</span><br><span class="line">Brick 141.165.65.142:&#x2F;data9&#x2F;brick            49160     0          Y       16552</span><br><span class="line">Brick 141.165.65.144:&#x2F;data9&#x2F;brick            49160     0          Y       32372</span><br><span class="line">Brick 141.165.65.141:&#x2F;data10&#x2F;brick           49161     0          Y       10086</span><br><span class="line">Brick 141.165.65.142:&#x2F;data10&#x2F;brick           49161     0          Y       16573</span><br><span class="line">Brick 141.165.65.144:&#x2F;data10&#x2F;brick           49161     0          Y       32394</span><br><span class="line">Brick 141.165.65.141:&#x2F;data11&#x2F;brick           49162     0          Y       10099</span><br><span class="line">Brick 141.165.65.142:&#x2F;data11&#x2F;brick           49162     0          Y       16595</span><br><span class="line">Brick 141.165.65.144:&#x2F;data11&#x2F;brick           49162     0          Y       32415</span><br><span class="line">Brick 141.165.65.141:&#x2F;data12&#x2F;brick           49163     0          Y       10106</span><br><span class="line">Brick 141.165.65.142:&#x2F;data12&#x2F;brick           49163     0          Y       16616</span><br><span class="line">Brick 141.165.65.144:&#x2F;data12&#x2F;brick           49163     0          Y       32435</span><br><span class="line">Brick 141.165.181.146:&#x2F;data1&#x2F;brick           49152     0          Y       177222</span><br><span class="line">Brick 141.165.181.147:&#x2F;data1&#x2F;brick           49164     0          Y       215532</span><br><span class="line">Brick 141.165.181.148:&#x2F;data1&#x2F;brick           49152     0          Y       182183</span><br><span class="line">Brick 141.165.181.146:&#x2F;data2&#x2F;brick           49153     0          Y       177242</span><br><span class="line">Brick 141.165.181.147:&#x2F;data2&#x2F;brick           49165     0          Y       215541</span><br><span class="line">Brick 141.165.181.148:&#x2F;data2&#x2F;brick           49153     0          Y       182203</span><br><span class="line">Brick 141.165.181.146:&#x2F;data3&#x2F;brick           49154     0          Y       177263</span><br><span class="line">Brick 141.165.181.147:&#x2F;data3&#x2F;brick           49166     0          Y       215552</span><br><span class="line">Brick 141.165.181.148:&#x2F;data3&#x2F;brick           49154     0          Y       182224</span><br><span class="line">Brick 141.165.181.146:&#x2F;data4&#x2F;brick           49155     0          Y       177283</span><br><span class="line">Brick 141.165.181.147:&#x2F;data4&#x2F;brick           49167     0          Y       215563</span><br><span class="line">Brick 141.165.181.148:&#x2F;data4&#x2F;brick           49155     0          Y       182244</span><br><span class="line">Brick 141.165.181.146:&#x2F;data5&#x2F;brick           49156     0          Y       177303</span><br><span class="line">Brick 141.165.181.147:&#x2F;data5&#x2F;brick           49168     0          Y       215574</span><br><span class="line">Brick 141.165.181.148:&#x2F;data5&#x2F;brick           49156     0          Y       182264</span><br><span class="line">Brick 141.165.181.146:&#x2F;data6&#x2F;brick           49157     0          Y       177323</span><br><span class="line">Brick 141.165.181.147:&#x2F;data6&#x2F;brick           49169     0          Y       215585</span><br><span class="line">Brick 141.165.181.148:&#x2F;data6&#x2F;brick           49157     0          Y       182284</span><br><span class="line">Brick 141.165.181.146:&#x2F;data7&#x2F;brick           49158     0          Y       177343</span><br><span class="line">Brick 141.165.181.147:&#x2F;data7&#x2F;brick           49158     0          Y       176773</span><br><span class="line">Brick 141.165.181.148:&#x2F;data7&#x2F;brick           49158     0          Y       182304</span><br><span class="line">Brick 141.165.181.146:&#x2F;data8&#x2F;brick           49159     0          Y       177363</span><br><span class="line">Brick 141.165.181.147:&#x2F;data8&#x2F;brick           49170     0          Y       215596</span><br><span class="line">Brick 141.165.181.148:&#x2F;data8&#x2F;brick           49159     0          Y       182324</span><br><span class="line">Brick 141.165.181.146:&#x2F;data9&#x2F;brick           49160     0          Y       177383</span><br><span class="line">Brick 141.165.181.147:&#x2F;data9&#x2F;brick           49171     0          Y       215607</span><br><span class="line">Brick 141.165.181.148:&#x2F;data9&#x2F;brick           49160     0          Y       182346</span><br><span class="line">Brick 141.165.181.146:&#x2F;data10&#x2F;brick          49161     0          Y       177403</span><br><span class="line">Brick 141.165.181.147:&#x2F;data10&#x2F;brick          49172     0          Y       215618</span><br><span class="line">Brick 141.165.181.148:&#x2F;data10&#x2F;brick          49161     0          Y       182366</span><br><span class="line">Brick 141.165.181.146:&#x2F;data11&#x2F;brick          49162     0          Y       177423</span><br><span class="line">Brick 141.165.181.147:&#x2F;data11&#x2F;brick          49173     0          Y       215629</span><br><span class="line">Brick 141.165.181.148:&#x2F;data11&#x2F;brick          49162     0          Y       182386</span><br><span class="line">Brick 141.165.181.146:&#x2F;data12&#x2F;brick          49163     0          Y       177443</span><br><span class="line">Brick 141.165.181.147:&#x2F;data12&#x2F;brick          49174     0          Y       215639</span><br><span class="line">Brick 141.165.181.148:&#x2F;data12&#x2F;brick          49163     0          Y       182406</span><br></pre></td></tr></table></figure>
+
+<h4 id="客户端无法连接的Brick的信息"><a href="#客户端无法连接的Brick的信息" class="headerlink" title="客户端无法连接的Brick的信息"></a>客户端无法连接的Brick的信息</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;这些信息存在于&#x2F;var&#x2F;log&#x2F;glusterfs&#x2F;mnt-&#123;挂载名称&#125;.log中的Final graph:</span><br><span class="line">volume speech_vol_v2-client-55</span><br><span class="line">    type protocol&#x2F;client</span><br><span class="line">    option ping-timeout 120</span><br><span class="line">    option remote-host 141.165.181.147</span><br><span class="line">    option remote-subvolume &#x2F;data7&#x2F;brick</span><br><span class="line">    option transport-type socket</span><br><span class="line">    option transport.socket.ssl-enabled off</span><br><span class="line">    option transport.tcp-user-timeout 0</span><br><span class="line">    option transport.socket.keepalive-time 20</span><br><span class="line">    option transport.socket.keepalive-interval 2</span><br><span class="line">    option transport.socket.keepalive-count 9</span><br><span class="line">    option send-gids true</span><br><span class="line">end-volume</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="客户端挂载Debug日志"><a href="#客户端挂载Debug日志" class="headerlink" title="客户端挂载Debug日志"></a>客户端挂载Debug日志</h4><h5 id="操作系统kernel日志-var-log-message"><a href="#操作系统kernel日志-var-log-message" class="headerlink" title="操作系统kernel日志(/var/log/message)"></a>操作系统kernel日志(/var/log/message)</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">May 26 12:20:18 storage-center-prd-141-165-181-147 kernel: [4036004.156726] TCP: request_sock_TCP: Possible SYN flooding on port 24007. Sending cookies.  Check SNMP counters.</span><br><span class="line">May 26 16:52:13 storage-center-prd-141-165-181-147 systemd[1]: Starting Cleanup of Temporary Directories...</span><br><span class="line">May 26 16:52:13 storage-center-prd-141-165-181-147 systemd[1]: Started Cleanup of Temporary Directories.</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.524551] INFO: task kswapd0:266 blocked for more than 120 seconds.</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.531180] &quot;echo 0 &gt; &#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;hung_task_timeout_secs&quot; disables this message.</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539187] kswapd0         D 0000000007496801     0   266      2 0x00000000</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539195]  ffff881ffcd3b8f0 0000000000000046 ffff881ffeab9fa0 ffff881ffcd3bfd8</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539198]  ffff881ffcd3bfd8 ffff881ffcd3bfd8 ffff881ffeab9fa0 ffff8804e82b4860</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539200]  7fffffffffffffff ffff8804e82b4858 ffff881ffeab9fa0 0000000007496801</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539202] Call Trace:</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539216]  [&lt;ffffffff816a94c9&gt;] schedule+0x29&#x2F;0x70</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539228]  [&lt;ffffffff816a6fd9&gt;] schedule_timeout+0x239&#x2F;0x2c0</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539235]  [&lt;ffffffff812fab24&gt;] ? blk_finish_plug+0x14&#x2F;0x40</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539271]  [&lt;ffffffffc01f9354&gt;] ? _xfs_buf_ioapply+0x334&#x2F;0x460 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539273]  [&lt;ffffffff816a987d&gt;] wait_for_completion+0xfd&#x2F;0x140</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539277]  [&lt;ffffffff810c4810&gt;] ? wake_up_state+0x20&#x2F;0x20</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539292]  [&lt;ffffffffc01fb434&gt;] ? xfs_bwrite+0x24&#x2F;0x60 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539305]  [&lt;ffffffffc01fb026&gt;] xfs_buf_submit_wait+0xe6&#x2F;0x1d0 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539316]  [&lt;ffffffffc01fb434&gt;] xfs_bwrite+0x24&#x2F;0x60 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539330]  [&lt;ffffffffc0203b71&gt;] xfs_reclaim_inode+0x331&#x2F;0x360 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539346]  [&lt;ffffffffc0203e07&gt;] xfs_reclaim_inodes_ag+0x267&#x2F;0x390 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539348]  [&lt;ffffffff810c4593&gt;] ? try_to_wake_up+0x183&#x2F;0x340</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539351]  [&lt;ffffffff8121d67a&gt;] ? evict+0x10a&#x2F;0x180</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539353]  [&lt;ffffffff810c4765&gt;] ? wake_up_process+0x15&#x2F;0x20</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539366]  [&lt;ffffffffc0204df3&gt;] xfs_reclaim_inodes_nr+0x33&#x2F;0x40 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539380]  [&lt;ffffffffc02146f5&gt;] xfs_fs_free_cached_objects+0x15&#x2F;0x20 [xfs]</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539383]  [&lt;ffffffff81203888&gt;] prune_super+0xe8&#x2F;0x170</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539387]  [&lt;ffffffff81195413&gt;] shrink_slab+0x163&#x2F;0x330</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539390]  [&lt;ffffffff811f7537&gt;] ? vmpressure+0x87&#x2F;0x90</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539392]  [&lt;ffffffff81199081&gt;] balance_pgdat+0x4b1&#x2F;0x5e0</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539394]  [&lt;ffffffff81199323&gt;] kswapd+0x173&#x2F;0x440</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539398]  [&lt;ffffffff810b1910&gt;] ? wake_up_atomic_t+0x30&#x2F;0x30</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539401]  [&lt;ffffffff811991b0&gt;] ? balance_pgdat+0x5e0&#x2F;0x5e0</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539402]  [&lt;ffffffff810b098f&gt;] kthread+0xcf&#x2F;0xe0</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539404]  [&lt;ffffffff810b08c0&gt;] ? insert_kthread_work+0x40&#x2F;0x40</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539408]  [&lt;ffffffff816b4f18&gt;] ret_from_fork+0x58&#x2F;0x90</span><br><span class="line">May 27 00:30:14 storage-center-prd-141-165-181-147 kernel: [4079697.539409]  [&lt;ffffffff810b08c0&gt;] ? insert_kthread_work+0x40&#x2F;0x40</span><br><span class="line">May 27 00:32:14 storage-center-prd-141-165-181-147 kernel: [4079817.259262] INFO: task kswapd0:266 blocked for more than 120 seconds.</span><br></pre></td></tr></table></figure>
+
+<h5 id="客户端Mount-Debug日志详情"><a href="#客户端Mount-Debug日志详情" class="headerlink" title="客户端Mount Debug日志详情"></a>客户端Mount Debug日志详情</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">[2020-05-27 03:47:34.303569] D [logging.c:1718:__gf_log_inject_timer_event] 0-logging-infra: Starting timer now. Timeout &#x3D; 120, current buf size &#x3D; 5</span><br><span class="line">[2020-05-27 03:47:52.040397] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:7) (non-SSL)</span><br><span class="line">[2020-05-27 03:47:52.040442] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:47:52.040639] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_connection_cleanup+0x92)[0x7fb222fc5922] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0xf4e8)[0x7fb222fc64e8] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_transport_notify+0x23)[0x7fb222fc2a93] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:47:55.040804] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">[2020-05-27 03:47:55.043219] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:47:55.043244] D [socket.c:3384:socket_fix_ssl_opts] 0-speech_vol_v2-client-55: disabling SSL for portmapper connection</span><br><span class="line">[2020-05-27 03:47:55.043408] D [MSGID: 0] [client.c:2323:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_CONNECT </span><br><span class="line">[2020-05-27 03:47:55.043611] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x13691)[0x7fb222fca691] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_submit+0x3b4)[0x7fb222fc6914] (--&gt; &#x2F;usr&#x2F;lib64&#x2F;glusterfs&#x2F;7.2&#x2F;xlator&#x2F;protocol&#x2F;client.so(+0x135b2)[0x7fb2146675b2] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:47:55.043662] D [MSGID: 0] [client-handshake.c:1399:server_has_portmap] 0-speech_vol_v2-client-55: detected portmapper on server </span><br><span class="line">[2020-05-27 03:47:55.043783] D [rpc-clnt-ping.c:195:rpc_clnt_ping_cbk] 0-speech_vol_v2-client-55: Ping latency is 0ms</span><br><span class="line">[2020-05-27 03:47:55.043812] I [rpc-clnt.c:1963:rpc_clnt_reconfig] 0-speech_vol_v2-client-55: changing port to 49158 (from 0)</span><br><span class="line">[2020-05-27 03:47:55.043844] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:6) (non-SSL)</span><br><span class="line">[2020-05-27 03:47:55.043855] D [MSGID: 0] [client.c:2394:client_rpc_notify] 0-speech_vol_v2-client-55: disconnected (skipped notify) </span><br><span class="line">[2020-05-27 03:47:55.043876] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">[2020-05-27 03:49:34.303646] D [logging.c:1756:gf_log_flush_timeout_cbk] 0-logging-infra: Log timer timed out. About to flush outstanding messages if present</span><br><span class="line">[2020-05-27 03:47:55.043854] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:47:55.046202] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:49:34.303898] D [logging.c:1718:__gf_log_inject_timer_event] 0-logging-infra: Starting timer now. Timeout &#x3D; 120, current buf size &#x3D; 5</span><br><span class="line">[2020-05-27 03:50:02.344385] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:7) (non-SSL)</span><br><span class="line">[2020-05-27 03:50:02.344418] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:50:02.344582] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_connection_cleanup+0x92)[0x7fb222fc5922] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0xf4e8)[0x7fb222fc64e8] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_transport_notify+0x23)[0x7fb222fc2a93] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:50:05.344677] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">[2020-05-27 03:50:05.347099] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:50:05.347126] D [socket.c:3384:socket_fix_ssl_opts] 0-speech_vol_v2-client-55: disabling SSL for portmapper connection</span><br><span class="line">[2020-05-27 03:50:05.347336] D [MSGID: 0] [client.c:2323:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_CONNECT </span><br><span class="line">[2020-05-27 03:50:05.347542] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x13691)[0x7fb222fca691] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_submit+0x3b4)[0x7fb222fc6914] (--&gt; &#x2F;usr&#x2F;lib64&#x2F;glusterfs&#x2F;7.2&#x2F;xlator&#x2F;protocol&#x2F;client.so(+0x135b2)[0x7fb2146675b2] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:50:05.347591] D [MSGID: 0] [client-handshake.c:1399:server_has_portmap] 0-speech_vol_v2-client-55: detected portmapper on server </span><br><span class="line">[2020-05-27 03:50:05.347633] D [rpc-clnt-ping.c:195:rpc_clnt_ping_cbk] 0-speech_vol_v2-client-55: Ping latency is 0ms</span><br><span class="line">[2020-05-27 03:50:05.347701] I [rpc-clnt.c:1963:rpc_clnt_reconfig] 0-speech_vol_v2-client-55: changing port to 49158 (from 0)</span><br><span class="line">[2020-05-27 03:50:05.347735] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:6) (non-SSL)</span><br><span class="line">[2020-05-27 03:50:05.347749] D [MSGID: 0] [client.c:2394:client_rpc_notify] 0-speech_vol_v2-client-55: disconnected (skipped notify) </span><br><span class="line">[2020-05-27 03:50:05.347765] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">&#x2F;0-speech_vol_v2-client-55</span><br><span class="line">[2020-05-27 03:51:34.303977] D [logging.c:1756:gf_log_flush_timeout_cbk] 0-logging-infra: Log timer timed out. About to flush outstanding messages if present</span><br><span class="line">[2020-05-27 03:50:05.347748] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:50:05.350156] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:51:34.304035] D [logging.c:1718:__gf_log_inject_timer_event] 0-logging-infra: Starting timer now. Timeout &#x3D; 120, current buf size &#x3D; 5</span><br><span class="line">[2020-05-27 03:52:12.648388] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:7) (non-SSL)</span><br><span class="line">[2020-05-27 03:52:12.648424] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:52:12.648591] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_connection_cleanup+0x92)[0x7fb222fc5922] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0xf4e8)[0x7fb222fc64e8] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_transport_notify+0x23)[0x7fb222fc2a93] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:52:15.648683] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">[2020-05-27 03:52:15.651027] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:52:15.651052] D [socket.c:3384:socket_fix_ssl_opts] 0-speech_vol_v2-client-55: disabling SSL for portmapper connection</span><br><span class="line">[2020-05-27 03:52:15.651271] D [MSGID: 0] [client.c:2323:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_CONNECT </span><br><span class="line">[2020-05-27 03:52:15.651501] D [rpc-clnt-ping.c:96:rpc_clnt_remove_ping_timer_locked] (--&gt; &#x2F;lib64&#x2F;libglusterfs.so.0(_gf_log_callingfn+0x13a)[0x7fb22321e8ea] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x12eeb)[0x7fb222fc9eeb] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(+0x13691)[0x7fb222fca691] (--&gt; &#x2F;lib64&#x2F;libgfrpc.so.0(rpc_clnt_submit+0x3b4)[0x7fb222fc6914] (--&gt; &#x2F;usr&#x2F;lib64&#x2F;glusterfs&#x2F;7.2&#x2F;xlator&#x2F;protocol&#x2F;client.so(+0x135b2)[0x7fb2146675b2] ))))) 0-: 141.165.181.147:24007: ping timer event already removed</span><br><span class="line">[2020-05-27 03:52:15.651557] D [MSGID: 0] [client-handshake.c:1399:server_has_portmap] 0-speech_vol_v2-client-55: detected portmapper on server </span><br><span class="line">[2020-05-27 03:52:15.651693] D [rpc-clnt-ping.c:195:rpc_clnt_ping_cbk] 0-speech_vol_v2-client-55: Ping latency is 0ms</span><br><span class="line">[2020-05-27 03:52:15.651734] I [rpc-clnt.c:1963:rpc_clnt_reconfig] 0-speech_vol_v2-client-55: changing port to 49158 (from 0)</span><br><span class="line">[2020-05-27 03:52:15.651758] D [socket.c:3053:socket_event_handler] 0-transport: EPOLLERR - disconnecting (sock:6) (non-SSL)</span><br><span class="line">[2020-05-27 03:52:15.651770] D [MSGID: 0] [client.c:2394:client_rpc_notify] 0-speech_vol_v2-client-55: disconnected (skipped notify) </span><br><span class="line">[2020-05-27 03:52:15.651785] D [name.c:171:client_fill_address_family] 0-speech_vol_v2-client-55: address-family not specified, marking it as unspec for getaddrinfo to resolve from (remote-host: 141.165.181.147)</span><br><span class="line">[2020-05-27 03:53:34.304123] D [logging.c:1756:gf_log_flush_timeout_cbk] 0-logging-infra: Log timer timed out. About to flush outstanding messages if present</span><br><span class="line">[2020-05-27 03:52:15.651768] D [MSGID: 0] [client.c:2334:client_rpc_notify] 0-speech_vol_v2-client-55: got RPC_CLNT_DISCONNECT </span><br><span class="line">[2020-05-27 03:52:15.654154] D [MSGID: 0] [common-utils.c:532:gf_resolve_ip6] 0-resolver: returning ip-141.165.181.147 (port-24007) for hostname: 141.165.181.147 and port: 24007 </span><br><span class="line">[2020-05-27 03:53:34.304179] D [logging.c:1718:__gf_log_inject_timer_event] 0-logging-infra: Starting timer now. Timeout &#x3D; 120, current buf size &#x3D; 5</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="0-speech-vol-v2-client-55对应服务端节点-147下的-data7-brick-日志"><a href="#0-speech-vol-v2-client-55对应服务端节点-147下的-data7-brick-日志" class="headerlink" title="0-speech_vol_v2-client-55对应服务端节点(147下的/data7/brick)日志"></a>0-speech_vol_v2-client-55对应服务端节点(147下的/data7/brick)日志</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[2020-05-27 01:02:22.421765] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.32.25:47645 failed (No data available)</span><br><span class="line">[2020-05-27 01:02:22.421795] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:de438bc8-1b52-446c-817f-60d646af0ba6-GRAPH_ID:2-PID:84971-HOST:ai-vtraining-prd-141-165-32-25.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 01:02:26.918776] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.32.25:47562 failed (No data available)</span><br><span class="line">[2020-05-27 01:02:26.918807] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:36965041-2046-4413-88a4-08bc06fc1de4-GRAPH_ID:2-PID:87591-HOST:ai-vtraining-prd-141-165-32-25.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 01:03:13.270262] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.86.129:48212 failed (No data available)</span><br><span class="line">[2020-05-27 01:03:13.270295] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:2dafdf38-ff96-45cc-99c2-1238764b59ae-GRAPH_ID:0-PID:75668-HOST:ai-vtraining-prd-141-165-86-129.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 01:03:13.285400] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.86.129:48162 failed (No data available)</span><br><span class="line">[2020-05-27 01:03:13.285422] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:4251ffc2-e1c5-4357-a5d2-7c92e8221fad-GRAPH_ID:0-PID:75625-HOST:ai-vtraining-prd-141-165-86-129.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 01:36:05.410946] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 10.196.20.133:47621 failed (No data available)</span><br><span class="line">[2020-05-27 01:36:05.410974] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:57fbf79a-bae3-4bcd-8670-70d559956cac-GRAPH_ID:0-PID:15841-HOST:ai-vtraining-gpu-prd-10-196-20-133.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 01:36:06.056913] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 10.196.20.133:47331 failed (No data available)</span><br><span class="line">[2020-05-27 01:36:06.056941] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:b68c4c8e-e8d8-4d44-97a3-a503791d6177-GRAPH_ID:0-PID:16094-HOST:ai-vtraining-gpu-prd-10-196-20-133.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 02:10:34.719707] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.30.45:48603 failed (No data available)</span><br><span class="line">[2020-05-27 02:10:34.719738] I [MSGID: 115036] [server.c:501:server_rpc_notify] 0-speech_vol_v2-server: disconnecting connection from CTX_ID:0ed18a02-3363-4cba-9313-93f7b221ede4-GRAPH_ID:10-PID:6869-HOST:ai-vtraining-prd-141-165-30-45.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 </span><br><span class="line">[2020-05-27 02:13:50.989206] I [addr.c:54:compare_addr_and_update] 0-&#x2F;data7&#x2F;brick: allowed &#x3D; &quot;*&quot;, received addr &#x3D; &quot;141.165.30.45&quot;</span><br><span class="line">[2020-05-27 02:13:50.989234] I [MSGID: 115029] [server-handshake.c:549:server_setvolume] 0-speech_vol_v2-server: accepted client from CTX_ID:a327610d-0acf-4785-a912-17e87c126ba9-GRAPH_ID:0-PID:67045-HOST:ai-vtraining-prd-141-165-30-45.v-bj-4.vivo.lan-PC_NAME:speech_vol_v2-client-55-RECON_NO:-0 (version: 6.5) with subvol &#x2F;data7&#x2F;brick </span><br><span class="line">[2020-05-27 02:17:13.967294] W [socket.c:774:__socket_rwv] 0-tcp.speech_vol_v2-server: readv on 141.165.30.45:48606 failed (No data available)</span><br><span class="line">[2020-05-27 02:39:55.104419] W [glusterfsd.c:1596:cleanup_and_exit] (--&gt;&#x2F;lib64&#x2F;libpthread.so.0(+0x7dd5) [0x7f9d087f1dd5] --&gt;&#x2F;usr&#x2F;sbin&#x2F;glusterfsd(glusterfs_sigwaiter+0xe5) [0x55f6769bb625] --&gt;&#x2F;usr&#x2F;sbin&#x2F;glusterfsd(cleanup_and_exit+0x6b) [0x55f6769bb48b] ) 0-: received signum (15), shutting down </span><br><span class="line">[2020-05-27 02:39:55.104502] W [socket.c:774:__socket_rwv] 0-glusterfs: writev on 141.165.181.147:24007 failed (Broken pipe)</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/" rel="prev" title="glusterfs客户端挂载init流程">
+      <i class="fa fa-chevron-left"></i> glusterfs客户端挂载init流程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/30/Linux%E7%B3%BB%E7%BB%9F%E8%B0%83%E8%B0%83%E7%94%A8/" rel="next" title="Linux系统调调用">
+      Linux系统调调用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#故障现象"><span class="nav-number">1.</span> <span class="nav-text">故障现象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#故障分析"><span class="nav-number">2.</span> <span class="nav-text">故障分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决办法"><span class="nav-number">3.</span> <span class="nav-text">解决办法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#glusterfs-version"><span class="nav-number">4.</span> <span class="nav-text">glusterfs version</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cluster-volume"><span class="nav-number">5.</span> <span class="nav-text">cluster volume</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端无法连接的Brick的信息"><span class="nav-number">6.</span> <span class="nav-text">客户端无法连接的Brick的信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端挂载Debug日志"><span class="nav-number">7.</span> <span class="nav-text">客户端挂载Debug日志</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#操作系统kernel日志-var-log-message"><span class="nav-number">7.1.</span> <span class="nav-text">操作系统kernel日志(&#x2F;var&#x2F;log&#x2F;message)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#客户端Mount-Debug日志详情"><span class="nav-number">7.2.</span> <span class="nav-text">客户端Mount Debug日志详情</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#0-speech-vol-v2-client-55对应服务端节点-147下的-data7-brick-日志"><span class="nav-number">7.3.</span> <span class="nav-text">0-speech_vol_v2-client-55对应服务端节点(147下的&#x2F;data7&#x2F;brick)日志</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

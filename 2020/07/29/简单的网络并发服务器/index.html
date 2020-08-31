@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简单的网络并发服务器并发服务基本介绍 在网络服务器设计中，当用户请求达到10W以及更多时候，服务端处理客户端请求能力就非常重要，在业界一般是采用异步网络IO+多线程方式来做这种方案。本例中仅仅是采用多进程的方式模拟这种场景，主要的目的是搞清楚涉及到网络编程中的函数基本原理  基本函数介绍 socket函数:指明需要绑定什么版本的协议和具体协议类型，比如协议版本ipv4或者ipv6,具体的协议是tc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简单的网络并发服务器">
+<meta property="og:url" content="http://yoursite.com/2020/07/29/%E7%AE%80%E5%8D%95%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B9%B6%E5%8F%91%E6%9C%8D%E5%8A%A1%E5%99%A8/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="简单的网络并发服务器并发服务基本介绍 在网络服务器设计中，当用户请求达到10W以及更多时候，服务端处理客户端请求能力就非常重要，在业界一般是采用异步网络IO+多线程方式来做这种方案。本例中仅仅是采用多进程的方式模拟这种场景，主要的目的是搞清楚涉及到网络编程中的函数基本原理  基本函数介绍 socket函数:指明需要绑定什么版本的协议和具体协议类型，比如协议版本ipv4或者ipv6,具体的协议是tc">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-29T01:58:19.000Z">
+<meta property="article:modified_time" content="2020-07-29T02:03:54.334Z">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content=" Go">
+<meta property="article:tag" content=" nginx">
+<meta property="article:tag" content="glusterfs">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/07/29/%E7%AE%80%E5%8D%95%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B9%B6%E5%8F%91%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>简单的网络并发服务器 | perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/29/%E7%AE%80%E5%8D%95%E7%9A%84%E7%BD%91%E7%BB%9C%E5%B9%B6%E5%8F%91%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          简单的网络并发服务器
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-07-29 09:58:19 / 修改时间：10:03:54" itemprop="dateCreated datePublished" datetime="2020-07-29T09:58:19+08:00">2020-07-29</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="简单的网络并发服务器"><a href="#简单的网络并发服务器" class="headerlink" title="简单的网络并发服务器"></a>简单的网络并发服务器</h3><h4 id="并发服务基本介绍"><a href="#并发服务基本介绍" class="headerlink" title="并发服务基本介绍"></a>并发服务基本介绍</h4><ul>
+<li>在网络服务器设计中，当用户请求达到10W以及更多时候，服务端处理客户端请求能力就非常重要，在业界一般是采用异步网络IO+多线程方式来做这种方案。本例中仅仅是采用多进程的方式模拟这种场景，主要的目的是搞清楚涉及到网络编程中的函数基本原理</li>
+</ul>
+<h4 id="基本函数介绍"><a href="#基本函数介绍" class="headerlink" title="基本函数介绍"></a>基本函数介绍</h4><ul>
+<li>socket函数:指明需要绑定什么版本的协议和具体协议类型，比如协议版本ipv4或者ipv6,具体的协议是tcp/udp/sctp协议</li>
+<li>bind函数：设置服务器端的地址，和socket函数返回的套接字绑定</li>
+<li>listen函数:监听这个套接字，同时设置内核的连接的最大队列，一个是未完成队列，一个是完成队列，未完成队列是程序发起syn之后和未完成三次握手之前，此时连接会被放到服务器端的未完成队列中；当完成三次握手，为被应用程序使用之前，此时这种连接会被放到服务器端TCP的完成队列中。</li>
+<li>accept函数：该函数就是从服务端的TCP的完成队列中取出一个可用连接以供应用程序使用</li>
+<li>connect函数: 程序发起syn包到服务端，之后的所有操作都是有tcp协议栈来做</li>
+</ul>
+<h4 id="样例代码中的疑惑"><a href="#样例代码中的疑惑" class="headerlink" title="样例代码中的疑惑"></a>样例代码中的疑惑</h4><p><strong><em>fork后为啥需要关闭listenfd?</em></strong><br>    讲道理父进程fork之后，在子进程中关闭了listenfd,子进程不需要读写整个listenfd的任何资源，子进程仅仅是一个工作进程。这个时候不是应该触发四次挥手(发送fin)断开的操作吗？在这里需要说清楚，fork之后，父子进程会共享listenfd和connfd,此时在内核看来，listenfd和connfd的文件描述符的引用计数在fork之前是1，fork后父子进程共享这2个文件描述符，这2个文件描述符的应用计数为2，在子进程中close（listenfd）不会触发发送fin包，仅仅是listenfd的引用计数从2减到了1而已。<br>    那如果要真正来发送fin包该如何做？可以调用shutdown函数实现发送fin包，断开连接<br><strong><em>父进程中为什么也要关闭connfd?</em></strong><br>    比如子进程处理connfd时间很长，在实例代码中，fork后返回2次，返回到父进程时候已经执行了close(connfd),那子进程不是读取数据失败？其实不是这样的，connfd和上面描述一样，都是引用计数，connfd的引用计数由原来的2减到1而已。这里关闭也有另外一个原因，父进程仅仅复杂监听来自客户单请求，不需要处理客户单请求。</p>
+<h4 id="基本实例代码"><a href="#基本实例代码" class="headerlink" title="基本实例代码"></a>基本实例代码</h4><ul>
+<li>代码<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*************************************************************************</span><br><span class="line">    &gt; File Name: concurrent_tcp_server.c</span><br><span class="line">  &gt; Author:perrynzhou </span><br><span class="line">  &gt; Mail:perrynzhou@gmail.com </span><br><span class="line">  &gt; Created Time: Wednesday, July 29, 2020 AM09:06:42</span><br><span class="line"> ************************************************************************&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;stdint.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line">#include &lt;assert.h&gt;</span><br><span class="line">#include &lt;arpa&#x2F;inet.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;socket.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;netdb.h&gt;</span><br><span class="line">#include &lt;ifaddrs.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#define TCP_MIN_BACKLOG (2048)</span><br><span class="line">static void fetch_ip_from_host(char *buf, size_t buf_size)</span><br><span class="line">&#123;</span><br><span class="line">  struct ifaddrs *ifaddr, *ifa;</span><br><span class="line">  int family, s;</span><br><span class="line">  if (getifaddrs(&amp;ifaddr) !&#x3D; -1)</span><br><span class="line">  &#123;</span><br><span class="line">    const char *local_address &#x3D; &quot;127.0.0.1&quot;;</span><br><span class="line">    size_t local_address_len &#x3D; strlen(local_address);</span><br><span class="line">    for (ifa &#x3D; ifaddr; ifa !&#x3D; NULL; ifa &#x3D; ifa-&gt;ifa_next)</span><br><span class="line">    &#123;</span><br><span class="line">      if (ifa-&gt;ifa_addr &#x3D;&#x3D; NULL)</span><br><span class="line">      &#123;</span><br><span class="line">        continue;</span><br><span class="line">      &#125;</span><br><span class="line">      s &#x3D; getnameinfo(ifa-&gt;ifa_addr, sizeof(struct sockaddr_in), buf, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);</span><br><span class="line">      if (s !&#x3D; 0)</span><br><span class="line">      &#123;</span><br><span class="line">        continue;</span><br><span class="line">      &#125;</span><br><span class="line">      if (ifa-&gt;ifa_addr-&gt;sa_family &#x3D;&#x3D; AF_INET &amp;&amp; strncmp(buf, local_address, local_address_len) !&#x3D; 0)</span><br><span class="line">      &#123;</span><br><span class="line">        break;</span><br><span class="line">      &#125;</span><br><span class="line">      bzero(buf, buf_size);</span><br><span class="line">    &#125;</span><br><span class="line">    freeifaddrs(ifaddr);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">void fetch_ip_from_fd(int client_fd, char *address, size_t address_size)</span><br><span class="line">&#123;</span><br><span class="line">  struct sockaddr_in addr;</span><br><span class="line">  socklen_t addr_size &#x3D; sizeof(struct sockaddr_in);</span><br><span class="line">  int res &#x3D; getpeername(client_fd, (struct sockaddr *)&amp;addr, &amp;addr_size);</span><br><span class="line">  strncpy(address, inet_ntoa(addr.sin_addr), address_size);</span><br><span class="line">  size_t alen &#x3D; strlen((char *)&amp;address);</span><br><span class="line">  snprintf((char *)&amp;address + alen, address_size - alen, &quot;:%d&quot;, htons(addr.sin_port));</span><br><span class="line">&#125;</span><br><span class="line">static int init_socket(int domain, int type, int protocol, int backlog, const char *addr, int port)</span><br><span class="line">&#123;</span><br><span class="line">  int sock &#x3D; socket(domain, type, protocol);</span><br><span class="line">  assert(sock !&#x3D; -1);</span><br><span class="line">  struct sockaddr_in serveraddr;</span><br><span class="line">  serveraddr.sin_family &#x3D; domain;</span><br><span class="line">  serveraddr.sin_port &#x3D; htons(port);</span><br><span class="line">  assert(inet_pton(AF_INET, addr, &amp;serveraddr.sin_addr) &gt; 0);</span><br><span class="line">  assert(bind(sock, (struct sockaddr *)&amp;serveraddr, sizeof(serveraddr)) !&#x3D; -1);</span><br><span class="line">  if (type &#x3D;&#x3D; SOCK_STREAM)</span><br><span class="line">  &#123;</span><br><span class="line">    int opt &#x3D; 1;</span><br><span class="line">    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &amp;opt, sizeof(opt));</span><br><span class="line">    listen(sock, backlog);</span><br><span class="line">  &#125;</span><br><span class="line">  return sock;</span><br><span class="line">&#125;</span><br><span class="line">inline static int init_tcp_server_socket(const char *addr, int port, int backlog)</span><br><span class="line">&#123;</span><br><span class="line">  int real_backlog &#x3D; (backlog &lt; TCP_MIN_BACKLOG) ? TCP_MIN_BACKLOG : backlog;</span><br><span class="line">  return init_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP, real_backlog, addr, port);</span><br><span class="line">&#125;</span><br><span class="line">inline static int init_tcp_client_socket(const char *addr, int port)</span><br><span class="line">&#123;</span><br><span class="line">  int sock &#x3D; socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);</span><br><span class="line">  assert(sock !&#x3D; 0);</span><br><span class="line">  struct sockaddr_in srvaddr;</span><br><span class="line">  srvaddr.sin_family &#x3D; AF_INET;</span><br><span class="line">  srvaddr.sin_port &#x3D; htons(port);</span><br><span class="line">  assert(inet_pton(AF_INET, addr, &amp;srvaddr.sin_addr) &gt; 0);</span><br><span class="line">  return sock;</span><br><span class="line">&#125;</span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">  int port &#x3D; atoi(argv[1]);</span><br><span class="line">  char addr[128] &#x3D; &#123;&#39;\0&#39;&#125;;</span><br><span class="line">  fetch_ip_from_host((char *)&amp;addr, 128);</span><br><span class="line">  int listenfd &#x3D; init_tcp_server_socket((char *)&amp;addr, port, 1024);</span><br><span class="line">  fprintf(stdout, &quot;::server run on %s:%d\n&quot;, (char *)&amp;addr, port);</span><br><span class="line">  int connfd &#x3D; -1;</span><br><span class="line">  pid_t pid;</span><br><span class="line">  for (;;)</span><br><span class="line">  &#123;</span><br><span class="line">    struct sockaddr_in cliaddr;</span><br><span class="line">    socklen_t len &#x3D; sizeof(cliaddr);</span><br><span class="line">    connfd &#x3D; accept(listenfd, (struct sockaddr *)&amp;cliaddr, &amp;len);</span><br><span class="line">    fflush(stdout);</span><br><span class="line">    if ((pid &#x3D; fork()) &#x3D;&#x3D; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      fetch_ip_from_fd(connfd, (char *)&amp;addr, 128);</span><br><span class="line">      close(listenfd);</span><br><span class="line">      fprintf(stdout, &quot;%d process handle %s connection\n&quot;, getpid(), (char *)&amp;addr);</span><br><span class="line">      exit(0);</span><br><span class="line">    &#125;</span><br><span class="line">    close(connfd);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/08/%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90/" rel="prev" title="容器网络分析">
+      <i class="fa fa-chevron-left"></i> 容器网络分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/06/nginx%E5%86%85%E5%AD%98%E6%B1%A0%E5%AE%9E%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/" rel="next" title="nginx内存池实现和分析">
+      nginx内存池实现和分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简单的网络并发服务器"><span class="nav-number">1.</span> <span class="nav-text">简单的网络并发服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#并发服务基本介绍"><span class="nav-number">1.1.</span> <span class="nav-text">并发服务基本介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基本函数介绍"><span class="nav-number">1.2.</span> <span class="nav-text">基本函数介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#样例代码中的疑惑"><span class="nav-number">1.3.</span> <span class="nav-text">样例代码中的疑惑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基本实例代码"><span class="nav-number">1.4.</span> <span class="nav-text">基本实例代码</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

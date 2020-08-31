@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Glusterfs 原理Glusterfs 基本原理    Glusterfs 是基于fuse的分布式存储，功能上支持分布式&#x2F;3副本&#x2F;EC三种存储方式。Glusterfs采用堆栈式的架构设计，服务端和客户端采用translator.    GlusterFS概念中，由一系列translator构成的完整功能栈称之为Volume，分配给一个volume的本地文件系统称为brick，被至少一个tran">
+<meta property="og:type" content="article">
+<meta property="og:title" content="glusterfs客户端挂载init流程">
+<meta property="og:url" content="http://yoursite.com/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="Glusterfs 原理Glusterfs 基本原理    Glusterfs 是基于fuse的分布式存储，功能上支持分布式&#x2F;3副本&#x2F;EC三种存储方式。Glusterfs采用堆栈式的架构设计，服务端和客户端采用translator.    GlusterFS概念中，由一系列translator构成的完整功能栈称之为Volume，分配给一个volume的本地文件系统称为brick，被至少一个tran">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/glusterfs-init.png">
+<meta property="article:published_time" content="2020-05-26T13:27:16.000Z">
+<meta property="article:modified_time" content="2020-05-26T13:31:59.511Z">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content=" Go">
+<meta property="article:tag" content=" nginx">
+<meta property="article:tag" content="glusterfs">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/glusterfs-init.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>glusterfs客户端挂载init流程 | perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          glusterfs客户端挂载init流程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-26 21:27:16 / 修改时间：21:31:59" itemprop="dateCreated datePublished" datetime="2020-05-26T21:27:16+08:00">2020-05-26</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="Glusterfs-原理"><a href="#Glusterfs-原理" class="headerlink" title="Glusterfs 原理"></a>Glusterfs 原理</h4><p><strong>Glusterfs 基本原理</strong><br>    Glusterfs 是基于fuse的分布式存储，功能上支持分布式/3副本/EC三种存储方式。Glusterfs采用堆栈式的架构设计，服务端和客户端采用translator.<br>    GlusterFS概念中，由一系列translator构成的完整功能栈称之为Volume，分配给一个volume的本地文件系统称为brick，被至少一个translator处理过的brick称为subvolume。客户端是由于volume类型来加载对应的translator，服务端也是一样，根据不同的volume的类型加载translator。客户端(glusterfs)通过挂载时候提供节点IP地址，很对应节点的服务端管理进程通信，获取brick源信息、客户单需要加载的配置，客户端根据配置初始化xlator，后续IO的流程按照xlator的顺序经过每个xlator的fop函数，然后直接和对应的glusterfsd的进程交互IO操作。glusterfsd也是一样，根据服务端配置文件，初始化服务端需要加载xlator，进行每个xlator的fop的操作，最终执行系统IO函数进行IO操作。节点的管理服务(glusterd),仅仅加载一个管理的xlator,处理来自glusterfs/gluster的请求，不会处理对应的IO操作操作。</p>
+<h4 id="Glusterfs环境"><a href="#Glusterfs环境" class="headerlink" title="Glusterfs环境"></a>Glusterfs环境</h4><p><strong>1.Glusterfs版本</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">glusterfs 7.5</span><br></pre></td></tr></table></figure>
+<p><strong>2.volume info</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Volume Name: rep3_vol</span><br><span class="line">Type: Replicate</span><br><span class="line">Volume ID: 73360fc2-e105-4fd4-9b92-b5fa333ba75d</span><br><span class="line">Status: Started</span><br><span class="line">Snapshot Count: 0</span><br><span class="line">Number of Bricks: 1 x 3 &#x3D; 3</span><br><span class="line">Transport-type: tcp</span><br><span class="line">Bricks:</span><br><span class="line">Brick1: 10.193.189.153:&#x2F;debug&#x2F;glusterfs&#x2F;rep3_vol&#x2F;brick</span><br><span class="line">Brick2: 10.193.189.154:&#x2F;debug&#x2F;glusterfs&#x2F;rep3_vol&#x2F;brick</span><br><span class="line">Brick3: 10.193.189.155:&#x2F;debug&#x2F;glusterfs&#x2F;rep3_vol&#x2F;brick</span><br><span class="line">Options Reconfigured:</span><br><span class="line">diagnostics.brick-log-level: INFO</span><br><span class="line">performance.client-io-threads: off</span><br><span class="line">nfs.disable: on</span><br><span class="line">storage.fips-mode-rchecksum: on</span><br><span class="line">transport.address-family: inet</span><br><span class="line">diagnostics.client-log-level: DEBUG</span><br></pre></td></tr></table></figure>
+
+<h4 id="Mount-命令"><a href="#Mount-命令" class="headerlink" title="Mount 命令"></a>Mount 命令</h4><p><strong>1.通过mount命令挂载</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount -t glusterfs -o acl 10.193.189.153:&#x2F;rep3_vol &#x2F;mnt&#x2F;rep3_vol2</span><br></pre></td></tr></table></figure>
+<p><strong>2.直接使用glusterfs二进制挂载</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;usr&#x2F;local&#x2F;sbin&#x2F;glusterfs --acl --process-name fuse --volfile-server&#x3D;10.193.189.153 --volfile-id&#x3D;rep3_vol &#x2F;mnt&#x2F;rep3_vol</span><br></pre></td></tr></table></figure>
+<h4 id="Mount-Glusterfs-整个流程"><a href="#Mount-Glusterfs-整个流程" class="headerlink" title="Mount Glusterfs 整个流程"></a>Mount Glusterfs 整个流程</h4><h5 id="Glusterfs-交互架构"><a href="#Glusterfs-交互架构" class="headerlink" title="Glusterfs 交互架构"></a>Glusterfs 交互架构</h5><p><img src="/2020/05/26/glusterfs%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8C%82%E8%BD%BDinit%E6%B5%81%E7%A8%8B/glusterfs-init.png" alt="glusterfs-init"></p>
+<h5 id="Glusterfs-客户端实现分析"><a href="#Glusterfs-客户端实现分析" class="headerlink" title="Glusterfs 客户端实现分析"></a>Glusterfs 客户端实现分析</h5><ul>
+<li><p>1.glusterfsd.c中的main方法入口函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">	create_fuse_mount(ctx);</span><br><span class="line">	glusterfs_volumes_init(ctx);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>2.create_fuse_mount初始化mount/fuse的模块，具体是加载/usr/local/lib/glusterfs/2020.05.12/xlator/mount/fuse.so,会去执行fuse.so中的init方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">int create_fuse_mount(glusterfs_ctx_t *ctx)</span><br><span class="line">&#123;</span><br><span class="line">	xlator_set_type(master, &quot;mount&#x2F;fuse&quot;)</span><br><span class="line">	xlator_init(master);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>3.加载glusterfs fuse模块以后会去执行 glusterfs_volumes_init，该函数主要是在客户端初始化针对客户端操作的volume需要的xlator.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">int glusterfs_volumes_init(glusterfs_ctx_t *ctx)</span><br><span class="line">&#123;</span><br><span class="line">   </span><br><span class="line">    glusterfs_mgmt_init(ctx);</span><br><span class="line">    glusterfs_process_volfp(ctx, fp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>4.针对我们参数传递的volfile_server为某个节点的ip,代码会走到glusterfs_mgmt_init，该函数会根据连接请求去fetch spec</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">int glusterfs_mgmt_init(glusterfs_ctx_t *ctx)</span><br><span class="line">&#123;</span><br><span class="line">	rpc_clnt_register_notify(rpc, mgmt_rpc_notify, THIS);</span><br><span class="line">	rpcclnt_cbk_program_register(rpc, &amp;mgmt_cbk_prog, THIS);</span><br><span class="line">    ctx-&gt;notify &#x3D; glusterfs_mgmt_notify;</span><br><span class="line">    ret &#x3D; rpc_clnt_start(rpc);</span><br><span class="line">&#125;</span><br><span class="line">static int mgmt_rpc_notify(struct rpc_clnt *rpc, void *mydata, rpc_clnt_event_t event,</span><br><span class="line">                void *data)</span><br><span class="line">&#123;</span><br><span class="line"> switch (event) &#123;</span><br><span class="line">        case RPC_CLNT_DISCONNECT:</span><br><span class="line">        &#x2F;&#x2F;</span><br><span class="line">        case RPC_CLNT_CONNECT:</span><br><span class="line">            ret &#x3D; glusterfs_volfile_fetch(ctx);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;spec 信息如下参见附件</span><br></pre></td></tr></table></figure></li>
+<li><ol start="5">
+<li>glusterfs_volfile_fetch 会调用glusterfs_volfile_fetch_one 获取spec</li>
+</ol>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int glusterfs_volfile_fetch(glusterfs_ctx_t *ctx)</span><br><span class="line">&#123;</span><br><span class="line">	return glusterfs_volfile_fetch_one(ctx, ctx-&gt;cmd_args.volfile_id);   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>6.glusterfs_volfile_fetch_one是实质获取客户端brick元数据和translator的函数、同时通过mgmt_getspec_cbk回调函数处理获取这些信息后的处理函数<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">static int glusterfs_volfile_fetch_one(glusterfs_ctx_t *ctx, char *volfile_id)</span><br><span class="line">&#123;</span><br><span class="line"> ret &#x3D; mgmt_submit_request(&amp;req, frame, ctx, &amp;clnt_handshake_prog,</span><br><span class="line">                              GF_HNDSK_GETSPEC, mgmt_getspec_cbk,</span><br><span class="line">                              (xdrproc_t)xdr_gf_getspec_req);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;mgmt_submit_request函数会调用服务端的gluster_handshake_actors[GETSPEC]对应的函数，获取spec信息后会调用mgmt_getspec_cbk回调函数.</span><br><span class="line">&#x2F;&#x2F;在gdb参数中设置--volfile-server&#x3D;10.193.189.154 这个节点上gdb attach glusterd进程，然后设置在server_getspec，然后客户端请求，然后10.193.189.154节点的glusterd在server_getspec响应</span><br><span class="line">rpcsvc_actor_t gluster_handshake_actors[GF_HNDSK_MAXVALUE] &#x3D; &#123;</span><br><span class="line">    [GF_HNDSK_GETSPEC] &#x3D; &#123;&quot;GETSPEC&quot;, GF_HNDSK_GETSPEC, server_getspec, NULL, 0, DRC_NA&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;重新获取spec初始化客户端的translator的，这个函数就是构造xlator的图，同时初始化每个xlator</span><br><span class="line">int</span><br><span class="line">mgmt_getspec_cbk(struct rpc_req *req, struct iovec *iov, int count,</span><br><span class="line">                 void *myframe)</span><br><span class="line">&#123;</span><br><span class="line"> glusterfs_volfile_reconfigure(tmpfp, ctx);</span><br><span class="line"> glusterfs_process_volfp(ctx, tmpfp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Debug方法"><a href="#Debug方法" class="headerlink" title="Debug方法"></a>Debug方法</h4></li>
+</ul>
+<p><strong>1.调试的注意点</strong><br>    glusterfs/glusterd/glusterfsd是同一个二进制进程，仅仅是区别是glusterfsd和glusterfs软链了glusterd的进程。glusterfs使用同一个二进制程序，根据不同的业务功能，fork或者走不同逻辑分别来实现glusterfs/glusterfsd/glusterd的功能。</p>
+<p><strong>2.调试的注意点</strong></p>
+<p><strong>3.具体调试方法</strong></p>
+<ul>
+<li>1.执行命令gdb /usr/local/sbin/glusterfs</li>
+<li>2.进入gdb的交互控制界面，需要设置参数,参数设置如下<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">gdb &#x2F;usr&#x2F;local&#x2F;sbin&#x2F;glusterfs</span><br><span class="line">set args  --acl --process-name fuse --volfile-server&#x3D;10.193.189.153 --volfile-id&#x3D;rep3_vol &#x2F;mnt&#x2F;rep3_vol</span><br><span class="line">(gdb) set print pretty on</span><br><span class="line">(gdb) br main</span><br><span class="line">(gdb) br create_fuse_mount</span><br></pre></td></tr></table></figure></li>
+<li>3.当断点执行到create_fuse_mount，该函数通过xlator_init加载mount/fuse的translor。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">(gdb) </span><br><span class="line">Detaching after fork from child process 37741.</span><br><span class="line">Breakpoint 3, create_fuse_mount (ctx&#x3D;0x63e010) at glusterfsd.c:719</span><br><span class="line">&#x2F;&#x2F;中间过程</span><br><span class="line">(gdb) </span><br><span class="line">Detaching after fork from child process 39472.</span><br><span class="line">770         if (ret) &#123;</span><br><span class="line">			&#125;</span><br></pre></td></tr></table></figure></li>
+<li>4.等create_fuse_mount执行完毕以后，需要设置调试进程的模式,这样不至于进程一致停留在父进程中，子进程是需要和调试参数中设置的ip的节点通信，获取相关的bricks信息和客户端需要加载的translator<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">Detaching after fork from child process 39472.</span><br><span class="line">770         if (ret) &#123;&#x2F;&#x2F;&#125;</span><br><span class="line">(gdb) set follow-fork-mode child </span><br><span class="line">(gdb)  set detach-on-fork off</span><br><span class="line">(gdb) </span><br><span class="line">main (argc&#x3D;7, argv&#x3D;0x7fffffffe368) at glusterfsd.c:2875</span><br><span class="line">2875        if (ret)</span><br><span class="line">(gdb) </span><br><span class="line">2878        ret &#x3D; daemonize(ctx);</span><br><span class="line">(gdb) </span><br><span class="line">[New process 39570]</span><br><span class="line">[Thread debugging using libthread_db enabled]</span><br><span class="line">Using host libthread_db library &quot;&#x2F;lib64&#x2F;libthread_db.so.1&quot;.</span><br><span class="line">[New Thread 0x7fffeee4d700 (LWP 39573)]</span><br><span class="line">[New Thread 0x7fffee64c700 (LWP 39574)]</span><br><span class="line">[Switching to Thread 0x7ffff7fe74c0 (LWP 39570)]</span><br><span class="line">main (argc&#x3D;7, argv&#x3D;0x7fffffffe368) at glusterfsd.c:2879</span><br><span class="line">2879        if (ret)</span><br><span class="line">Missing separate debuginfos, use: debuginfo-install glibc-2.17-260.el7_6.3.x86_64 libuuid-2.23.2-59.el7.x86_64 openssl-libs-1.0.2k-16.el7.x86_64 zlib-1.2.7-18.el7.x86_64</span><br><span class="line">(gdb) </span><br><span class="line">2887        mem_pools_init();</span><br><span class="line">(gdb)   </span><br><span class="line"></span><br><span class="line">(gdb) set print elements 0</span><br><span class="line">(gdb) show print elements</span><br></pre></td></tr></table></figure></li>
+<li>5.在子进程设置glusterfs客户端执行逻辑的函数,通过rpc请求，向服务端glusterd拉取bricks元数据和客户端需要加载的translator的信息<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(gdb) mgmt_getspec_cbk  </span><br><span class="line">(gdb) glusterfs_volfile_fetch_one</span><br><span class="line">(gdb) glusterfs_volfile_fetch </span><br><span class="line">(gdb) glusterfs_mgmt_init</span><br><span class="line">(gdb) glusterfs_volumes_init</span><br><span class="line">(gdb) glusterfs_process_volfp</span><br><span class="line">(gdb) glusterfs_graph_construct</span><br></pre></td></tr></table></figure>
+<h4 id="附件"><a href="#附件" class="headerlink" title="附件"></a>附件</h4></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line">volume rep3_vol-client-0</span><br><span class="line">    type protocol&#x2F;client</span><br><span class="line">    option send-gids true</span><br><span class="line">    option transport.socket.keepalive-count 9</span><br><span class="line">    option transport.socket.keepalive-interval 2</span><br><span class="line">    option transport.socket.keepalive-time 20</span><br><span class="line">    option transport.tcp-user-timeout 0</span><br><span class="line">    option transport.socket.ssl-enabled off</span><br><span class="line">    option password 7e9a1877-0837-4563-b73d-aa4cde754c91</span><br><span class="line">    option username bdb0a45d-e70d-445d-8fe6-76118dfdb738</span><br><span class="line">    option transport.address-family inet</span><br><span class="line">    option transport-type tcp</span><br><span class="line">    option remote-subvolume &#x2F;debug&#x2F;glusterfs&#x2F;rep3_vol&#x2F;brick</span><br><span class="line">    option remote-host 10.193.189.153</span><br><span class="line">    option ping-timeout 42</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-client-1</span><br><span class="line">    type protocol&#x2F;client</span><br><span class="line">    option send-gids true</span><br><span class="line">    option transport.socket.keepalive-count 9</span><br><span class="line">    option transport.socket.keepalive-interval 2</span><br><span class="line">    option transport.socket.keepalive-time 20</span><br><span class="line">    option transport.tcp-user-timeout 0</span><br><span class="line">    option transport.socket.ssl-enabled off</span><br><span class="line">    option password 7e9a1877-0837-4563-b73d-aa4cde754c91</span><br><span class="line">    option username bdb0a45d-e70d-445d-8fe6-76118dfdb738</span><br><span class="line">    option transport.address-family inet</span><br><span class="line">    option transport-type tcp</span><br><span class="line">    option remote-subvolume &#x2F;debug&#x2F;glusterfs&#x2F;rep3_vol&#x2F;brick</span><br><span class="line">    option remote-host 10.193.189.154</span><br><span class="line">    option ping-timeout 42</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-client-2</span><br><span class="line">    type protocol&#x2F;client</span><br><span class="line">    option send-gids true</span><br><span class="line">    option transport.socket.keepalive-count 9</span><br><span class="line">    option transport.socket.keepalive-interval 2</span><br><span class="line">    option transport.socket.keepalive-time 20</span><br><span class="line">    option transport.tcp-user-timeout 0</span><br><span class="line">    option transport.socket.ssl-enabled off</span><br><span class="line">    option password 7e9a1877-0837-4563-b73d-aa4cde754c91</span><br><span class="line">    option username bdb0a45d-e70d-445d-8fe6-76118dfdb738</span><br><span class="line">    option transport.address-family inet</span><br><span class="line">    option transport-type tcp</span><br><span class="line">    option remote-subvolume &#x2F;debug&#x2F;glusterfs&#x2F;rep3_vol&#x2F;brick</span><br><span class="line">    option remote-host 10.193.189.155</span><br><span class="line">    option ping-timeout 42</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-replicate-0</span><br><span class="line">    type cluster&#x2F;replicate</span><br><span class="line">    option use-compound-fops off</span><br><span class="line">    option afr-pending-xattr rep3_vol-client-0,rep3_vol-client-1,rep3_vol-client-2</span><br><span class="line">    subvolumes rep3_vol-client-0 rep3_vol-client-1 rep3_vol-client-2</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-dht</span><br><span class="line">    type cluster&#x2F;distribute</span><br><span class="line">    option force-migration off</span><br><span class="line">    option lock-migration off</span><br><span class="line">    subvolumes rep3_vol-replicate-0</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-utime</span><br><span class="line">    type features&#x2F;utime</span><br><span class="line">    option noatime on</span><br><span class="line">    subvolumes rep3_vol-dht</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-write-behind</span><br><span class="line">    type performance&#x2F;write-behind</span><br><span class="line">    subvolumes rep3_vol-utime</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-read-ahead</span><br><span class="line">    type performance&#x2F;read-ahead</span><br><span class="line">    subvolumes rep3_vol-write-behind</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-readdir-ahead</span><br><span class="line">    type performance&#x2F;readdir-ahead</span><br><span class="line">    option rda-cache-limit 10MB</span><br><span class="line">    option rda-request-size 131072</span><br><span class="line">    option parallel-readdir off</span><br><span class="line">    subvolumes rep3_vol-read-ahead</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-io-cache</span><br><span class="line">    type performance&#x2F;io-cache</span><br><span class="line">    subvolumes rep3_vol-readdir-ahead</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-open-behind</span><br><span class="line">    type performance&#x2F;open-behind</span><br><span class="line">    subvolumes rep3_vol-io-cache</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-quick-read</span><br><span class="line">    type performance&#x2F;quick-read</span><br><span class="line">    subvolumes rep3_vol-open-behind</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol-md-cache</span><br><span class="line">    type performance&#x2F;md-cache</span><br><span class="line">    subvolumes rep3_vol-quick-read</span><br><span class="line">end-volume</span><br><span class="line"></span><br><span class="line">volume rep3_vol</span><br><span class="line">    type debug&#x2F;io-stats</span><br><span class="line">    option global-threading off</span><br><span class="line">    option count-fop-hits off</span><br><span class="line">    option latency-measurement off</span><br><span class="line">    option threads 16</span><br><span class="line">    option log-level DEBUG</span><br><span class="line">    subvolumes rep3_vol-md-cache</span><br><span class="line">end-volume</span><br></pre></td></tr></table></figure>
+
+
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/14/OpenCAS-%E6%B6%88%E8%80%97%E8%BF%87%E5%A4%9A%E5%86%85%E5%AD%98%E9%97%AE%E9%A2%98/" rel="prev" title="OpenCAS 消耗过多内存问题">
+      <i class="fa fa-chevron-left"></i> OpenCAS 消耗过多内存问题
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/05/27/glusterfs-client%E5%AE%A2%E6%88%B6%E7%AB%AF%E5%87%BA%E7%8E%B0RPC-CLNT-DISCONNECT%E9%97%AE%E9%A2%98%E5%92%8Ckernel%E5%87%BA%E7%8E%B0task-xxx-blocked-for-more-than-120-second/" rel="next" title="glusterfs client客戶端出现RPC_CLNT_DISCONNECT问题和kernel出现task xxx blocked for more than 120 seconds">
+      glusterfs client客戶端出现RPC_CLNT_DISCONNECT问题和kernel出现task xxx blocked for more than 120 seconds <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Glusterfs-原理"><span class="nav-number">1.</span> <span class="nav-text">Glusterfs 原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Glusterfs环境"><span class="nav-number">2.</span> <span class="nav-text">Glusterfs环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Mount-命令"><span class="nav-number">3.</span> <span class="nav-text">Mount 命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Mount-Glusterfs-整个流程"><span class="nav-number">4.</span> <span class="nav-text">Mount Glusterfs 整个流程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Glusterfs-交互架构"><span class="nav-number">4.1.</span> <span class="nav-text">Glusterfs 交互架构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Glusterfs-客户端实现分析"><span class="nav-number">4.2.</span> <span class="nav-text">Glusterfs 客户端实现分析</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Debug方法"><span class="nav-number">5.</span> <span class="nav-text">Debug方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#附件"><span class="nav-number">6.</span> <span class="nav-text">附件</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

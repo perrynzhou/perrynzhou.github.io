@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="memcached 有几种类型的线程?memcached有2类线程，一类是main线程，一类是worker线程，main线程负责监听listenfd放到main_base中进行监听，一旦listenfd中有IO时间,也就是有新的连接进来，则转发通过dispatch_conn_new函数初始化一个CQ_ITEM，把对应的clientfd封装在CQ_ITEM中，同时把item放到线程的CQ_ITEM队">
+<meta property="og:type" content="article">
+<meta property="og:title" content="memcached线程模型分析">
+<meta property="og:url" content="http://yoursite.com/2020/08/08/memcached%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="perrynzhou">
+<meta property="og:description" content="memcached 有几种类型的线程?memcached有2类线程，一类是main线程，一类是worker线程，main线程负责监听listenfd放到main_base中进行监听，一旦listenfd中有IO时间,也就是有新的连接进来，则转发通过dispatch_conn_new函数初始化一个CQ_ITEM，把对应的clientfd封装在CQ_ITEM中，同时把item放到线程的CQ_ITEM队">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-08-08T07:22:55.000Z">
+<meta property="article:modified_time" content="2020-08-08T07:29:07.963Z">
+<meta property="article:author" content="perrynzhou">
+<meta property="article:tag" content="memcached 线程">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/08/08/memcached%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>memcached线程模型分析 | perrynzhou</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">perrynzhou</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">专注于系统组件研发</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/08/memcached%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="perrynzhou">
+      <meta itemprop="description" content="擅长C/Go编程;https://github.com/perrynzhou。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="perrynzhou">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          memcached线程模型分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-08-08 15:22:55 / 修改时间：15:29:07" itemprop="dateCreated datePublished" datetime="2020-08-08T15:22:55+08:00">2020-08-08</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="memcached-有几种类型的线程"><a href="#memcached-有几种类型的线程" class="headerlink" title="memcached 有几种类型的线程?"></a>memcached 有几种类型的线程?</h3><p>memcached有2类线程，一类是main线程，一类是worker线程，main线程负责监听listenfd放到main_base中进行监听，一旦listenfd中有IO时间,也就是有新的连接进来，则转发通过dispatch_conn_new函数初始化一个CQ_ITEM，把对应的clientfd封装在CQ_ITEM中，同时把item放到线程的CQ_ITEM队列中，然后写入标记数据到线程的notify_send_fd中，worker线程则是监听工作线程中的notify_recv_fd中的IO事件，根据读取到的标记数据来初始化一个新连接，接着处理这个链接，释放CQ_ITEM</p>
+<h3 id="memcached中工作线程如何和main线程交互的"><a href="#memcached中工作线程如何和main线程交互的" class="headerlink" title="memcached中工作线程如何和main线程交互的"></a>memcached中工作线程如何和main线程交互的</h3><p>工作线程会有一个管道来实现和main线程进行通信的，工作线程通过pipe系统调用初始化一对FD。</p>
+<ul>
+<li>memcached中的工作线程的结构<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">typedef struct &#123;</span><br><span class="line">	pthread_t thread_id;        &#x2F;* 工作线程ID*&#x2F;</span><br><span class="line">	struct event_base *base;    &#x2F;* libevent的句柄 *&#x2F;</span><br><span class="line">	struct event notify_event;  &#x2F;* listen event *&#x2F;</span><br><span class="line">	int notify_receive_fd;      &#x2F;* 客户端线程监听这个套接字接受来自服务端通知，比如新连接 *&#x2F;</span><br><span class="line">	int notify_send_fd;         &#x2F;* 主线程有消息，会往这个fd中进行写入数据 *&#x2F;</span><br><span class="line">	struct thread_stats stats;  &#x2F;* 线程的状态 *&#x2F;</span><br><span class="line">	struct conn_queue *new_conn_queue; &#x2F;* 该队列存储CQ_ITEM把服务端接受到的客户端fd状态为CQ_ITEM，放到这个队列中 *&#x2F;</span><br><span class="line">	cache_t *resp_cache;        &#x2F;* response objects *&#x2F;</span><br><span class="line">	cache_t *rbuf_cache;        &#x2F;* static-sized read buffers *&#x2F;</span><br><span class="line">	cache_t *io_cache;          &#x2F;* IO objects *&#x2F;</span><br><span class="line">	void *storage;              &#x2F;* data object for storage system *&#x2F;</span><br><span class="line">	logger *l;                  &#x2F;* logger buffer *&#x2F;</span><br><span class="line">	void *lru_bump_buf;         &#x2F;* async LRU bump buffer *&#x2F;</span><br><span class="line">	char   *ssl_wbuf;</span><br><span class="line">&#125; LIBEVENT_THREAD;</span><br></pre></td></tr></table></figure></li>
+<li>memcached的工作线程的初始化函数<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">	&#x2F;&#x2F;memcached的工作线程的初始化函数</span><br><span class="line">	void memcached_thread_init(int nthreads, void *arg) &#123;</span><br><span class="line">	&#x2F;&#x2F;每个工作线程的初始化</span><br><span class="line">		threads &#x3D; calloc(nthreads, sizeof(LIBEVENT_THREAD));</span><br><span class="line">		if (! threads) &#123;</span><br><span class="line">	    perror(&quot;Can&#39;t allocate thread descriptors&quot;);</span><br><span class="line">	    exit(1);</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">		for (i &#x3D; 0; i &lt; nthreads; i++) &#123;</span><br><span class="line">	    	int fds[2];</span><br><span class="line">	    	if (pipe(fds)) &#123;</span><br><span class="line">	        perror(&quot;Can&#39;t create notify pipe&quot;);</span><br><span class="line">	        exit(1);</span><br><span class="line">	    	&#125;</span><br><span class="line">	    &#x2F;&#x2F;当有新连接时候，主线程会选择性的写数据到线程的notify_send_fd，然后工作线程在从notify_receive_fd读取数据，然后取出连接开始处理</span><br><span class="line">			&#x2F;&#x2F;工作线程从notify_receive_fd读取数据</span><br><span class="line">	    threads[i].notify_receive_fd &#x3D; fds[0];</span><br><span class="line">		&#x2F;&#x2F;主线程从notify_send_fd写入数据</span><br><span class="line">	    threads[i].notify_send_fd &#x3D; fds[1];</span><br><span class="line">		&#x2F;&#x2F;设置每个线程中event监听notify_receive_fd中的数据</span><br><span class="line">	    setup_thread(&amp;threads[i]);</span><br><span class="line">	    &#x2F;* Reserve three fds for the libevent base, and two for the pipe *&#x2F;</span><br><span class="line">	    stats_state.reserved_fds +&#x3D; 5;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	&#x2F;* Create threads after we&#39;ve done all the libevent setup. *&#x2F;</span><br><span class="line">	&#x2F;&#x2F;启动每个工作线程,每个线程执行event_base_loop</span><br><span class="line">	for (i &#x3D; 0; i &lt; nthreads; i++) &#123;</span><br><span class="line">	    create_worker(worker_libevent, &amp;threads[i]);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="memcached主线程如何初始化服务端的socket"><a href="#memcached主线程如何初始化服务端的socket" class="headerlink" title="memcached主线程如何初始化服务端的socket?"></a>memcached主线程如何初始化服务端的socket?</h3><p>在这里我们需要大概了解下main函数的执行逻辑前基本介绍全局的数据结构如下：</p>
+<ul>
+<li><p>listen_conn:全局的监听套接字的连接</p>
+</li>
+<li><p>max_fds:默认最大支持的连接数</p>
+</li>
+<li><p>main_base:主线程的libevent的核心结构体</p>
+</li>
+<li><p>conns:全局的连接数组，类型是conn指针类型</p>
+</li>
+<li><p>基本的执行逻辑如下</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;函数入口，在memcached的入口</span><br><span class="line">main </span><br><span class="line">&#x2F;&#x2F;初始化全局的conns,max_fds &#x3D; settings.maxconns + headroom + next_fd;</span><br><span class="line">conn_init();</span><br><span class="line">&#x2F;&#x2F;main线程的event初始化</span><br><span class="line">main_base &#x3D; event_init();</span><br><span class="line">&#x2F;&#x2F;和server_socket类型，不同的仅仅是制定网卡绑定</span><br><span class="line">server_sockets </span><br><span class="line">	&#x2F;&#x2F;main线程通过socket&#x2F;bind&#x2F;listen来初始化listen_conn，设置该连接的类型，listen_conn中的sfd放到main_base监听</span><br><span class="line">	server_socket </span><br><span class="line">		&#x2F;&#x2F;根据sfd初始化一个conn放到main_base中，设置回函数event_handler</span><br><span class="line">		conn_new </span><br><span class="line">&#x2F;&#x2F;初始化工作线程</span><br><span class="line">memcached_thread_init </span><br><span class="line">	&#x2F;&#x2F;设置工作线程，把notify_receive_fd放到工作线程的event_base中监听</span><br><span class="line">	setup_thread </span><br><span class="line">		&#x2F;&#x2F;设置notify_receive_fd中IO事件处理函数</span><br><span class="line">		thread_libevent_process </span><br><span class="line">	&#x2F;&#x2F;启动单独线程开始监听notify_receive_fd的IO时间</span><br><span class="line">	worker_libevent </span><br><span class="line">event_base_loop</span><br><span class="line">event_base_free</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="memcached主线程如何处理一个新来的连接"><a href="#memcached主线程如何处理一个新来的连接" class="headerlink" title="memcached主线程如何处理一个新来的连接"></a>memcached主线程如何处理一个新来的连接</h3><ul>
+<li>服务端的socket(listenfd)监听套接字封装成conn,设置该连接状态为conn_listening，放到main_base中，一旦有listenfd有事件，event_handler就会被触发，则调用drive_machine函数接受客户单请求套接字<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;针对main线程，把服务端的listenfd放到main_base中，针对工作线程则注册</span><br><span class="line">event_handler notify_receive_fd注册到event_base中</span><br><span class="line">	drive_machine &#x2F;&#x2F;接受来自客户端IO请求，这是最重要的函数</span><br><span class="line">		dispatch_conn_new &#x2F;&#x2F;把请求的FD封装到CQ_ITEM中，然后放到工作线程的队列中，然后通知工作线程有新连接进去</span><br></pre></td></tr></table></figure></li>
+<li>服务端调用drive_machine接受客户端fd后，调用dispatch_conn_new函数客户端的FD封装成CQ_ITEM</li>
+<li>客户端的FD封装成CQ_ITEM后，根据哈希取模策略选择一个线程，把CQ_ITEM放到该工作线程的new_conn_queue中，然后往该线程的notify_send_fd写入数据</li>
+<li>由于工作线程在memcached启动后就已经初始化几个工作线程，然后每个线程中调用thread_libevent_process监听该线程中的notify_recv_fd中的IO事件，该工作线程从notify_recv_fd中读取到了数据，从自己线程队列中取出一个CQ_ITEM,初始化conn，放到全局conns数组中，这个数据的下表就是客户请求的FD，然后释放CQ_ITEM资源，到此整个memcached的从主线程接受请求，到工作线程接受和初始化conn结束，后面就是处理这个客户端请求</li>
+</ul>
+<h3 id="memcached注释"><a href="#memcached注释" class="headerlink" title="memcached注释"></a>memcached注释</h3><ul>
+<li>memcached.c:<a href="https://github.com/perrynzhou/memcached-1.6.6-readingnote/blob/perryn/dev/memcached-1.6.6/memcached.c" target="_blank" rel="noopener">https://github.com/perrynzhou/memcached-1.6.6-readingnote/blob/perryn/dev/memcached-1.6.6/memcached.c</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/memcached-%E7%BA%BF%E7%A8%8B/" rel="tag"># memcached 线程</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/06/nginx%E5%86%85%E5%AD%98%E6%B1%A0%E5%AE%9E%E7%8E%B0%E5%92%8C%E5%88%86%E6%9E%90/" rel="prev" title="nginx内存池实现和分析">
+      <i class="fa fa-chevron-left"></i> nginx内存池实现和分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/19/nginx%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E/" rel="next" title="nginx基本配置说明">
+      nginx基本配置说明 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#memcached-有几种类型的线程"><span class="nav-number">1.</span> <span class="nav-text">memcached 有几种类型的线程?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memcached中工作线程如何和main线程交互的"><span class="nav-number">2.</span> <span class="nav-text">memcached中工作线程如何和main线程交互的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memcached主线程如何初始化服务端的socket"><span class="nav-number">3.</span> <span class="nav-text">memcached主线程如何初始化服务端的socket?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memcached主线程如何处理一个新来的连接"><span class="nav-number">4.</span> <span class="nav-text">memcached主线程如何处理一个新来的连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memcached注释"><span class="nav-number">5.</span> <span class="nav-text">memcached注释</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">perrynzhou</p>
+  <div class="site-description" itemprop="description">擅长C/Go编程;https://github.com/perrynzhou。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">perrynzhou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
